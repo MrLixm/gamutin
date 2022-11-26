@@ -21,7 +21,7 @@ def _configureLogging():
         "disable_existing_loggers": False,
         "formatters": {
             "fmt_standard": {
-                "format": "{asctime} | {levelname: <7} |[{name: >30}]{message}",
+                "format": "{levelname: <7} | {asctime} |[{name: >30}]{message}",
                 "style": "{",
             }
         },
