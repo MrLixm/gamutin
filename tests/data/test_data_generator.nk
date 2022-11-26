@@ -1,5 +1,5 @@
-#! C:/Program Files/Nuke13.2v1/nuke-13.2.1.dll -nx
-version 13.2 v1
+#! C:/Program Files/Nuke13.0v9/nuke-13.0.9.dll -nx
+version 13.0 v9
 define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 <layout version="1.0">
     <window x="1919" y="-8" w="1920" h="1177" maximized="1" screen="2">
@@ -8,7 +8,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
             <dock id="" hideTitles="1" activePageId="Toolbar.1">
                 <page id="Toolbar.1"/>
             </dock>
-            <split size="1053" stretch="1"/>
+            <split size="1257" stretch="1"/>
             <splitter orientation="2">
                 <split size="1139"/>
                 <dock id="" activePageId="DAG.1" focus="true">
@@ -17,35 +17,19 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
                     <page id="DopeSheet.1"/>
                 </dock>
             </splitter>
-            <split size="819"/>
+            <split size="615"/>
             <dock id="" activePageId="Properties.1">
                 <page id="Properties.1"/>
                 <page id="uk.co.thefoundry.backgroundrenderview.1"/>
-                <page id="uk.co.thefoundry.scripteditor.1"/>
             </dock>
         </splitter>
     </window>
     <window x="0" y="0" w="1918" h="1168" maximized="1" screen="0">
-        <splitter orientation="1">
-            <split size="1741"/>
+        <splitter orientation="2">
+            <split size="1168"/>
             <dock id="" activePageId="Viewer.1">
                 <page id="Viewer.1"/>
             </dock>
-            <split size="173"/>
-            <splitter orientation="2">
-                <split size="258"/>
-                <dock id="" activePageId="uk.co.thefoundry.histogram.1">
-                    <page id="uk.co.thefoundry.histogram.1"/>
-                </dock>
-                <split size="478"/>
-                <dock id="" activePageId="uk.co.thefoundry.waveformscope.1">
-                    <page id="uk.co.thefoundry.waveformscope.1"/>
-                </dock>
-                <split size="424"/>
-                <dock id="" activePageId="uk.co.thefoundry.vectorscope.1">
-                    <page id="uk.co.thefoundry.vectorscope.1"/>
-                </dock>
-            </splitter>
         </splitter>
     </window>
 </layout>
@@ -130,7 +114,7 @@ Dot {
  xpos 642
  ypos 199
 }
-set N4bf1f000 [stack 0]
+set Nd0aed870 [stack 0]
 Noise {
  inputs 0
  center {1024 778}
@@ -178,13 +162,13 @@ Dot {
  xpos -6
  ypos -246
 }
-set N3def8400 [stack 0]
+set Nf56803b0 [stack 0]
 Dot {
  name Dot3
  xpos 130
  ypos -246
 }
-set Nc73eac00 [stack 0]
+set Nf5680b70 [stack 0]
 Dot {
  name Dot4
  xpos 263
@@ -217,7 +201,7 @@ Dot {
  xpos 263
  ypos -21
 }
-push $Nc73eac00
+push $Nf5680b70
 Colorspace {
  colorspace_out HSV
  name Colorspace1
@@ -244,7 +228,7 @@ Colorspace {
  xpos 96
  ypos -91
 }
-push $N3def8400
+push $Nf56803b0
 add_layer {layer1 layer1.red layer1.green layer1.blue layer1.alpha}
 Shuffle2 {
  inputs 2
@@ -298,7 +282,7 @@ Dot {
  xpos -6
  ypos 185
 }
-set Nc73e8800 [stack 0]
+set Nf592ca50 [stack 0]
 Dot {
  name Dot2
  xpos -133
@@ -306,29 +290,12 @@ Dot {
 }
 Viewer {
  inputs 2
- frame 1
  frame_range 1-100
- input_number 1
- monitorOutOutputTransform rec709
  name Viewer1
  xpos -167
  ypos 409
 }
-push $Nc73e8800
-Write {
- channels all
- file ./wheel_mpart.exr
- file_type exr
- compression DWAA
- dw_compression_level 25
- interleave "channels and layers"
- first_part rgba
- version 1
- name Write1
- xpos -40
- ypos 263
-}
-push $N4bf1f000
+push $Nd0aed870
 Write {
  channels rgba
  file ./color_bars_alpha.tif
@@ -336,7 +303,49 @@ Write {
  datatype "16 bit"
  checkHashOnRead false
  version 4
+ in_colorspace scene_linear
+ out_colorspace scene_linear
  name Write2
  xpos 608
  ypos 267
+}
+push $Nf592ca50
+Write {
+ channels all
+ file ./wheel_mpart.exr
+ file_type exr
+ compression "Zip (16 scanlines)"
+ dw_compression_level 25
+ interleave channels
+ first_part rgba
+ write_full_layer_names true
+ version 2
+ name Write1
+ xpos -40
+ ypos 272
+}
+push $Nf592ca50
+Dot {
+ name Dot8
+ xpos 114
+ ypos 186
+}
+Reformat {
+ type scale
+ scale 0.25
+ name Reformat1
+ xpos 80
+ ypos 222
+}
+Write {
+ channels all
+ file ./wheel_mchannel.exr
+ file_type exr
+ compression DWAA
+ dw_compression_level 25
+ first_part rgba
+ version 2
+ name Write3
+ xpos 80
+ ypos 283
 }
