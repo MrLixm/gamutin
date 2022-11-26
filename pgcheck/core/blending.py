@@ -38,24 +38,24 @@ def blend_arrays(
             f"array_b doesn't have the same shape as array_a : "
             f"{array_a.shape=} != {array_b.shape=}"
         )
-    if mask and mask.shape != array_b.shape:
+    if mask is not None and mask.shape != array_b.shape:
         raise ValueError(
             f"mask doesn't have the same shape as array_b : "
             f"{mask.shape=} != {array_b.shape=}"
         )
 
     if blend_mode == BlendModes.over:
-        if mask:
+        if mask is not None:
             return array_b * (1.0 - mask) + array_a * mask
         return array_a
 
     elif blend_mode == BlendModes.add:
-        if mask:
+        if mask is not None:
             return array_b + array_a * mask
         return array_b + array_a
 
     elif blend_mode == BlendModes.multiply:
-        if mask:
+        if mask is not None:
             return array_b * (array_a * mask)
         return array_b * array_a
 
