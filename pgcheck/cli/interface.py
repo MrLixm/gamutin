@@ -1,10 +1,18 @@
+import ast
 import os
 import logging
+import re
 import sys
+from pathlib import Path
+from typing import Optional
 
 import click
+import colour
 
-import pgcheck
+import pgcheck.core.pointergamut
+import pgcheck.core.colorspaces
+import pgcheck.core.io
+from pgcheck.core.exceptions import raisePathExists
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +28,8 @@ logger = logging.getLogger(__name__)
 )
 def cli(debug: bool):
     """
-    TODO write a small description of the app
+    Analyze the input image to see how it fits in the pointer's gamut.
+
     Opens the GUI by not providing any argument.
     """
     logger.debug(f"[cli] Started.(cwd={os.getcwd()})[{debug=}]")
@@ -61,8 +70,17 @@ def gui(source_file):
     "--colorspace",
     required=True,
     type=str,
-    default="sRGB",
+    default="sRGB Linear",
     help="Colorspace encoding of the source_file. See `colorspaces` command for a list of availables options.",
+)
+@click.option(
+    "--target_colorspace",
+    type=str,
+    help=(
+        "Colorspace encoding of the target_file. "
+        "See `colorspaces` command for a list of availables options."
+        "If not specified, the colorspace for the source will be used."
+    ),
 )
 @click.option(
     "--invalid_color",
@@ -70,7 +88,7 @@ def gui(source_file):
     help=(
         "Color to use for out of pointer's gamut values. "
         "Must be a tuple of 3 floats as (R,G,B). "
-        "The value while be directly encoded in TARGET_FILE."
+        "The value is assumed to be encoded in the same colorspace as SOURCE_FILE."
     ),
 )
 @click.option(
@@ -79,7 +97,7 @@ def gui(source_file):
     help=(
         "Color to use for values inside of pointer's gamut. "
         "Must be a tuple of 3 floats as (R,G,B). "
-        "The value while be directly encoded in TARGET_FILE."
+        "The value is assumed to be encoded in the same colorspace as SOURCE_FILE."
     ),
 )
 @click.option(
@@ -92,7 +110,8 @@ def gui(source_file):
 def check(
     source_file,
     target_file,
-    colorspace,
+    colorspace: str,
+    target_colorspace: Optional[str],
     tolerance: float,
     invalid_color: str,
     valid_color: str,
@@ -105,8 +124,77 @@ def check(
     SOURCE_FILE: path to an existing image file. Format must be supported by OIIO
 
     TARGET_FILE: file path to write the image. Relative path to the SOURCE_FILE supported.
+
+    (colorspace conversions use Bradford as CAT)
     """
-    pass
+    source_file = Path(source_file)
+    target_file = Path(target_file)
+    if not target_file.is_absolute():
+        target_file = source_file.parent / target_file
+        target_file = target_file.resolve().absolute()
+
+    for color_arg in [invalid_color, valid_color]:
+        if not color_arg.startswith("(") or not color_arg.endswith(")"):
+            raise ValueError(
+                f'Argument "{color_arg}" passed must be wrapped around parenthesis.'
+            )
+        if not re.match(r"\(\s*\d.+\d\)", color_arg):
+            raise ValueError(
+                f'Argument "{color_arg}" passed must start AND end by an digit after/before the parenthesis.'
+            )
+
+    invalid_color: tuple[float, float, float] = ast.literal_eval(invalid_color)
+    valid_color: tuple[float, float, float] = ast.literal_eval(valid_color)
+
+    _colorspace = pgcheck.core.colorspaces.get_colorspace(colorspace)
+    if not _colorspace:
+        raise ValueError(
+            f'Given colorspace "{colorspace}" is not recognized. '
+            f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
+        )
+
+    _target_colorspace = target_colorspace or colorspace
+    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(colorspace)
+    if not _target_colorspace:
+        raise ValueError(
+            f'Given target colorspace "{target_colorspace}" is not recognized. '
+            f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
+        )
+
+    logger.info(
+        f"[check] Started processing {source_file=}({subimage=}{mipmap=}), {target_file=} "
+        f"with {colorspace=}, {target_colorspace=}, {tolerance=}"
+    )
+
+    input_image = pgcheck.core.io.ImageRead(path=source_file, colorspace=_colorspace)
+    input_array = input_image.read_array(subimage, mipmap)
+
+    result_array = pgcheck.core.pointergamut.transform_out_of_pg_values(
+        input_array=input_array,
+        input_colorspace=_colorspace,
+        invalid_color=invalid_color,
+        valid_color=valid_color,
+        tolerance_amount=tolerance,
+    )
+
+    output_array = colour.RGB_to_RGB(
+        result_array,
+        _colorspace,
+        _target_colorspace,
+        chromatic_adaptation_transform="Bradford",
+        apply_cctf_decoding=True,
+        apply_cctf_encoding=True,
+    )
+
+    output_image = pgcheck.core.io.ImageWrite(
+        target_file, colorspace=_target_colorspace
+    )
+    output_image.set_pixels(output_array)
+    output_image.write()
+
+    raisePathExists(target_file)
+    logger.info(f"[check] Finished writing <{target_file}>.")
+    return
 
 
 @cli.command()
@@ -114,4 +202,5 @@ def colorspaces():
     """
     List all colorspaces availables.
     """
-    pass
+    colorspace_list = pgcheck.core.colorspaces.get_available_colorspaces_names()
+    click.echo(",\n".join(colorspace_list))
