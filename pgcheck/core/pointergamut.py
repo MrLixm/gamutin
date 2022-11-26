@@ -27,6 +27,7 @@ def transform_out_of_pg_values(
     valid_color: Optional[tuple[float, float, float]],
     tolerance_amount: float,
     blend_mode: CompositeBlendModes,
+    mask: Optional[numpy.ndarray] = None,
 ) -> numpy.ndarray:
     """
 
@@ -37,9 +38,10 @@ def transform_out_of_pg_values(
         valid_color: color to use for inside of pointer's gamut values. If none just keep the orignal values.
         tolerance_amount: higher means less chance of being flag as invalid
         blend_mode: blending operation to use for invalid/valid values
+        mask: array of similar shape as input_array. Determine where the transfor is applied.
 
     Returns:
-        input_array values modified using invalid_color and valid_color
+        input_array values modified using given parameters
     """
 
     intermediate_array = input_colorspace.cctf_decoding(input_array)
@@ -59,16 +61,27 @@ def transform_out_of_pg_values(
         output_array[result_array == 1] = valid_color  # In PG:
 
     if blend_mode == CompositeBlendModes.invalid_replace:
-        pass  # already good !
+        output_array = blend_arrays(
+            array_b=input_array,
+            array_a=output_array,
+            blend_mode=BlendModes.over,
+            mask=mask,
+        )
 
     elif blend_mode == CompositeBlendModes.over:
-        pass  # already good !
+        output_array = blend_arrays(
+            array_b=input_array,
+            array_a=output_array,
+            blend_mode=BlendModes.over,
+            mask=mask,
+        )
 
     elif blend_mode == CompositeBlendModes.add:
         output_array = blend_arrays(
             array_b=input_array,
             array_a=output_array,
             blend_mode=BlendModes.add,
+            mask=mask,
         )
 
     elif blend_mode == CompositeBlendModes.multiply:
@@ -76,6 +89,7 @@ def transform_out_of_pg_values(
             array_b=input_array,
             array_a=output_array,
             blend_mode=BlendModes.multiply,
+            mask=mask,
         )
 
     else:
