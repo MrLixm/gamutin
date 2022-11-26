@@ -74,6 +74,12 @@ def gui(source_file):
     help="Colorspace encoding of the source_file. See `colorspaces` command for a list of availables options.",
 )
 @click.option(
+    "--blend_mode",
+    type=str,
+    default=pgcheck.core.pointergamut.CompositeBlendModes.over.name,
+    help="How to blend the out of gamut map with the original image. See `blendmodes` command for a list of availables options.",
+)
+@click.option(
     "--target_colorspace",
     type=str,
     help=(
@@ -110,6 +116,7 @@ def gui(source_file):
 def check(
     source_file,
     target_file,
+    blend_mode: str,
     colorspace: str,
     target_colorspace: Optional[str],
     tolerance: float,
@@ -161,9 +168,11 @@ def check(
             f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
         )
 
+    _blend_mode = pgcheck.core.pointergamut.CompositeBlendModes[blend_mode]
+
     logger.info(
         f"[check] Started processing {source_file=}({subimage=}{mipmap=}), {target_file=} "
-        f"with {colorspace=}, {target_colorspace=}, {tolerance=}"
+        f"with {colorspace=}, {target_colorspace=}, {tolerance=}, {blend_mode=}"
     )
 
     input_image = pgcheck.core.io.ImageRead(path=source_file, colorspace=_colorspace)
@@ -175,6 +184,7 @@ def check(
         invalid_color=invalid_color,
         valid_color=valid_color,
         tolerance_amount=tolerance,
+        blend_mode=_blend_mode,
     )
 
     output_array = colour.RGB_to_RGB(
@@ -204,3 +214,13 @@ def colorspaces():
     """
     colorspace_list = pgcheck.core.colorspaces.get_available_colorspaces_names()
     click.echo(",\n".join(colorspace_list))
+
+
+@cli.command()
+def blendmodes():
+    """
+    List all blending modes availables.
+    """
+    blend_mode_list = pgcheck.core.pointergamut.CompositeBlendModes.__all__()
+    blend_mode_list = [bm.name for bm in blend_mode_list]
+    click.echo(blend_mode_list)
