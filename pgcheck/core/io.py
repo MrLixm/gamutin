@@ -27,7 +27,7 @@ class ImageRead:
     """
 
     path: Path
-    colorspace: colour.RGB_Colourspace
+    colorspace: Optional[colour.RGB_Colourspace]
 
     def get_image_buf(self, subimage: int = 0, mipmap: int = 0) -> oiio.ImageBuf:
         return oiio.ImageBuf(str(self.path), subimage, mipmap)
@@ -71,7 +71,10 @@ class ImageWrite:
     def write(self):
 
         self.image_buf.specmod().attribute("compression", "jpg:99")
-        self.image_buf.specmod().attribute("oiio:ColorSpace", self.colorspace.name)
+        if self.colorspace:
+            self.image_buf.specmod().attribute("oiio:ColorSpace", self.colorspace.name)
+        else:
+            self.image_buf.specmod().attribute("oiio:ColorSpace", "scalar")
 
         if self.image_buf.has_error:
             raise RuntimeError(
