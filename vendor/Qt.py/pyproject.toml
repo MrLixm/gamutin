@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "Qt.py"
+version = "1.3.7"
+description = "Python 2 & 3 compatibility wrapper around all Qt bindings - PySide, PySide2, PyQt4 and PyQt5."
+authors = ["Marcus Ottosson <konstruktion@gmail.com>"]
+packages = [
+    { include = "Qt" },
+]
+
+[tool.poetry.dependencies]
+python = ">2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

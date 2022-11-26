@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pg-check"
+version = "0.1.0"
+description = "color-science utility to check image data against the pointer's gamut"
+authors = ["Liam Collod <lcollod@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+click = "8.1.*"
+colour = { git = "https://github.com/colour-science/colour.git", tag = "v0.4.1" }
+PySide2 = "5.15.2.1"
+python = ">=3.9,<3.11"
+"Qt.py" = { path = "./vendor/Qt.py" }
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
