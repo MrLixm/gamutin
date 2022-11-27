@@ -1,11 +1,14 @@
 from typing import Optional
 
 import colour
+import numpy.linalg
 
 from .utils import simplify
 
 
 _COLORSPACES: dict[str, colour.RGB_Colourspace] = {}
+
+_COLORSPACE_POINTER_GAMUT_NAME = "Pointer's Gamut"
 
 
 def _add_colorspace(name: str, colorspace: colour.RGB_Colourspace):
@@ -23,8 +26,30 @@ def _load_colorspaces():
 
         _add_colorspace(colorspace_name, colorspace)
 
+    # Add "fake" Pointer's Gamut colorspace
+    colorspace = colour.RGB_Colourspace(
+        name=_COLORSPACE_POINTER_GAMUT_NAME,
+        primaries=numpy.array([[1.0, 0.0], [0.0, 1.0], [0.0, 0.0]]),
+        whitepoint=colour.models.CCS_ILLUMINANT_POINTER_GAMUT,
+        whitepoint_name=_COLORSPACE_POINTER_GAMUT_NAME,
+        matrix_RGB_to_XYZ=None,
+        matrix_XYZ_to_RGB=None,
+        cctf_encoding=colour.linear_function,
+        cctf_decoding=colour.linear_function,
+        use_derived_matrix_XYZ_to_RGB=True,
+        use_derived_matrix_RGB_to_XYZ=True,
+    )
+    _add_colorspace(colorspace.name, colorspace)
+
 
 _load_colorspaces()
+
+
+""" ====================================================================================
+
+PUBLIC
+
+"""
 
 
 def get_available_colorspaces() -> list[colour.RGB_Colourspace]:
@@ -69,3 +94,7 @@ def get_colorspace(name: str) -> Optional[colour.RGB_Colourspace]:
         colorspace.cctf_encoding = colour.models.linear_function
 
     return colorspace
+
+
+POINTER_GAMUT_COLORSPACE = get_colorspace(_COLORSPACE_POINTER_GAMUT_NAME)
+assert POINTER_GAMUT_COLORSPACE
