@@ -247,23 +247,3 @@ def repr_spec_full_dict(image_spec: oiio.ImageSpec) -> dict:
         image_spec.serialize(format="XML", verbose="detailed"),
         postprocessor=attrib_post_process,
     )
-
-
-def img2str(img: numpy.ndarray, single_pixel=True) -> str:
-    """
-    Pretty print a 2D image to a str.
-
-    Args:
-        img: 2D image as numpy array
-        single_pixel: if True only print the first pixel at x:0,y:0
-    """
-
-    if single_pixel:
-        img: numpy.ndarray = img[0][0]
-
-    with numpy.printoptions(
-        precision=3,
-        suppress=True,
-        formatter={"float": "{: 0.5f}".format},
-    ):
-        return f"{img}"
