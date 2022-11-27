@@ -1,5 +1,5 @@
 import numpy
-from numpy import array_equal
+from numpy.testing import assert_array_equal
 
 from pgcheck.core import blending
 
@@ -15,7 +15,7 @@ def test_basic():
         blend_mode=blending.BlendModes.add,
         mask=None,
     )
-    assert array_equal(array_result, numpy.array([1.5, 0.1, 0.5]))
+    assert_array_equal(array_result, numpy.array([1.5, 0.1, 0.5]))
 
     array_result = blending.blend_arrays(
         array_b=array_b,
@@ -23,7 +23,7 @@ def test_basic():
         blend_mode=blending.BlendModes.multiply,
         mask=None,
     )
-    assert array_equal(array_result, numpy.array([0.5, 0.0, 0.06]))
+    assert_array_equal(array_result, numpy.array([0.5, 0.0, 0.06]))
 
     array_result = blending.blend_arrays(
         array_b=array_b,
@@ -31,7 +31,7 @@ def test_basic():
         blend_mode=blending.BlendModes.over,
         mask=None,
     )
-    assert array_equal(array_result, array_a)
+    assert_array_equal(array_result, array_a)
 
 
 def test_mask():
@@ -67,7 +67,7 @@ def test_mask():
             [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
         ]
     )
-    assert array_equal(array_result, array_result_expected)
+    assert_array_equal(array_result, array_result_expected)
 
     array_result = blending.blend_arrays(
         array_b=array_b,
@@ -81,4 +81,4 @@ def test_mask():
             [[0.0, 0.0, 0.0], [1.233, -0.1, 0.15]],
         ]
     )
-    assert array_equal(array_result, array_result_expected)
+    assert_array_equal(array_result, array_result_expected)

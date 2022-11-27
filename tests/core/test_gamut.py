@@ -1,5 +1,5 @@
 import numpy
-from numpy import array_equal
+from numpy.testing import assert_array_equal
 
 from pgcheck.core import gamut
 from pgcheck.core import colorspaces
@@ -36,7 +36,7 @@ def test_main():
             [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
         ]
     )
-    assert array_equal(array_expected, array_result)
+    assert_array_equal(array_expected, array_result)
 
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
@@ -53,7 +53,7 @@ def test_main():
             [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
         ]
     )
-    assert array_equal(array_expected, array_result)
+    assert_array_equal(array_expected, array_result)
 
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
@@ -70,7 +70,7 @@ def test_main():
             [[0.99, 0.0, 0.0], [0.99, 0.0, 0.0]],
         ]
     )
-    assert array_equal(array_expected, array_result)
+    assert_array_equal(array_expected, array_result)
 
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
@@ -87,4 +87,4 @@ def test_main():
             [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
         ]
     )
-    assert array_equal(array_expected, array_result)
+    assert_array_equal(array_expected, array_result)
