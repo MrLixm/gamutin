@@ -1,7 +1,7 @@
 import numpy
 from numpy import array_equal
 
-from pgcheck.core import pointergamut
+from pgcheck.core import gamut
 from pgcheck.core import colorspaces
 
 
@@ -21,13 +21,13 @@ def test_main():
     )
     colorspace = colorspaces.get_colorspace("sRGB Linear")
 
-    array_result = pointergamut.transform_out_of_pg_values(
+    array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
-        blend_mode=pointergamut.CompositeBlendModes.invalid_replace,
+        blend_mode=gamut.CompositeBlendModes.invalid_replace,
         mask=None,
     )
     array_expected = numpy.array(
@@ -38,13 +38,13 @@ def test_main():
     )
     assert array_equal(array_expected, array_result)
 
-    array_result = pointergamut.transform_out_of_pg_values(
+    array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
-        blend_mode=pointergamut.CompositeBlendModes.over,
+        blend_mode=gamut.CompositeBlendModes.over,
         mask=None,
     )
     array_expected = numpy.array(
@@ -55,13 +55,13 @@ def test_main():
     )
     assert array_equal(array_expected, array_result)
 
-    array_result = pointergamut.transform_out_of_pg_values(
+    array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
         invalid_color=(0.99, 0.0, 0.0),
         valid_color=(0.0, 0.66, 0.0),
         tolerance_amount=0.0,
-        blend_mode=pointergamut.CompositeBlendModes.over,
+        blend_mode=gamut.CompositeBlendModes.over,
         mask=None,
     )
     array_expected = numpy.array(
@@ -72,13 +72,13 @@ def test_main():
     )
     assert array_equal(array_expected, array_result)
 
-    array_result = pointergamut.transform_out_of_pg_values(
+    array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
-        blend_mode=pointergamut.CompositeBlendModes.over,
+        blend_mode=gamut.CompositeBlendModes.over,
         mask=array_mask,
     )
     array_expected = numpy.array(

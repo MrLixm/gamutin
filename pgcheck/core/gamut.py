@@ -23,7 +23,7 @@ class CompositeBlendModes(enum.Enum):
         return [item for item in cls]
 
 
-def transform_out_of_pg_values(
+def transform_out_of_gamut_values(
     input_array: numpy.ndarray,
     input_colorspace: colour.RGB_Colourspace,
     invalid_color: tuple[float, float, float],

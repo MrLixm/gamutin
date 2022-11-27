@@ -11,7 +11,7 @@ import click
 import colour
 import numpy
 
-import pgcheck.core.pointergamut
+import pgcheck.core.gamut
 import pgcheck.core.colorspaces
 import pgcheck.core.io
 from pgcheck.core.exceptions import raisePathExists
@@ -92,7 +92,7 @@ def gui(source_file):
 @click.option(
     "--blend_mode",
     type=str,
-    default=pgcheck.core.pointergamut.CompositeBlendModes.over.name,
+    default=pgcheck.core.gamut.CompositeBlendModes.over.name,
     help="How to blend the out of gamut map with the original image. See `blendmodes` command for a list of availables options.",
 )
 @click.option(
@@ -197,7 +197,7 @@ def check(
             f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
         )
 
-    _blend_mode = pgcheck.core.pointergamut.CompositeBlendModes[blend_mode]
+    _blend_mode = pgcheck.core.gamut.CompositeBlendModes[blend_mode]
 
     logger.info(
         f"[check] Started processing {source_file=}({subimage=}, {mipmap=}), {target_file=} "
@@ -234,7 +234,7 @@ def check(
         mask_array = numpy.stack((mask_array,) * 3, axis=-1)
 
     logger.debug("[check] calling transform_out_of_pg_values...")
-    result_array = pgcheck.core.pointergamut.transform_out_of_pg_values(
+    result_array = pgcheck.core.gamut.transform_out_of_gamut_values(
         input_array=input_array,
         input_colorspace=_colorspace,
         invalid_color=invalid_color,
@@ -284,7 +284,7 @@ def blendmodes():
     """
     List all blending modes availables.
     """
-    blend_mode_list = pgcheck.core.pointergamut.CompositeBlendModes.__all__()
+    blend_mode_list = pgcheck.core.gamut.CompositeBlendModes.__all__()
     blend_mode_list = [bm.name for bm in blend_mode_list]
     click.echo(blend_mode_list)
 
