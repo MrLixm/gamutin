@@ -1,4 +1,5 @@
 import ast
+import json
 import os
 import logging
 import re
@@ -224,3 +225,34 @@ def blendmodes():
     blend_mode_list = pgcheck.core.pointergamut.CompositeBlendModes.__all__()
     blend_mode_list = [bm.name for bm in blend_mode_list]
     click.echo(blend_mode_list)
+
+
+@cli.command()
+@click.argument("source_file", type=click.Path(exists=True))
+@click.option(
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Display as much informations as possible.",
+)
+def imageinfo(source_file: str, verbose: bool):
+    """
+    Display useful information about the current file
+    """
+    source_file = Path(source_file)
+    image = pgcheck.core.io.ImageRead(path=source_file, colorspace=None)
+    image_repr = pgcheck.core.io.ImageRepr(image=image)
+
+    if verbose:
+        data_dict = image_repr.full_dict
+    else:
+        data_dict = image_repr.simple_dict
+
+    out_str = json.dumps(
+        data_dict,
+        indent=4,
+        sort_keys=True,
+        separators=("", " : "),
+    )
+    out_str = out_str.replace("{", "").replace("}", "")
+    click.echo(out_str)
