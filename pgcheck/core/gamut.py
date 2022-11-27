@@ -7,6 +7,7 @@ import numpy
 
 from .blending import blend_arrays
 from .blending import BlendModes
+from .colorspaces import POINTER_GAMUT_COLORSPACE
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class CompositeBlendModes(enum.Enum):
 def transform_out_of_gamut_values(
     input_array: numpy.ndarray,
     input_colorspace: colour.RGB_Colourspace,
+    reference_colorspace: colour.RGB_Colourspace,
     invalid_color: tuple[float, float, float],
     valid_color: Optional[tuple[float, float, float]],
     tolerance_amount: float,
@@ -38,7 +40,8 @@ def transform_out_of_gamut_values(
         input_array:
         input_colorspace: colorspace encoding of input_array
         invalid_color: color to use for out of pointer's gamut values
-        valid_color: color to use for inside of pointer's gamut values. If none just keep the orignal values.
+        reference_colorspace: colorspace to use the gamut as limit for comparing the input_array
+        valid_color: color to use for inside of pointer's gamut values. If none just keep the original values.
         tolerance_amount: higher means less chance of being flag as invalid
         blend_mode: blending operation to use for invalid/valid values
         mask: array of similar shape as input_array. Determine where the transfor is applied.
@@ -57,7 +60,18 @@ def transform_out_of_gamut_values(
     )
     logger.debug("[transform_out_of_pg_values] calling is_within_pointer_gamut ...")
 
-    result_array = colour.is_within_pointer_gamut(intermediate_array, tolerance_amount)
+    if reference_colorspace == POINTER_GAMUT_COLORSPACE:
+        result_array = colour.is_within_pointer_gamut(
+            intermediate_array, tolerance_amount
+        )
+    else:
+        gamut_mesh = generate_gamut_volume(reference_colorspace)
+        result_array = colour.is_within_mesh_volume(
+            points=intermediate_array,
+            mesh=gamut_mesh,
+            tolerance=tolerance_amount,
+        )
+
     result_array = result_array.astype(numpy.int_)
 
     output_array = input_array.copy()
@@ -76,3 +90,24 @@ def transform_out_of_gamut_values(
         mask=mask,
     )
     return output_array
+
+
+def generate_gamut_volume(
+    colorspace: colour.RGB_Colourspace,
+    segments: int = 16,
+) -> numpy.ndarray:
+
+    geometry_cube = colour.geometry.primitive_cube(
+        width_segments=segments,
+        height_segments=segments,
+        depth_segments=segments,
+    )
+    vertices = geometry_cube[0]["position"] + 0.5
+
+    XYZ = colour.RGB_to_XYZ(
+        vertices,
+        colorspace.whitepoint,
+        colorspace.whitepoint,
+        colorspace.matrix_RGB_to_XYZ,
+    )
+    return XYZ

@@ -5,7 +5,7 @@ from pgcheck.core import gamut
 from pgcheck.core import colorspaces
 
 
-def test_main():
+def test_pointer_gamut():
 
     array_source = numpy.array(
         [
@@ -24,6 +24,7 @@ def test_main():
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
@@ -41,6 +42,7 @@ def test_main():
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
@@ -58,6 +60,7 @@ def test_main():
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=(0.99, 0.0, 0.0),
         valid_color=(0.0, 0.66, 0.0),
         tolerance_amount=0.0,
@@ -75,6 +78,7 @@ def test_main():
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
@@ -92,6 +96,7 @@ def test_main():
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,
         input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=(1.0, 0.0, 0.0),
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,

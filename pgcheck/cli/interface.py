@@ -144,6 +144,8 @@ def check(
     mipmap,
 ):
     """
+    Check given image is inside the pointer's gamut.
+
     Produce a new image ``target_file`` with values of ``source_file`` that are outside the pointer's gamut.
 
     SOURCE_FILE: path to an existing image file. Format must be supported by OIIO
@@ -187,6 +189,10 @@ def check(
         raise ValueError(
             f'Given colorspace "{colorspace}" is not recognized. '
             f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
+        )
+    if _colorspace == pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE:
+        raise ValueError(
+            f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as source colorspace !"
         )
 
     _target_colorspace = target_colorspace or colorspace
@@ -237,6 +243,7 @@ def check(
     result_array = pgcheck.core.gamut.transform_out_of_gamut_values(
         input_array=input_array,
         input_colorspace=_colorspace,
+        reference_colorspace=pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE,
         invalid_color=invalid_color,
         valid_color=valid_color,
         tolerance_amount=tolerance,
@@ -301,7 +308,7 @@ def blendmodes():
 )
 def imageinfo(source_file: str, verbose: bool):
     """
-    Display useful information about the current file
+    Display useful information about the given file
     """
     source_file = Path(source_file)
     image = pgcheck.core.io.ImageRead(path=source_file, colorspace=None)
