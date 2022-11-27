@@ -269,8 +269,14 @@ def colorspaces():
     """
     List all colorspaces availables.
     """
-    colorspace_list = pgcheck.core.colorspaces.get_available_colorspaces_names()
-    click.echo(",\n".join(colorspace_list))
+    colorspace_names_list = (
+        pgcheck.core.colorspaces.get_available_colorspaces_names_aliases()
+    )
+    out_str = ""
+    for colorspace_aliases in colorspace_names_list:
+        aliases = '", "'.join(colorspace_aliases[1:])
+        out_str += f'{colorspace_aliases[0]: >30} - aliases: "{aliases}"\n'
+    click.echo(out_str)
 
 
 @cli.command()
