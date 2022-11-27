@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 class CompositeBlendModes(enum.Enum):
 
-    over = "over"
-    invalid_replace = "invalid_replace"
-    add = "add"
-    multiply = "multiply"
+    invalid_replace = (0, BlendModes.over)
+    over = (1, BlendModes.over)
+    add = (2, BlendModes.add)
+    multiply = (3, BlendModes.multiply)
 
     @classmethod
     def __all__(cls):
@@ -66,44 +66,13 @@ def transform_out_of_gamut_values(
     if valid_color is not None and blend_mode != CompositeBlendModes.invalid_replace:
         output_array[result_array == 1] = valid_color  # In PG:
 
-    logger.debug("[transform_out_of_pg_values] applying blend mode ...")
+    blend_mode = blend_mode.value[-1]
+    logger.debug(f"[transform_out_of_pg_values] applying blend mode {blend_mode} ...")
 
-    if blend_mode == CompositeBlendModes.invalid_replace:
-        output_array = blend_arrays(
-            array_b=input_array,
-            array_a=output_array,
-            blend_mode=BlendModes.over,
-            mask=mask,
-        )
-
-    elif blend_mode == CompositeBlendModes.over:
-        output_array = blend_arrays(
-            array_b=input_array,
-            array_a=output_array,
-            blend_mode=BlendModes.over,
-            mask=mask,
-        )
-
-    elif blend_mode == CompositeBlendModes.add:
-        output_array = blend_arrays(
-            array_b=input_array,
-            array_a=output_array,
-            blend_mode=BlendModes.add,
-            mask=mask,
-        )
-
-    elif blend_mode == CompositeBlendModes.multiply:
-        output_array = blend_arrays(
-            array_b=input_array,
-            array_a=output_array,
-            blend_mode=BlendModes.multiply,
-            mask=mask,
-        )
-
-    else:
-        raise ValueError(
-            f"Unsupported blend mode {blend_mode}. "
-            f"Expected one of {CompositeBlendModes.__all__()}"
-        )
-
+    output_array = blend_arrays(
+        array_b=input_array,
+        array_a=output_array,
+        blend_mode=blend_mode,
+        mask=mask,
+    )
     return output_array
