@@ -1,4 +1,5 @@
 import enum
+import logging
 from typing import Optional
 
 import colour
@@ -6,6 +7,8 @@ import numpy
 
 from .blending import blend_arrays
 from .blending import BlendModes
+
+logger = logging.getLogger(__name__)
 
 
 class CompositeBlendModes(enum.Enum):
@@ -44,13 +47,16 @@ def transform_out_of_pg_values(
         input_array values modified using given parameters
     """
 
-    intermediate_array = input_colorspace.cctf_decoding(input_array)
     intermediate_array = colour.RGB_to_XYZ(
-        intermediate_array,
+        input_array,
         input_colorspace.whitepoint,
         colour.models.CCS_ILLUMINANT_POINTER_GAMUT,
         input_colorspace.matrix_RGB_to_XYZ,
+        chromatic_adaptation_transform="Bradford",
+        cctf_decoding=input_colorspace.cctf_decoding,
     )
+    logger.debug("[transform_out_of_pg_values] calling is_within_pointer_gamut ...")
+
     result_array = colour.is_within_pointer_gamut(intermediate_array, tolerance_amount)
     result_array = result_array.astype(numpy.int_)
 
@@ -59,6 +65,8 @@ def transform_out_of_pg_values(
     output_array[result_array != 1] = invalid_color  # Out of PG
     if valid_color is not None and blend_mode != CompositeBlendModes.invalid_replace:
         output_array[result_array == 1] = valid_color  # In PG:
+
+    logger.debug("[transform_out_of_pg_values] applying blend mode ...")
 
     if blend_mode == CompositeBlendModes.invalid_replace:
         output_array = blend_arrays(
