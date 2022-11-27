@@ -96,7 +96,7 @@ def simplify(object_: Any, allow_unicode: bool = False) -> str:
         )
 
     value = value.lower()
-    value = re.sub(r"[\s\\/]+", "-", value)
+    value = re.sub(r"[\s\\/'\"]+", "-", value)
     value = re.sub(r"[()\[\]{}]", "", value)
     value = re.sub(r"-{2,}", "--", value)
     return value
