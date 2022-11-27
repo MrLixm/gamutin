@@ -8,7 +8,7 @@ def test_read_multipart(imagepath_wheel_mpart):
 
     image = io.ImageRead(
         path=imagepath_wheel_mpart,
-        colorspace=colorspaces.get_colorspace("sRGB Linear"),
+        colorspace=colorspaces.get_colorspace("sRGB:linear"),
     )
 
     buf = image.get_image_buf()
@@ -45,7 +45,7 @@ def test_read_channels(imagepath_wheel_mchannel):
 
     image = io.ImageRead(
         path=imagepath_wheel_mchannel,
-        colorspace=colorspaces.get_colorspace("sRGB Linear"),
+        colorspace=colorspaces.get_colorspace("sRGB:linear"),
     )
     buf = image.get_image_buf()
     spec: oiio.ImageSpec = buf.spec()

@@ -86,7 +86,7 @@ def gui(source_file):
     "--colorspace",
     required=True,
     type=str,
-    default="sRGB Linear",
+    default="sRGB:linear",
     help="Colorspace encoding of the source_file. See `colorspaces` command for a list of availables options.",
 )
 @click.option(
@@ -275,7 +275,9 @@ def colorspaces():
     out_str = ""
     for colorspace_aliases in colorspace_names_list:
         aliases = '", "'.join(colorspace_aliases[1:])
-        out_str += f'{colorspace_aliases[0]: >30} - aliases: "{aliases}"\n'
+        out_str += f'{colorspace_aliases[0]: <30} - aliases: "{aliases}"\n'
+
+    out_str += '\nYou can ask a "linear" variant of the colorspace (== no transfer function) by adding ":linear" at the end of the colorspace name.'
     click.echo(out_str)
 
 

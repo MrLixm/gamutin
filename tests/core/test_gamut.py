@@ -19,7 +19,7 @@ def test_main():
             [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
         ]
     )
-    colorspace = colorspaces.get_colorspace("sRGB Linear")
+    colorspace = colorspaces.get_colorspace("sRGB:linear")
 
     array_result = gamut.transform_out_of_gamut_values(
         input_array=array_source,

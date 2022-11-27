@@ -23,16 +23,6 @@ def _load_colorspaces():
 
         _add_colorspace(colorspace_name, colorspace)
 
-        if colorspace.cctf_decoding == colour.models.linear_function:
-            continue
-
-        variant_colorspace = colorspace.copy()
-        variant_colorspace.name = variant_colorspace.name + " Linear"
-        variant_colorspace.cctf_decoding = colour.models.linear_function
-        variant_colorspace.cctf_encoding = colour.models.linear_function
-
-        _add_colorspace(variant_colorspace.name, variant_colorspace)
-
 
 _load_colorspaces()
 
@@ -66,4 +56,16 @@ def get_available_colorspaces_names_aliases() -> list[tuple[str]]:
 
 
 def get_colorspace(name: str) -> Optional[colour.RGB_Colourspace]:
-    return _COLORSPACES.get(name)
+
+    linear_asked = name.endswith(":linear")
+    name = name.rstrip(":linear")
+
+    colorspace = _COLORSPACES.get(name)
+
+    if linear_asked:
+        colorspace = colorspace.copy()
+        colorspace.name = colorspace.name + " Linear"
+        colorspace.cctf_decoding = colour.models.linear_function
+        colorspace.cctf_encoding = colour.models.linear_function
+
+    return colorspace
