@@ -9,6 +9,7 @@ from typing import Optional
 
 import click
 import colour
+import numpy
 
 import pgcheck.core.pointergamut
 import pgcheck.core.colorspaces
@@ -68,6 +69,20 @@ def gui(source_file):
 @click.argument("source_file", type=click.Path(exists=True))
 @click.argument("target_file", type=click.Path(file_okay=True))
 @click.option(
+    "--mask_file",
+    type=click.Path(exists=True),
+    help=(
+        "File path to mask in the [0-1] range to specify which pixel need to be processed. "
+        "Interpeeted as scalar data."
+    ),
+)
+@click.option(
+    "--use_alpha_as_mask",
+    is_flag=True,
+    default=False,
+    help="If true use the alpha channel to specify which pixel need to be processed.",
+)
+@click.option(
     "--colorspace",
     required=True,
     type=str,
@@ -115,8 +130,10 @@ def gui(source_file):
 @click.option("--subimage", default=0, help="Subimage index to use on SOURCE_FILE")
 @click.option("--mipmap", default=0, help="Mipmap index to use on SOURCE_FILE")
 def check(
-    source_file,
-    target_file,
+    source_file: str,
+    target_file: str,
+    mask_file: str,
+    use_alpha_as_mask: bool,
     blend_mode: str,
     colorspace: str,
     target_colorspace: Optional[str],
@@ -135,11 +152,22 @@ def check(
 
     (colorspace conversions use Bradford as CAT)
     """
+    logger.debug(
+        "[check] called with"
+        + json.dumps(
+            click.get_current_context().params, indent=4, default=str, sort_keys=True
+        )
+    )
     source_file = Path(source_file)
     target_file = Path(target_file)
     if not target_file.is_absolute():
         target_file = source_file.parent / target_file
         target_file = target_file.resolve().absolute()
+    if mask_file:
+        mask_file: Optional[Path] = Path(mask_file)
+
+    if mask_file and use_alpha_as_mask:
+        raise ValueError('You can\'t specify "use_alpha_as_mask" and "mask_file"')
 
     for color_arg in [invalid_color, valid_color]:
         if not color_arg.startswith("(") or not color_arg.endswith(")"):
@@ -172,13 +200,40 @@ def check(
     _blend_mode = pgcheck.core.pointergamut.CompositeBlendModes[blend_mode]
 
     logger.info(
-        f"[check] Started processing {source_file=}({subimage=}{mipmap=}), {target_file=} "
+        f"[check] Started processing {source_file=}({subimage=}, {mipmap=}), {target_file=} "
         f"with {colorspace=}, {target_colorspace=}, {tolerance=}, {blend_mode=}"
     )
 
     input_image = pgcheck.core.io.ImageRead(path=source_file, colorspace=_colorspace)
-    input_array = input_image.read_array(subimage, mipmap)
+    input_array = input_image.read_array(
+        channels=("R", "G", "B"),
+        subimage=subimage,
+        mipmap=mipmap,
+    )
 
+    mask_array: Optional[numpy.ndarray] = None
+    if mask_file:
+        mask_image = pgcheck.core.io.ImageRead(path=mask_file, colorspace=None)
+        mask_array = mask_image.read_array(channels=("R",))
+
+        if mask_array.shape[:-1] != input_array.shape[:-1]:
+            raise ValueError(
+                f"Given mask file {mask_file} doesn't have the same dimensions as the input_file: "
+                f"{mask_array.shape=} != {input_array.shape=}"
+            )
+    elif use_alpha_as_mask:
+        mask_array = input_image.read_array(channels=("A",))
+        if not numpy.any(mask_array):
+            raise ValueError(
+                '"use_alpha_as_mask" specified but the alpha channel seems empty (only zeros).'
+            )
+
+    # convert single channel to "R-G-B"
+    if mask_array is not None and mask_array.shape[-1] == 1:
+        mask_array = mask_array[:, :, 0]
+        mask_array = numpy.stack((mask_array,) * 3, axis=-1)
+
+    logger.debug("[check] calling transform_out_of_pg_values...")
     result_array = pgcheck.core.pointergamut.transform_out_of_pg_values(
         input_array=input_array,
         input_colorspace=_colorspace,
@@ -186,6 +241,7 @@ def check(
         valid_color=valid_color,
         tolerance_amount=tolerance,
         blend_mode=_blend_mode,
+        mask=mask_array,
     )
 
     output_array = colour.RGB_to_RGB(
