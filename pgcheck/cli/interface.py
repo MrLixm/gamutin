@@ -90,6 +90,13 @@ def gui(source_file):
     help="Colorspace encoding of the source_file. See `colorspaces` command for a list of availables options.",
 )
 @click.option(
+    "--ref_colorspace",
+    required=True,
+    type=str,
+    default=pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name,
+    help="Colorspace to use the gamut as limit for comparing the input.",
+)
+@click.option(
     "--blend_mode",
     type=str,
     default=pgcheck.core.gamut.CompositeBlendModes.over.name,
@@ -136,6 +143,7 @@ def check(
     use_alpha_as_mask: bool,
     blend_mode: str,
     colorspace: str,
+    ref_colorspace: str,
     target_colorspace: Optional[str],
     tolerance: float,
     invalid_color: str,
@@ -185,22 +193,26 @@ def check(
     valid_color: tuple[float, float, float] = ast.literal_eval(valid_color)
 
     _colorspace = pgcheck.core.colorspaces.get_colorspace(colorspace)
-    if not _colorspace:
-        raise ValueError(
-            f'Given colorspace "{colorspace}" is not recognized. '
-            f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
-        )
+    _ref_colorspace = pgcheck.core.colorspaces.get_colorspace(ref_colorspace)
+    _target_colorspace = target_colorspace or colorspace
+    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(_target_colorspace)
+
+    for _given_colorspace, _resolved_colorspace in zip(
+        (colorspace, ref_colorspace, target_colorspace),
+        (_colorspace, _ref_colorspace, _target_colorspace),
+    ):
+
+        if not _resolved_colorspace:
+            raise ValueError(
+                f'Given colorspace "{_given_colorspace}" is not recognized. '
+                f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
+            )
+
+    del _given_colorspace, _resolved_colorspace
+
     if _colorspace == pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE:
         raise ValueError(
             f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as source colorspace !"
-        )
-
-    _target_colorspace = target_colorspace or colorspace
-    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(_target_colorspace)
-    if not _target_colorspace:
-        raise ValueError(
-            f'Given target colorspace "{target_colorspace}" is not recognized. '
-            f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
         )
 
     _blend_mode = pgcheck.core.gamut.CompositeBlendModes[blend_mode]
