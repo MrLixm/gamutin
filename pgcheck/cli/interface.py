@@ -196,7 +196,7 @@ def check(
         )
 
     _target_colorspace = target_colorspace or colorspace
-    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(colorspace)
+    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(_target_colorspace)
     if not _target_colorspace:
         raise ValueError(
             f'Given target colorspace "{target_colorspace}" is not recognized. '
