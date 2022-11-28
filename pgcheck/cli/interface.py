@@ -214,6 +214,10 @@ def check(
         raise ValueError(
             f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as source colorspace !"
         )
+    if _target_colorspace == pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE:
+        raise ValueError(
+            f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as target colorspace !"
+        )
 
     _blend_mode = pgcheck.core.gamut.CompositeBlendModes[blend_mode]
 
