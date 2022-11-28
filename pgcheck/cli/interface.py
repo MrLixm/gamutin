@@ -205,9 +205,11 @@ def check(
 
     _blend_mode = pgcheck.core.gamut.CompositeBlendModes[blend_mode]
 
+    _mask_used = bool(mask_file or use_alpha_as_mask)
+
     logger.info(
-        f"[check] Started processing {source_file=}({subimage=}, {mipmap=}), {target_file=} "
-        f"with {colorspace=}, {target_colorspace=}, {tolerance=}, {blend_mode=}"
+        f"[check] Started processing {source_file=}({subimage=}:{mipmap=}) --> {target_file=} X {_mask_used=}\n"
+        f"  with {_colorspace.name=}, {_target_colorspace.name=}, {tolerance=}, {blend_mode=}"
     )
 
     input_image = pgcheck.core.io.ImageRead(path=source_file, colorspace=_colorspace)

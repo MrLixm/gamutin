@@ -58,14 +58,22 @@ def transform_out_of_gamut_values(
         chromatic_adaptation_transform="Bradford",
         cctf_decoding=input_colorspace.cctf_decoding,
     )
-    logger.debug("[transform_out_of_pg_values] calling is_within_pointer_gamut ...")
 
     if reference_colorspace == POINTER_GAMUT_COLORSPACE:
+
+        logger.debug(
+            "[transform_out_of_gamut_values] calling is_within_pointer_gamut ..."
+        )
         result_array = colour.is_within_pointer_gamut(
             intermediate_array, tolerance_amount
         )
+
     else:
+
         gamut_mesh = generate_gamut_volume(reference_colorspace)
+        logger.debug(
+            "[transform_out_of_gamut_values] calling is_within_mesh_volume ..."
+        )
         result_array = colour.is_within_mesh_volume(
             points=intermediate_array,
             mesh=gamut_mesh,
