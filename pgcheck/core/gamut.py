@@ -53,7 +53,7 @@ def transform_out_of_gamut_values(
     intermediate_array = colour.RGB_to_XYZ(
         input_array,
         input_colorspace.whitepoint,
-        colour.models.CCS_ILLUMINANT_POINTER_GAMUT,
+        reference_colorspace.whitepoint,
         input_colorspace.matrix_RGB_to_XYZ,
         chromatic_adaptation_transform="Bradford",
         cctf_decoding=input_colorspace.cctf_decoding,
