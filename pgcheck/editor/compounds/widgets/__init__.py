@@ -1,2 +1,2 @@
-from .context_dialogs import ContextWidget
-from .context_dialogs import DependencyViewerTreeWidget
+from .context import ContextWidget
+from .context import DependencyViewerTreeWidget

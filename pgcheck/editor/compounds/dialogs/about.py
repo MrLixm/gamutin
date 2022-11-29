@@ -4,8 +4,8 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 import pgcheck
-from .context_dialogs import ContextWidget
-from .context_dialogs import DependencyViewerTreeWidget
+from pgcheck.editor.compounds.widgets import ContextWidget
+from pgcheck.editor.compounds.widgets import DependencyViewerTreeWidget
 
 __all__ = ("AboutDialog",)
 

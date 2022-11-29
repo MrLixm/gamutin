@@ -58,8 +58,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.settings = cfg.getAppQSettings()
         self.loadSettings()
 
-        self.dialog_about = compounds.AboutDialog(self)
-        self.dialog_issue = compounds.IssueDialog(self)
+        self.dialog_about = compounds.dialogs.AboutDialog(self)
+        self.dialog_issue = compounds.dialogs.IssueDialog(self)
 
         self.cookUI()
         return

@@ -1,2 +1,2 @@
-from .about_dialog import AboutDialog
-from .issue_dialog import IssueDialog
+from . import dialogs
+from . import widgets

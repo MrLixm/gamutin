@@ -7,7 +7,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 import pgcheck
-from .context_dialogs import ContextWidget
+from pgcheck.editor.compounds.widgets import ContextWidget
 
 __all__ = ("IssueDialog",)
 
