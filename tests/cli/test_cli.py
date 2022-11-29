@@ -97,26 +97,36 @@ def test_cli_basic_raise(imagepath_wheel_mchannel, tmp_path):
     assert error_colorspace in str(result.exception)
 
 
-def test_cli_check(imagepath_wheel_mchannel, imagepath_color_bars_alpha, tmp_path):
+def test_cli_check_basic(
+    all_imagepaths,
+    tmp_path,
+):
 
     runner = CliRunner()
 
-    tmp_target_path = tmp_path / (imagepath_color_bars_alpha.stem + ".jpg")
+    for image_path in all_imagepaths:
 
-    result = runner.invoke(
-        cli,
-        [
-            "--debug",
-            "check",
-            str(imagepath_color_bars_alpha),
-            str(tmp_target_path),
-            "--colorspace",
-            "sRGB:linear",
-            "--target_colorspace",
-            "sRGB",
-        ],
-    )
-    assert result.exit_code == 0
+        tmp_target_path = tmp_path / (image_path.stem + ".jpg")
+
+        result = runner.invoke(
+            cli,
+            [
+                "--debug",
+                "check",
+                str(image_path),
+                str(tmp_target_path),
+                "--colorspace",
+                "sRGB:linear",
+                "--target_colorspace",
+                "sRGB",
+            ],
+        )
+        assert result.exit_code == 0
+
+
+def test_cli_check_alpha_as_mask(imagepath_wheel_mchannel, tmp_path):
+
+    runner = CliRunner()
 
     tmp_target_path = tmp_path / (imagepath_wheel_mchannel.stem + ".jpg")
 
@@ -134,6 +144,34 @@ def test_cli_check(imagepath_wheel_mchannel, imagepath_color_bars_alpha, tmp_pat
             "--blend_mode",
             "invalid_replace",
             "--use_alpha_as_mask",
+        ],
+    )
+    assert result.exit_code == 0
+
+
+def test_cli_check_invalid_color(imagepath_spacoween, tmp_path):
+
+    runner = CliRunner()
+
+    tmp_target_path = tmp_path / (imagepath_spacoween.stem + ".jpg")
+
+    result = runner.invoke(
+        cli,
+        [
+            "--debug",
+            "check",
+            str(imagepath_spacoween),
+            str(tmp_target_path),
+            "--colorspace",
+            "aces2065-1:linear",
+            "--ref_colorspace",
+            "acescg",
+            "--target_colorspace",
+            "sRGB",
+            "--blend_mode",
+            "over",
+            "--invalid_color",
+            "(1.0, 0.25, 0.2)",
         ],
     )
     assert result.exit_code == 0
