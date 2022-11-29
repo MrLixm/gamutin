@@ -27,6 +27,21 @@ def imagepath_spacoween():
     return DATA_DIR / "spac-o-ween.5DmarkII.0001.exr"
 
 
+@pytest.fixture
+def all_imagepaths(
+    imagepath_wheel_mpart,
+    imagepath_color_bars_alpha,
+    imagepath_wheel_mchannel,
+    imagepath_spacoween,
+):
+    return [
+        imagepath_wheel_mpart,
+        imagepath_color_bars_alpha,
+        imagepath_wheel_mchannel,
+        imagepath_spacoween,
+    ]
+
+
 def _configureLogging():
     """
     Configure the python logging module
