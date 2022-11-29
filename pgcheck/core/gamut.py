@@ -50,17 +50,16 @@ def transform_out_of_gamut_values(
         input_array values modified using given parameters
     """
 
-    intermediate_array = colour.RGB_to_XYZ(
-        input_array,
-        input_colorspace.whitepoint,
-        reference_colorspace.whitepoint,
-        input_colorspace.matrix_RGB_to_XYZ,
-        chromatic_adaptation_transform="Bradford",
-        cctf_decoding=input_colorspace.cctf_decoding,
-    )
-
     if reference_colorspace == POINTER_GAMUT_COLORSPACE:
 
+        intermediate_array = colour.RGB_to_XYZ(
+            input_array,
+            input_colorspace.whitepoint,
+            reference_colorspace.whitepoint,
+            input_colorspace.matrix_RGB_to_XYZ,
+            chromatic_adaptation_transform="Bradford",
+            cctf_decoding=input_colorspace.cctf_decoding,
+        )
         logger.debug(
             "[transform_out_of_gamut_values] calling is_within_pointer_gamut ..."
         )
@@ -70,23 +69,28 @@ def transform_out_of_gamut_values(
 
     else:
 
-        gamut_mesh = generate_gamut_volume(reference_colorspace)
-        logger.debug(
-            "[transform_out_of_gamut_values] calling is_within_mesh_volume ..."
+        result_array = colour.RGB_to_RGB(
+            input_array,
+            input_colourspace=input_colorspace,
+            output_colourspace=reference_colorspace,
+            chromatic_adaptation_transform="Bradford",  # TODO move to constant
+            apply_cctf_decoding=True,
         )
-        result_array = colour.is_within_mesh_volume(
-            points=intermediate_array,
-            mesh=gamut_mesh,
-            tolerance=tolerance_amount,
+
+        # out of gamut values = False
+        result_array = numpy.where(
+            result_array < 0,
+            False,
+            True,
         )
+        result_array = numpy.all(result_array, axis=-1)
 
     result_array = result_array.astype(numpy.int_)
 
     output_array = input_array.copy()
-
-    output_array[result_array != 1] = invalid_color  # Out of PG
+    output_array[result_array != 1] = invalid_color  # Out of gamut
     if valid_color is not None and blend_mode != CompositeBlendModes.invalid_replace:
-        output_array[result_array == 1] = valid_color  # In PG:
+        output_array[result_array == 1] = valid_color  # In gamut
 
     blend_mode = blend_mode.value[-1]
     logger.debug(f"[transform_out_of_pg_values] applying blend mode {blend_mode} ...")
@@ -98,24 +102,3 @@ def transform_out_of_gamut_values(
         mask=mask,
     )
     return output_array
-
-
-def generate_gamut_volume(
-    colorspace: colour.RGB_Colourspace,
-    segments: int = 16,
-) -> numpy.ndarray:
-
-    geometry_cube = colour.geometry.primitive_cube(
-        width_segments=segments,
-        height_segments=segments,
-        depth_segments=segments,
-    )
-    vertices = geometry_cube[0]["position"] + 0.5
-
-    XYZ = colour.RGB_to_XYZ(
-        vertices,
-        colorspace.whitepoint,
-        colorspace.whitepoint,
-        colorspace.matrix_RGB_to_XYZ,
-    )
-    return XYZ
