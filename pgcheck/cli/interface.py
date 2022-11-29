@@ -261,7 +261,7 @@ def check(
     result_array = pgcheck.core.gamut.transform_out_of_gamut_values(
         input_array=input_array,
         input_colorspace=_colorspace,
-        reference_colorspace=pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE,
+        reference_colorspace=_ref_colorspace,
         invalid_color=invalid_color,
         valid_color=valid_color,
         tolerance_amount=tolerance,
