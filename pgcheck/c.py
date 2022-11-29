@@ -109,12 +109,12 @@ class Plateform:
     It is recommend to override it in the instance and the package's prefix.
     """
 
-    def __repr__(self):
-        return self.name
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.name})"
 
     @property
-    def name(self):
-        # type: () -> str
+    def name(self) -> str:
+
         if self.is_linux:
             return "linux"
         elif self.is_mac:
@@ -125,22 +125,19 @@ class Plateform:
             raise OSError("Unsupported plateform {}".format(sys.platform))
 
     @property
-    def source(self):
+    def source(self) -> str:
         return os.environ.get(self.ENV_FAKE) or sys.platform
 
     @property
-    def is_linux(self):
-        # type: () -> bool
+    def is_linux(self) -> bool:
         return self.source.startswith("linux")
 
     @property
-    def is_mac(self):
-        # type: () -> bool
+    def is_mac(self) -> bool:
         return self.source.startswith("darwin")
 
     @property
-    def is_windows(self):
-        # type: () -> bool
+    def is_windows(self) -> bool:
         return self.source in ("win32", "cygwin")
 
 
