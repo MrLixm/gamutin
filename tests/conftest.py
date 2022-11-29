@@ -22,6 +22,11 @@ def imagepath_wheel_mchannel():
     return DATA_DIR / "wheel_mchannel.exr"
 
 
+@pytest.fixture
+def imagepath_spacoween():
+    return DATA_DIR / "spac-o-ween.5DmarkII.0001.exr"
+
+
 def _configureLogging():
     """
     Configure the python logging module
