@@ -10,6 +10,7 @@ from Qt import QtGui
 
 from pgcheck.editor.cfg import resources
 from pgcheck.core.io import is_path_exists_or_creatable
+from pgcheck.editor.compounds.widgets.icons import BaseDisplayIcon
 
 
 class PathType(enum.Enum):
@@ -235,15 +236,14 @@ class PathSelector(QtWidgets.QFrame):
         self._expected_file_extensions = file_extensions
 
 
-class InfoIcon(QtWidgets.QPushButton):
-
-    stylesheet = "QPushButton{border: unset; background: transparent;}"
+class InfoIcon(BaseDisplayIcon):
+    """
+    A single icon that can change depending on the current type assigned.
+    """
 
     def __init__(self):
         super().__init__()
-        self.setDown(True)
         self.set_type()
-        self.setStyleSheet(self.stylesheet)
 
     def set_type(self, path_type: Optional[PathType] = None):
         """
