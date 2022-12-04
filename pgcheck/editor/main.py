@@ -25,9 +25,9 @@ def getQApp() -> QtWidgets.QApplication | None:
     Returns:
         new QApplication instance or None if it already exists.
     """
-    app = None
+    app = QtWidgets.QApplication.instance()
 
-    if not QtWidgets.QApplication.instance():
+    if not app:
 
         app = QtWidgets.QApplication(sys.argv)
         app.setOrganizationName(pgcheck.c.org)
