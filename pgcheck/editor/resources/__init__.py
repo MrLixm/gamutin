@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from .colors import Colors
+
 
 class ResourceLibrary:
     def __init__(self, root: Path):
@@ -15,6 +17,8 @@ class ResourceLibrary:
         self.icon_folder_check = self.root_icon / "folder-check.svg"
         self.icon_information = self.root_icon / "information.svg"
         self.icon_alert_outline = self.root_icon / "alert-circle-outline.svg"
+
+        self.colors = Colors
 
     def register(self):
         pass
