@@ -34,7 +34,7 @@ def getQApp() -> QtWidgets.QApplication | None:
         app.setApplicationName(pgcheck.c.name)
         app.setApplicationVersion(pgcheck.__version__)
         if not pgcheck.c.plateform.is_mac:
-            app.setWindowIcon(QtGui.QIcon(str(cfg.resources.icons.main)))
+            app.setWindowIcon(QtGui.QIcon(str(cfg.resources.icon_main)))
 
     # load everything that required a QApp
     cfg.resources.register()
@@ -46,11 +46,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         logger.info("[MainWindow] Launched.")
-        # TODO: determine if this should be kept on final build.
-        logger.debug(
-            f"[MainWindow] available fonts:\n"
-            f"{pprint.pformat(cfg.resources.fonts.listAvailable(), indent=4)}"
-        )
 
         self.setWindowTitle(f"{pgcheck.c.org.upper()} - {pgcheck.c.name.title()}")
         self.resize(700, 500)

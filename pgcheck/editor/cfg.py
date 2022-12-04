@@ -8,18 +8,17 @@ from pathlib import Path
 from Qt import QtCore
 
 import pgcheck
-from .resources import ResourcesManager
+from .resources import ResourceLibrary
 
 __all__ = (
     "__debugthis__",
     "getAppQSettings",
     "resources",
-    "validate",
 )
 
 logger = logging.getLogger(__name__)
 
-resources: ResourcesManager = ResourcesManager(Path(__file__).parent / "resources")
+resources: ResourceLibrary = ResourceLibrary(Path(__file__).parent / "resources")
 
 
 def getAppQSettings() -> QtCore.QSettings:
@@ -28,17 +27,6 @@ def getAppQSettings() -> QtCore.QSettings:
     from wherever in the API.
     """
     return QtCore.QSettings(pgcheck.c.org, pgcheck.c.name)
-
-
-def validate():
-    """
-    Raise an error is some of the module's attributes have an issue.
-    """
-    resources.validate()
-    return
-
-
-validate()
 
 
 def __debugthis__():
