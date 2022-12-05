@@ -18,6 +18,8 @@ from pgcheck.editor.compounds.widgets.icons import BaseDisplayIcon
 
 class PathType(enum.Enum):
     """
+    Different types of path expected.
+
     A path can only correspond to one of this type at a time.
     """
 
@@ -86,11 +88,13 @@ class PathType(enum.Enum):
 
 class PathSelector(QtWidgets.QFrame):
     """
-    A widget made for the user to give a path.
+    A widget made for the user to input a path.
 
-    Various options to handle different type of paths are offered.
+    Various options to handle different types of paths are offered.
 
-    # TODO RMB menu to open path in explorer
+    The path set can be retrieved via :prop:`current_path`.
+
+    If the path is invalid an error message can be retrieved via :meth:`get_error`
     """
 
     stylesheet = f"""
@@ -122,6 +126,12 @@ class PathSelector(QtWidgets.QFrame):
 
     @property
     def current_path(self) -> Path:
+        """
+        Path currently set in the interface.
+
+        Never return None, when no path is specified the current working directory
+        is returned instead. (``current_path == Path(".")``)
+        """
         return Path(self.lineedit_path.text())
 
     @current_path.setter
@@ -181,11 +191,18 @@ class PathSelector(QtWidgets.QFrame):
     def get_error(self) -> Optional[str]:
         """
         Get the current error message if any.
+
+        Returns:
+            None if the path is valid else an nicely formatted error message.
         """
         return self._error_message
 
     def is_current_path_invalid(self) -> Optional[str]:
         """
+        Find if the current path set is invalid.
+
+        This doesn't modify the interface to notice it to the user. You must call
+        :meth:`set_error` for this.
 
         Returns:
             The error message if invalid else None if valid.
@@ -258,14 +275,19 @@ class PathSelector(QtWidgets.QFrame):
         self.bakeUI()
 
     def set_path_type(self, path_type: Optional[PathType]):
+        """
+        Update the interface to expect a path only of the given type.
+        """
         self._path_type = path_type
         self.bakeUI()
 
     def set_expected_file_extensions(self, file_extensions: list[str]):
         """
+        Only used if the expected path type is one of a file but can always be called.
+
         Args:
             file_extensions:
-                list of file extensions with the dot delimiter. ex: [".jpg", ".txt"]
+                list of file extensions WITH the dot delimiter. ex: [".jpg", ".txt"]
         """
         self._expected_file_extensions = file_extensions
 
@@ -287,7 +309,7 @@ class PathInfoIcon(BaseDisplayIcon):
     """
     A single icon that can change depending on the current type assigned.
 
-    Should give information about the path to give.
+    Should give information about the path to input.
     """
 
     def __init__(self):
