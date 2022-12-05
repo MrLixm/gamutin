@@ -236,6 +236,9 @@ class PathSelector(QtWidgets.QFrame):
         file_dialog.setWindowTitle(self._path_type.get_description(self._path_type))
         if file_mode := self._path_type.get_qtmode(self._path_type):
             file_dialog.setFileMode(file_mode)
+        if self._expected_file_extensions:
+            supported_extensions = " *".join(self._expected_file_extensions)
+            file_dialog.setNameFilter(f"Supported (*{supported_extensions});; Any (*)")
 
         if file_dialog.exec_() != file_dialog.Accepted:
             return
