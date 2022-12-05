@@ -355,12 +355,18 @@ if __name__ == "__main__":
 
     for _path_type in PathType.__all__():
 
-        _widget = PathSelector()
-        _widget.set_path_type(_path_type)
-        _layout.addWidget(_widget)
+        _row_layout = QtWidgets.QHBoxLayout()
+        _layout.addLayout(_row_layout)
 
-        if _path_type == PathType.error:
-            _widget.set_error("test error")
+        for is_enabled in [True, False]:
+
+            _widget = PathSelector()
+            _widget.set_path_type(_path_type)
+            _widget.setEnabled(is_enabled)
+            _row_layout.addWidget(_widget)
+
+            if _path_type == PathType.error:
+                _widget.set_error("test error")
 
     _widget = PathSelector()
     _widget.set_path_type(PathType.file_exist)
