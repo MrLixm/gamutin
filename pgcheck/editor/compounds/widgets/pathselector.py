@@ -184,9 +184,13 @@ class PathSelector(QtWidgets.QFrame):
         if not is_valid:
             error_message = self._path_type.get_error_message(self._path_type)
 
-        if is_valid and "file" in self._path_type.name:
-            if self.current_path.suffix not in self._expected_file_extensions:
-                error_message = f"Invalid extension: '{self.current_path.suffix}' not in {self._expected_file_extensions}"
+        if (
+            is_valid
+            and "file" in self._path_type.name
+            and self._expected_file_extensions
+            and self.current_path.suffix not in self._expected_file_extensions
+        ):
+            error_message = f"Invalid extension: '{self.current_path.suffix}' not in {self._expected_file_extensions}"
 
         return error_message
 
