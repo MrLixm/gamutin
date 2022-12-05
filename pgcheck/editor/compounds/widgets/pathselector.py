@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import enum
+import webbrowser
+from functools import partial
 from pathlib import Path
 from typing import Optional
 from typing import Callable
 
 from Qt import QtWidgets
 from Qt import QtGui
+from Qt import QtCore
 
 from pgcheck.editor.cfg import resources
 from pgcheck.core.io import is_path_exists_or_creatable
@@ -147,9 +150,18 @@ class PathSelector(QtWidgets.QFrame):
 
         # 3. Modify
         self.label_error.setProperty("errorState", True)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.lineedit_path.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
         # 4. Connections
         self.lineedit_path.textChanged.connect(self.on_path_changed)
         self.button_browse.clicked.connect(self.browse_path)
+        self.customContextMenuRequested[QtCore.QPoint].connect(
+            self._on_context_menu_requested
+        )
+        self.lineedit_path.customContextMenuRequested[QtCore.QPoint].connect(
+            self._on_context_menu_requested
+        )
         return
 
     def bakeUI(self):
@@ -201,6 +213,21 @@ class PathSelector(QtWidgets.QFrame):
         path_error = self.is_current_path_invalid()
         self.set_error(path_error)
 
+    def open_current_path_in_explorer(self):
+        """
+        Open the current path's directory in the system default file explorer.
+        """
+        path = self.current_path
+
+        if not path.exists():
+            return
+
+        if path.is_file():
+            path = path.parent
+
+        webbrowser.open(str(path))
+        return
+
     def browse_path(self):
         """
         Open a file dialog to browse a path.
@@ -239,6 +266,18 @@ class PathSelector(QtWidgets.QFrame):
         """
         self._expected_file_extensions = file_extensions
 
+    def _on_context_menu_requested(self, pointer: QtCore.QPoint):
+
+        menu = self.lineedit_path.createStandardContextMenu()
+
+        if self.current_path.exists():
+            action1 = QtWidgets.QAction("Open in Explorer")
+            action1.triggered.connect(self.open_current_path_in_explorer)
+            menu.addSeparator()
+            menu.addAction(action1)
+
+        menu.exec_(QtGui.QCursor.pos())
+        return
 
 class InfoIcon(BaseDisplayIcon):
     """
