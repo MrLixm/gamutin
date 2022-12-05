@@ -134,7 +134,7 @@ class PathSelector(QtWidgets.QFrame):
         self.layout_top = QtWidgets.QHBoxLayout()
         self.layout_bottom = QtWidgets.QHBoxLayout()
 
-        self.button_icon = InfoIcon()
+        self.button_icon = PathInfoIcon()
         self.lineedit_path = QtWidgets.QLineEdit()
         self.button_browse = QtWidgets.QPushButton("Browse")
         self.label_error = QtWidgets.QLabel()
@@ -279,9 +279,12 @@ class PathSelector(QtWidgets.QFrame):
         menu.exec_(QtGui.QCursor.pos())
         return
 
-class InfoIcon(BaseDisplayIcon):
+
+class PathInfoIcon(BaseDisplayIcon):
     """
     A single icon that can change depending on the current type assigned.
+
+    Should give information about the path to give.
     """
 
     def __init__(self):
@@ -295,12 +298,15 @@ class InfoIcon(BaseDisplayIcon):
                 change the icon to correspond to this type. Passing None will use
                 the default icon which is an "information" one.
         """
+        tooltip = ""
         if path_type:
             file_path = path_type.get_icon_path(path_type)
-            self.setToolTip(path_type.get_description(path_type))
+            tooltip += f"<p>{path_type.get_description(path_type)}</p>"
         else:
             file_path = resources.icon_information
 
+        tooltip += "<p>Relative path supported (relative to the latest set working directory).</p>"
+        self.setToolTip(tooltip)
         self.setIcon(QtGui.QIcon(str(file_path)))
 
 
