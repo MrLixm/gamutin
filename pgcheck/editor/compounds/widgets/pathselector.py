@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import enum
 import webbrowser
-from functools import partial
 from pathlib import Path
 from typing import Optional
 from typing import Callable
