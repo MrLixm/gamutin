@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import enum
+import sys
 import webbrowser
 from pathlib import Path
 from typing import Optional
@@ -307,6 +308,19 @@ class PathSelector(QtWidgets.QFrame):
         """
         Callback called when the path is edited by the user.
         """
+
+        current_text = self.lineedit_path.text()
+        # On Windows the default option to copy file path wrap it with quotes,
+        # so it's convenient to remove them.
+        if (
+            sys.platform in ["win32", "cygwin"]
+            and current_text.startswith('"')
+            and current_text.endswith('"')
+        ):
+            new_text = current_text.rstrip('"')
+            new_text = new_text.lstrip('"')
+            self.lineedit_path.setText(new_text)
+
         path_error = self.is_path_invalid(self.current_path)
         self.set_error(path_error)
 
