@@ -208,8 +208,14 @@ class PathSelector(QtWidgets.QFrame):
 
         Never return None, when no path is specified the current working directory
         is returned instead. (``current_path == Path(".")``)
+
+        When possible an absolute path is returned.
         """
-        return Path(self.lineedit_path.text())
+        path = Path(self.lineedit_path.text())
+        try:
+            return path.resolve().absolute()
+        except OSError:
+            return path
 
     @current_path.setter
     def current_path(self, new_path: Path):
