@@ -196,7 +196,7 @@ class PathSelector(QtWidgets.QFrame):
         """
         return self._error_message
 
-    def is_current_path_invalid(self) -> Optional[str]:
+    def is_path_invalid(self, path: Path) -> Optional[str]:
         """
         Find if the current path set is invalid.
 
@@ -207,7 +207,7 @@ class PathSelector(QtWidgets.QFrame):
             The error message if invalid else None if valid.
         """
         error_message = None
-        is_valid = self._path_type.get_validate(self._path_type)(self.current_path)
+        is_valid = self._path_type.get_validate(self._path_type)(path)
 
         if not is_valid:
             error_message = self._path_type.get_error_message(self._path_type)
@@ -216,9 +216,9 @@ class PathSelector(QtWidgets.QFrame):
             is_valid
             and "file" in self._path_type.name
             and self._expected_file_extensions
-            and self.current_path.suffix not in self._expected_file_extensions
+            and path.suffix not in self._expected_file_extensions
         ):
-            error_message = f"Invalid extension: '{self.current_path.suffix}' not in {self._expected_file_extensions}"
+            error_message = f"Invalid extension: '{path.suffix}' not in {self._expected_file_extensions}"
 
         return error_message
 
@@ -226,7 +226,7 @@ class PathSelector(QtWidgets.QFrame):
         """
         Callback called when the path is edited by the user.
         """
-        path_error = self.is_current_path_invalid()
+        path_error = self.is_path_invalid(self.current_path)
         self.set_error(path_error)
 
     def open_current_path_in_explorer(self):
