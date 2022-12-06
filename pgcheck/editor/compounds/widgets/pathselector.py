@@ -101,6 +101,13 @@ class PathSelector(QtWidgets.QFrame):
         border: 1px solid rgb(63,63,63);
         border-radius: 10px;
     }}
+    QFrame[dropState="true"]{{
+        background-color: rgba(255,255,255,0.15);
+    }}
+    QFrame:disabled#PathSelector{{
+        border-color: rgb(50,50,50);
+    }}
+
     *[errorFrame="true"]{{
         border: 1px solid rgba{resources.colors.error_red.toTuple()};
     }}
@@ -130,11 +137,14 @@ class PathSelector(QtWidgets.QFrame):
         self.bakeUI()
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
+        """
+        User starting a drag&drop, producing a "drag".
+        """
 
         try:
 
             self.process_drop_event(event=event)
-
+            self.set_drop_style(True)
             event.setDropAction(QtCore.Qt.LinkAction)
             event.accept()
 
@@ -144,7 +154,17 @@ class PathSelector(QtWidgets.QFrame):
             event.ignore()
 
     def dropEvent(self, event: QtGui.QDropEvent):
+        """
+        User released the drag&drop, producing a "drop".
+        """
         self.current_path = self.process_drop_event(event=event)
+        self.set_drop_style(False)
+
+    def dragLeaveEvent(self, event: QtGui.QDragLeaveEvent):
+        """
+        User aborted drag&drop.
+        """
+        self.set_drop_style(False)
 
     def process_drop_event(self, event: QtGui.QDropEvent) -> Path:
         """
@@ -173,6 +193,13 @@ class PathSelector(QtWidgets.QFrame):
             raise InterruptedError(f"Path {mime_path} is invalid: {path_error}")
 
         return mime_path
+
+    def set_drop_style(self, enable: bool):
+        """
+        Style the widget to make it looks like it accepts drag&drop or not.
+        """
+        self.setProperty("dropState", enable)
+        self.setStyleSheet(self.stylesheet)
 
     @property
     def current_path(self) -> Path:
