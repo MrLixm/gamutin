@@ -394,14 +394,22 @@ class PathSelector(QtWidgets.QFrame):
         self._expected_file_extensions = file_extensions
 
     def _on_context_menu_requested(self, pointer: QtCore.QPoint):
+        def make_current_path_absolute():
+            self.current_path = self.current_path
 
         menu = self.lineedit_path.createStandardContextMenu()
 
         if self.current_path.exists():
+
             action1 = QtWidgets.QAction("Open in Explorer")
             action1.triggered.connect(self.open_current_path_in_explorer)
+
+            action2 = QtWidgets.QAction("Make Relative Path Absolute")
+            action2.triggered.connect(make_current_path_absolute)
+
             menu.addSeparator()
             menu.addAction(action1)
+            menu.addAction(action2)
 
         menu.exec_(QtGui.QCursor.pos())
         return
