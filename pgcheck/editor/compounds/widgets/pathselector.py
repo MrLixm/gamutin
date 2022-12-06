@@ -119,9 +119,54 @@ class PathSelector(QtWidgets.QFrame):
 
         self.setStyleSheet(self.stylesheet)
         self.setObjectName("PathSelector")
+        self.setAcceptDrops(True)
 
         self.cookUI()
         self.bakeUI()
+
+    def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
+
+        try:
+
+            self.process_drop_event(event=event)
+
+            event.setDropAction(QtCore.Qt.LinkAction)
+            event.accept()
+
+        except InterruptedError:
+            event.setDropAction(QtCore.Qt.IgnoreAction)
+            event.ignore()
+
+    def dropEvent(self, event: QtGui.QDropEvent):
+        self.current_path = self.process_drop_event(event=event)
+
+    def process_drop_event(self, event: QtGui.QDropEvent) -> Path:
+        """
+
+        Args:
+            event: drop event with the data to use
+
+        Returns:
+            data from the drop properly converted for use. Currently, a Path.
+
+        Raises:
+            InterruptedError: if the data from the drop is invalid
+        """
+        if not event.mimeData() or not event.mimeData().hasUrls():
+            raise InterruptedError("No or invalid mimeData type (expected URLs).")
+
+        mime_urls = event.mimeData().urls()
+        if len(mime_urls) != 1:
+            raise InterruptedError("Only one URL expected, not multiple.")
+
+        mime_urls: QtCore.QUrl = mime_urls[0]
+        mime_path = Path(mime_urls.toLocalFile())
+
+        path_error = self.is_path_invalid(mime_path)
+        if path_error:
+            raise InterruptedError(f"Path {mime_path} is invalid: {path_error}")
+
+        return mime_path
 
     @property
     def current_path(self) -> Path:
