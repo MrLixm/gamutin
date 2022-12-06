@@ -445,17 +445,18 @@ class PathInfoIcon(BaseDisplayIcon):
         self.setIcon(QtGui.QIcon(str(file_path)))
 
 
-if __name__ == "__main__":
+def _test_interface():
 
-    import sys
     from pgcheck.editor.main import getQApp
 
-    _app = getQApp()
+    app = getQApp()
 
-    _layout = QtWidgets.QVBoxLayout()
-    _window = QtWidgets.QWidget()
-    _window.setLayout(_layout)
-    _window.setStyleSheet(
+    layout = QtWidgets.QVBoxLayout()
+    layout.setSpacing(25)
+
+    window = QtWidgets.QWidget()
+    window.setLayout(layout)
+    window.setStyleSheet(
         """
         .QWidget{
             background-color: rgb(150,150,150);
@@ -463,32 +464,41 @@ if __name__ == "__main__":
         """
     )
 
-    _label_error = QtWidgets.QLabel("No Error yet.")
+    status_bar = QtWidgets.QStatusBar()
+    lineedit_demo = QtWidgets.QLineEdit()
 
-    for _path_type in PathType.__all__():
+    for path_type in PathType.__all__():
 
-        _row_layout = QtWidgets.QHBoxLayout()
-        _layout.addLayout(_row_layout)
+        row_layout = QtWidgets.QHBoxLayout()
+        layout.addLayout(row_layout)
 
-        for _is_enabled in [True, False]:
+        for is_enabled in [True, False]:
 
-            _widget = PathSelector()
-            _widget.set_path_type(_path_type)
-            _widget.setEnabled(_is_enabled)
-            _widget.error_signal.connect(_label_error.setText)
-            _row_layout.addWidget(_widget)
+            widget = PathSelector()
+            widget.set_path_type(path_type)
+            widget.setEnabled(is_enabled)
+            widget.error_signal.connect(
+                lambda message: status_bar.showMessage(message, 2000)
+            )
+            row_layout.addWidget(widget)
 
-            if _path_type == PathType.error:
-                _widget.set_error("test error")
+            if path_type == PathType.error:
+                widget.set_error("test error")
 
-    _widget = PathSelector()
-    _widget.set_path_type(PathType.file_exist)
-    _widget.set_expected_file_extensions([".jpg", ".py"])
-    _widget.error_signal.connect(_label_error.setText)
+    widget = PathSelector()
+    widget.set_path_type(PathType.file_exist)
+    widget.set_expected_file_extensions([".jpg", ".py"])
+    widget.error_signal.connect(lambda message: status_bar.showMessage(message, 2000))
 
-    _layout.addWidget(_widget)
-    _layout.addWidget(_label_error)
+    layout.addWidget(widget)
+    layout.addStretch(1)
+    layout.addWidget(lineedit_demo)
+    layout.addWidget(status_bar)
 
-    _window.show()
+    window.show()
 
-    sys.exit(_app.exec_())
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    _test_interface()
