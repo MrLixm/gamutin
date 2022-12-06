@@ -306,6 +306,11 @@ class PathSelector(QtWidgets.QFrame):
         if self._expected_file_extensions:
             supported_extensions = " *".join(self._expected_file_extensions)
             file_dialog.setNameFilter(f"Supported (*{supported_extensions});; Any (*)")
+        if self.current_path:
+            start_path = self.current_path
+            if start_path.is_file():
+                start_path = start_path.parent
+            file_dialog.setDirectory(str(start_path))
 
         if file_dialog.exec_() != file_dialog.Accepted:
             return
