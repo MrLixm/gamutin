@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .colors import Colors
+from .colors import ColorLibrary
 
 
 class ResourceLibrary:
@@ -18,7 +18,7 @@ class ResourceLibrary:
         self.icon_information = self.root_icon / "information.svg"
         self.icon_alert_outline = self.root_icon / "alert-circle-outline.svg"
 
-        self.colors = Colors
+        self.colors = ColorLibrary
 
     def register(self):
         pass
