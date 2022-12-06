@@ -217,9 +217,7 @@ class PathSelector(QtWidgets.QFrame):
 
     def cookUI(self):
         # 1. Create
-        self.layout = QtWidgets.QVBoxLayout()
-        self.layout_top = QtWidgets.QHBoxLayout()
-        self.layout_bottom = QtWidgets.QHBoxLayout()
+        self.layout = QtWidgets.QGridLayout()
 
         self.button_icon = PathInfoIcon()
         self.lineedit_path = QtWidgets.QLineEdit()
@@ -228,14 +226,13 @@ class PathSelector(QtWidgets.QFrame):
 
         # 2. Add
         self.setLayout(self.layout)
-        self.layout.addLayout(self.layout_top)
-        self.layout.addLayout(self.layout_bottom)
-        self.layout_top.addWidget(self.button_icon)
-        self.layout_top.addWidget(self.lineedit_path)
-        self.layout_top.addWidget(self.button_browse)
-        self.layout_bottom.addWidget(self.label_error)
+        self.layout.addWidget(self.button_icon, 0, 0)
+        self.layout.addWidget(self.lineedit_path, 0, 1)
+        self.layout.addWidget(self.button_browse, 0, 2)
+        self.layout.addWidget(self.label_error, 1, 1)
 
         # 3. Modify
+        self.layout.setVerticalSpacing(0)
         self.label_error.setProperty("errorState", True)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.lineedit_path.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
