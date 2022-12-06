@@ -110,6 +110,11 @@ class PathSelector(QtWidgets.QFrame):
 
     """
 
+    error_signal = QtCore.Signal(str)
+    """
+    Signal emitted when a error happens. Data emmitted is the error message.
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -133,7 +138,8 @@ class PathSelector(QtWidgets.QFrame):
             event.setDropAction(QtCore.Qt.LinkAction)
             event.accept()
 
-        except InterruptedError:
+        except InterruptedError as excp:
+            self.error_signal.emit(f"[DropError] {excp}")
             event.setDropAction(QtCore.Qt.IgnoreAction)
             event.ignore()
 
@@ -315,6 +321,9 @@ class PathSelector(QtWidgets.QFrame):
         Args:
             error_message: error message to set in the UI. None to remove the error state.
         """
+        if error_message:
+            self.error_signal.emit(error_message)
+
         self._error_message = error_message
         self.bakeUI()
 
@@ -397,16 +406,19 @@ if __name__ == "__main__":
         """
     )
 
+    _label_error = QtWidgets.QLabel("No Error yet.")
+
     for _path_type in PathType.__all__():
 
         _row_layout = QtWidgets.QHBoxLayout()
         _layout.addLayout(_row_layout)
 
-        for is_enabled in [True, False]:
+        for _is_enabled in [True, False]:
 
             _widget = PathSelector()
             _widget.set_path_type(_path_type)
-            _widget.setEnabled(is_enabled)
+            _widget.setEnabled(_is_enabled)
+            _widget.error_signal.connect(_label_error.setText)
             _row_layout.addWidget(_widget)
 
             if _path_type == PathType.error:
@@ -415,7 +427,10 @@ if __name__ == "__main__":
     _widget = PathSelector()
     _widget.set_path_type(PathType.file_exist)
     _widget.set_expected_file_extensions([".jpg", ".py"])
+    _widget.error_signal.connect(_label_error.setText)
+
     _layout.addWidget(_widget)
+    _layout.addWidget(_label_error)
 
     _window.show()
 
