@@ -2,14 +2,14 @@
 
 QWidget{
     background-color: rgb(25,25,25);
-    color: rgb(250,250,250);
+    color: "{color_text_base}";
 }
 QWidget:disabled{
     color: rgb(100,100,100);
 }
 
 QPushButton{
-    border-radius: 4px;
+    border-radius: "{size_border_radius_base}";
     background-color: rgb(50,50,50);
     padding: 6px;
 }
@@ -20,7 +20,7 @@ QPushButton:disabled{
     background-color: rgb(30,30,30);
 }
 QLineEdit{
-    border-radius: 4px;
+    border-radius: "{size_border_radius_base}";
     border: 1px solid transparent;
     background-color: rgb(50,50,50);
     padding: 4px;
@@ -33,6 +33,6 @@ QLineEdit:disabled{
 }
 
 QStatusBar{
-    color: rgb(187, 76, 76);
+    color: "{color_error_red}";
     border-bottom: 1px solid rgb(60,60,60);
 }
