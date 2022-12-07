@@ -2,12 +2,84 @@ from __future__ import annotations
 
 import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Type
+from typing import Type, Any, Optional
 
+from .properties import BaseQtProperty
 from .theme import StyleTheme
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class StyleSheetVariable:
+
+    name: str
+    """
+    Name of the variable, never empty.
+    """
+
+    overrides: dict[str, Any]
+    """
+    Overrides specified if any.
+    """
+
+    original_str: str
+    """
+    The full string as declared in the original stylesheet
+    """
+
+
+def parse_variables(stylesheet_content: str) -> list[StyleSheetVariable]:
+    """
+    From the given stylesheet string, return all the variable that can be found inside.
+
+    A variable is declared exactly as::
+
+        "{variable_name}"
+
+    It is possible to specify *overrides* using a colon (they can be nested)::
+
+        "{variable_name:override1=value1:override2=value2}"
+
+    Args:
+        stylesheet_content: qss looking string
+
+    Returns:
+        list of StyleSheetVariable instances, can have duplicates (same name, but not same overrides)
+    """
+
+    out_variable_list = []
+
+    pattern = re.compile(r'"\{(\w+)(:[^}]+)*}"')
+    variable_match_list = list(pattern.finditer(stylesheet_content))
+
+    for variable_match in variable_match_list:
+
+        override_str = variable_match.group(2)
+        if override_str:
+
+            override_pattern = re.compile(r"(\w+)=([^:]+)")
+            override_match_list = list(override_pattern.finditer(override_str))
+
+            overrides = {
+                override_match.group(1): override_match.group(2)
+                for override_match in override_match_list
+            }
+        else:
+            overrides = {}
+
+        variable = StyleSheetVariable(
+            name=variable_match.group(1),
+            overrides=overrides,
+            original_str=variable_match.group(),
+        )
+
+        out_variable_list.append(variable)
+        continue
+
+    return out_variable_list
 
 
 class StyleSheet:
@@ -45,12 +117,33 @@ class StyleSheet:
 
     @classmethod
     def from_path(cls, path: Path) -> StyleSheet:
+        """
+        Read the content of the given file, assumed to be a qss file with potential variables.
+        """
         content = path.read_text("utf-8")
         return cls(content)
 
-    def find_variables(self, token_name) -> list[re.Match]:
-        pattern = re.compile(rf'"\{{{token_name}(:[\w.-]+)?}}"')
-        return list(pattern.finditer(self.content))
+    def get_variables(self) -> dict[str, list[StyleSheetVariable]]:
+        """
+
+        Returns:
+            dict[variable_name, list[variable, ...]] : a same variable can be used
+             multiple time through the stylesheet, hence the list.
+        """
+
+        variable_list = parse_variables(self.content)
+
+        out_dict = {}
+        for variable in variable_list:
+
+            existing_value: Optional[list] = out_dict.get(variable.name)
+
+            if existing_value is not None:
+                out_dict[variable.name] = existing_value.append(variable)
+            else:
+                out_dict[variable.name] = [variable]
+
+        return out_dict
 
     def resolve(self, theme: Type[StyleTheme]):
         """
@@ -59,16 +152,43 @@ class StyleSheet:
         Args:
             theme:
         """
-        pass  # TODO
+        variable_found_dict = self.get_variables()
+
+        for theme_variable in theme.__all__():
+
+            logger.debug(
+                f"[{self.__class__.__name__}][resolve] started processing {theme_variable}"
+            )
+            stylesheet_variable_list: list[StyleSheetVariable]
+            stylesheet_variable_list = variable_found_dict.get(theme_variable.name)
+            if not stylesheet_variable_list:
+                continue
+
+            for stylesheet_variable in stylesheet_variable_list:
+
+                property_value: BaseQtProperty = theme_variable.value
+                property_value.apply_overrides(**stylesheet_variable.overrides)
+
+                source_str = stylesheet_variable.original_str
+                target_str = property_value.to_qss()
+
+                self.content = self.content.replace(source_str, target_str)
+
+                logger.debug(
+                    f"[{self.__class__.__name__}][resolve] replaced {source_str} with {target_str}"
+                )
+                continue
+
+            continue
 
     def validate(self):
         """
         Raise an exception if the data stored is not as expected.
         """
 
-        found_tokens = self.find_variables(r"[^\n]")
-        if found_tokens:
+        found_variables = self.get_variables()
+        if found_variables:
             raise ValueError(
-                f"The current stylesheet has tokens that are not replaced yet: "
-                f"{[match.group() for match in found_tokens]}"
+                f"The current stylesheet has variables that are not replaced yet: "
+                f"{list(found_variables.keys())}"
             )
