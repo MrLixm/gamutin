@@ -24,7 +24,7 @@ def launch_gui(source_file: Path = None):
     Create and open the interface by showing the main window.
     """
 
-    logger.debug(f"[launch_gui] Started. Importing <pgcheck.editor> ...")
+    logger.debug(f"[launch_gui] Started. Importing <gamutin.editor> ...")
     # defer import of the editor package only if the user ask to open the GUI
     import gamutin.editor
 

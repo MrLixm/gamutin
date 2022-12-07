@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pg-check"
+name = "gamutin"
 version = "0.1.0"
 description = "color-science utility to check image data against the pointer's gamut"
 authors = ["Liam Collod <lcollod@gmail.com>"]

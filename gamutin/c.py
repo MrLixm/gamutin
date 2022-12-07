@@ -23,7 +23,7 @@ if __version_prerelease__ := "":
     __version__ += f"-{__version_prerelease__}"
 # ! scroll down for version extends
 
-name = "pgcheck"
+name = "gamutin"
 """
 Package name. Mostly used in the editor.
 """
@@ -33,7 +33,7 @@ org = "pyco"
 Organisation.
 """
 
-vcs_url = "https://github.com/MrLixm/pg-check"
+vcs_url = "https://github.com/MrLixm/gamutin"
 """
 url of the remote VCS repository for this package.
 """
