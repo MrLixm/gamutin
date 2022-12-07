@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from .colors import ColorLibrary
+from .stylesheet import ColorQtProperty
+from .stylesheet import LengthQtProperty
 from .stylesheet import StyleSheet
 from .stylesheet import StyleTheme
 
@@ -14,9 +16,9 @@ class DefaultStyleTheme(StyleTheme):
     def get_name(cls) -> str:
         return "default"
 
-    color_text_base = 0
-    color_error_red = 0
-    size_border_radius_base = 5
+    color_text_base = ColorQtProperty((250, 250, 250, 255))
+    color_error_red = ColorQtProperty((187, 76, 76, 255))
+    size_border_radius_base = LengthQtProperty(5)
 
 
 class ResourceLibrary:
