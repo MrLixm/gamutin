@@ -73,13 +73,26 @@ class LengthQtProperty(BaseQtProperty):
         ex = "ex"
 
     def to_qss(self) -> str:
-        return f"{self.value}"
+        return f"{self.value}px"
 
     def apply_overrides(self, **kwargs) -> None:
-        pass  # TODO
+
+        scale_override = kwargs.get("scale")
+        if isinstance(scale_override, str):
+            scale_override = float(scale_override)
+
+        if scale_override is not None:
+            self.value = self.value * scale_override
+
+        self.validate()
+        return
 
     def validate(self):
-        pass  # TODO
+        if not isinstance(self.value, (float, int)):
+            raise TypeError(
+                f"{self.__class__.__name__} internal value error : "
+                f"Expected (float, int) got <{type(self.value)} {self.value}>"
+            )
 
 
 class ColorQtProperty(BaseQtProperty):
@@ -133,5 +146,6 @@ class ColorQtProperty(BaseQtProperty):
             or not all([isinstance(v, int) for v in self.value])
         ):
             raise TypeError(
-                f"Internal value error : Expected tuple[int, int, int, int] got {self.value}"
+                f"{self.__class__.__name__} internal value error : "
+                f"Expected tuple[int, int, int, int] got <{type(self.value)} {self.value}>"
             )
