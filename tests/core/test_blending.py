@@ -1,7 +1,7 @@
 import numpy
 from numpy.testing import assert_array_equal
 
-from pgcheck.core import blending
+from gamutin.core import blending
 
 
 def test_basic():

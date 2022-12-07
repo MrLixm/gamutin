@@ -5,7 +5,7 @@ from . import cfg
 
 # and then we do not import anything else to avoid bloating the namespace
 # as the user might not use all the sub-packages.
-# He will have to manually `import pgcheck.editor` , ...
+# He will have to manually `import gamutin.editor` , ...
 
 
 def debug():

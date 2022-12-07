@@ -1,4 +1,4 @@
-from pgcheck.editor.resources.stylesheet import base
+from gamutin.editor.resources.stylesheet import base
 
 
 def test_parse_variables_simple():

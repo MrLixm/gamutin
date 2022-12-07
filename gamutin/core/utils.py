@@ -11,7 +11,7 @@ import re
 import unicodedata
 from typing import Any
 
-import pgcheck
+import gamutin
 
 
 def getCurrentDependencies() -> list[tuple[str, str]]:
@@ -24,12 +24,12 @@ def getCurrentDependencies() -> list[tuple[str, str]]:
     Returns:
         list of [packageName, version]
     """
-    if pgcheck.c.is_frozen:
-        dependencies_str = pgcheck.c.Env.get(pgcheck.c.Env.dependencies_list)
+    if gamutin.c.is_frozen:
+        dependencies_str = gamutin.c.Env.get(gamutin.c.Env.dependencies_list)
         if not dependencies_str:
             return [
                 (
-                    f"Missing env variable {pgcheck.c.Env.dependencies_list.value}",
+                    f"Missing env variable {gamutin.c.Env.dependencies_list.value}",
                     "ERROR",
                 )
             ]
@@ -54,12 +54,12 @@ def getSysContext() -> str:
     This is a human readble string.
     """
     env = [
-        f"{vardata[0]}={vardata[1]}" for vardata in pgcheck.c.Env.__asdict__().items()
+        f"{vardata[0]}={vardata[1]}" for vardata in gamutin.c.Env.__asdict__().items()
     ]
     out = (
-        f"coco: {pgcheck.__version__}\n"
+        f"coco: {gamutin.__version__}\n"
         f"platform: {platform.platform()}\n"
-        f"frozen: {pgcheck.c.is_frozen}\n"
+        f"frozen: {gamutin.c.is_frozen}\n"
         f"env: {json.dumps(env, indent=4, default=str)}\n"
     )
     return out

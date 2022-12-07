@@ -1,6 +1,6 @@
 from colour.models import linear_function
 
-from pgcheck.core import colorspaces
+from gamutin.core import colorspaces
 
 
 def test_get_colorspace():

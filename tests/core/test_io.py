@@ -1,7 +1,7 @@
 import OpenImageIO as oiio
 
-from pgcheck.core import io
-from pgcheck.core import colorspaces
+from gamutin.core import io
+from gamutin.core import colorspaces
 
 
 def test_read_multipart(imagepath_wheel_mpart):

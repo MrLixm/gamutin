@@ -7,7 +7,7 @@ from pathlib import Path
 
 from Qt import QtCore
 
-import pgcheck
+import gamutin
 from .resources import ResourceLibrary
 
 __all__ = (
@@ -26,7 +26,7 @@ def getAppQSettings() -> QtCore.QSettings:
     Return an instance of the QSetting class to use for this application. Can be called
     from wherever in the API.
     """
-    return QtCore.QSettings(pgcheck.c.org, pgcheck.c.name)
+    return QtCore.QSettings(gamutin.c.org, gamutin.c.name)
 
 
 def __debugthis__():
@@ -39,5 +39,5 @@ def __debugthis__():
     )
 
 
-if pgcheck.cfg.debug:
+if gamutin.cfg.debug:
     __debugthis__()

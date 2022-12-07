@@ -11,9 +11,9 @@ from Qt import QtWidgets
 from Qt import QtGui
 from Qt import QtCore
 
-from pgcheck.editor.cfg import resources
-from pgcheck.core.io import is_path_exists_or_creatable
-from pgcheck.editor.compounds.widgets.icons import BaseDisplayIcon
+from gamutin.editor.cfg import resources
+from gamutin.core.io import is_path_exists_or_creatable
+from gamutin.editor.compounds.widgets.icons import BaseDisplayIcon
 
 
 class PathType(enum.Enum):
@@ -447,7 +447,7 @@ class PathInfoIcon(BaseDisplayIcon):
 
 def _test_interface():
 
-    from pgcheck.editor.main import getQApp
+    from gamutin.editor.main import getQApp
 
     app = getQApp()
 

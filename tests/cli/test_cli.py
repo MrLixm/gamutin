@@ -1,7 +1,7 @@
 from click.testing import CliRunner
 
-import pgcheck.core.colorspaces
-from pgcheck.cli.interface import cli
+import gamutin.core.colorspaces
+from gamutin.cli.interface import cli
 
 
 def test_cli_basic(imagepath_wheel_mchannel):
@@ -60,7 +60,7 @@ def test_cli_basic_raise(imagepath_wheel_mchannel, tmp_path):
     assert result.exit_code != 0
     assert error_colorspace in str(result.exception)
 
-    error_colorspace = pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name
+    error_colorspace = gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name
 
     result = runner.invoke(
         cli,
@@ -78,7 +78,7 @@ def test_cli_basic_raise(imagepath_wheel_mchannel, tmp_path):
     assert result.exit_code != 0
     assert error_colorspace in str(result.exception)
 
-    error_colorspace = pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name
+    error_colorspace = gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name
 
     result = runner.invoke(
         cli,

@@ -3,7 +3,7 @@ from typing import Optional
 from Qt import QtWidgets
 from Qt import QtCore
 
-import pgcheck.core.utils
+import gamutin.core.utils
 
 __all__ = (
     "ContextWidget",
@@ -37,7 +37,7 @@ class DependencyViewerTreeWidget(QtWidgets.QTreeWidget):
 
     def bakeUI(self):
         self.clear()
-        dependencies = pgcheck.core.utils.getCurrentDependencies()
+        dependencies = gamutin.core.utils.getCurrentDependencies()
         for dependency in dependencies:
             self.addDependency(dependency[0], dependency[1])
         self.sortByColumn(0, QtCore.Qt.AscendingOrder)
@@ -88,4 +88,4 @@ class ContextWidget(QtWidgets.QFrame):
         return
 
     def bakeUI(self):
-        self.label.setText(f"<pre>{pgcheck.core.utils.getSysContext()}</pre>")
+        self.label.setText(f"<pre>{gamutin.core.utils.getSysContext()}</pre>")

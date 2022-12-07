@@ -13,7 +13,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 from Qt import QtGui
 
-import pgcheck
+import gamutin
 from . import cfg
 from . import compounds
 
@@ -30,10 +30,10 @@ def getQApp() -> QtWidgets.QApplication | None:
     if not app:
 
         app = QtWidgets.QApplication(sys.argv)
-        app.setOrganizationName(pgcheck.c.org)
-        app.setApplicationName(pgcheck.c.name)
-        app.setApplicationVersion(pgcheck.__version__)
-        if not pgcheck.c.plateform.is_mac:
+        app.setOrganizationName(gamutin.c.org)
+        app.setApplicationName(gamutin.c.name)
+        app.setApplicationVersion(gamutin.__version__)
+        if not gamutin.c.plateform.is_mac:
             app.setWindowIcon(QtGui.QIcon(str(cfg.resources.icon_main)))
 
     # load everything that required a QApp
@@ -47,7 +47,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         logger.info("[MainWindow] Launched.")
 
-        self.setWindowTitle(f"{pgcheck.c.org.upper()} - {pgcheck.c.name.title()}")
+        self.setWindowTitle(f"{gamutin.c.org.upper()} - {gamutin.c.name.title()}")
         self.resize(700, 500)
 
         self.settings = cfg.getAppQSettings()
@@ -63,7 +63,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def loadSettings(self):
 
         # if debug mode is on we avoid loading settings
-        if pgcheck.cfg.debug:
+        if gamutin.cfg.debug:
             return
 
         self.settings.beginGroup("MainWindow")

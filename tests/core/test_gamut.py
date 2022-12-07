@@ -1,8 +1,8 @@
 import numpy
 from numpy.testing import assert_array_equal
 
-from pgcheck.core import gamut
-from pgcheck.core import colorspaces
+from gamutin.core import gamut
+from gamutin.core import colorspaces
 
 
 def test_pointer_gamut():

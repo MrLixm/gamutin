@@ -1,14 +1,14 @@
 import logging
 import logging.config
 
-from pgcheck import c
-from pgcheck import cfg
-import pgcheck.cli.interface
+from gamutin import c
+from gamutin import cfg
+import gamutin.cli.interface
 
 
 __all__ = ("start",)
 
-logger = logging.getLogger(f"{pgcheck.__name__}.__main__")
+logger = logging.getLogger(f"{gamutin.__name__}.__main__")
 
 
 def _configureLogging():
@@ -34,7 +34,7 @@ def _configureLogging():
             },
         },
         "loggers": {
-            f"{pgcheck.__name__}": {
+            f"{gamutin.__name__}": {
                 "handlers": ["hl_console"],
                 "level": cfg.logs_level,
                 "propagate": False,
@@ -51,10 +51,10 @@ def start():
     Start the application.
     """
     logger.info(f"[start] Started {c.name} v{c.__version__} ; frozen={c.is_frozen}")
-    pgcheck.debug()
+    gamutin.debug()
 
     # start CLI, that will start the GUI if no argument specified.
-    pgcheck.cli.interface.cli()
+    gamutin.cli.interface.cli()
     return
 
 

@@ -3,9 +3,9 @@ import math
 from Qt import QtWidgets
 from Qt import QtCore
 
-import pgcheck
-from pgcheck.editor.compounds.widgets import ContextWidget
-from pgcheck.editor.compounds.widgets import DependencyViewerTreeWidget
+import gamutin
+from gamutin.editor.compounds.widgets import ContextWidget
+from gamutin.editor.compounds.widgets import DependencyViewerTreeWidget
 
 __all__ = ("AboutDialog",)
 
@@ -33,7 +33,7 @@ class AboutDialog(QtWidgets.QDialog):
         # Create
         self.lyt = QtWidgets.QVBoxLayout()
         self.lbl_app = QtWidgets.QLabel(
-            f"<h1>{pgcheck.c.name.title()} - v{pgcheck.c.__version__}</h1>"
+            f"<h1>{gamutin.c.name.title()} - v{gamutin.c.__version__}</h1>"
         )
         self.ctx_wgt = ContextWidget(self)
         self.lbl_dependencies = QtWidgets.QLabel("Dependencies Used: ")

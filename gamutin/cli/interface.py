@@ -11,10 +11,10 @@ import click
 import colour
 import numpy
 
-import pgcheck.core.gamut
-import pgcheck.core.colorspaces
-import pgcheck.core.io
-from pgcheck.core.exceptions import raisePathExists
+import gamutin.core.gamut
+import gamutin.core.colorspaces
+import gamutin.core.io
+from gamutin.core.exceptions import raisePathExists
 
 logger = logging.getLogger(__name__)
 
@@ -26,12 +26,12 @@ def launch_gui(source_file: Path = None):
 
     logger.debug(f"[launch_gui] Started. Importing <pgcheck.editor> ...")
     # defer import of the editor package only if the user ask to open the GUI
-    import pgcheck.editor
+    import gamutin.editor
 
-    app = pgcheck.editor.getQApp()
+    app = gamutin.editor.getQApp()
     logger.debug(f"[launch_gui] {app=}")
 
-    main_window = pgcheck.editor.MainWindow()
+    main_window = gamutin.editor.MainWindow()
     main_window.show()
     # TODO set sourcefile on mainWindow
 
@@ -40,11 +40,11 @@ def launch_gui(source_file: Path = None):
 
 
 @click.group(invoke_without_command=True)
-@click.version_option("{}".format(pgcheck.__version__))
+@click.version_option("{}".format(gamutin.__version__))
 @click.option(
     "--debug",
     is_flag=True,
-    envvar=pgcheck.c.Env.logs_debug.value,
+    envvar=gamutin.c.Env.logs_debug.value,
     help="This will enable the debug mode which display more informations and disable some features.",
     # --debug is used via sys.argv across the app, do not remove.
 )
@@ -102,13 +102,13 @@ def gui(source_file: str):
     "--ref_colorspace",
     required=True,
     type=str,
-    default=pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name,
+    default=gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name,
     help="Colorspace to use the gamut as limit for comparing the input.",
 )
 @click.option(
     "--blend_mode",
     type=str,
-    default=pgcheck.core.gamut.CompositeBlendModes.over.name,
+    default=gamutin.core.gamut.CompositeBlendModes.over.name,
     help="How to blend the out of gamut map with the original image. See `blendmodes` command for a list of availables options.",
 )
 @click.option(
@@ -201,10 +201,10 @@ def check(
     invalid_color: tuple[float, float, float] = ast.literal_eval(invalid_color)
     valid_color: tuple[float, float, float] = ast.literal_eval(valid_color)
 
-    _colorspace = pgcheck.core.colorspaces.get_colorspace(colorspace)
-    _ref_colorspace = pgcheck.core.colorspaces.get_colorspace(ref_colorspace)
+    _colorspace = gamutin.core.colorspaces.get_colorspace(colorspace)
+    _ref_colorspace = gamutin.core.colorspaces.get_colorspace(ref_colorspace)
     _target_colorspace = target_colorspace or colorspace
-    _target_colorspace = pgcheck.core.colorspaces.get_colorspace(_target_colorspace)
+    _target_colorspace = gamutin.core.colorspaces.get_colorspace(_target_colorspace)
 
     for _given_colorspace, _resolved_colorspace in zip(
         (colorspace, ref_colorspace, target_colorspace),
@@ -214,21 +214,21 @@ def check(
         if not _resolved_colorspace:
             raise ValueError(
                 f'Given colorspace "{_given_colorspace}" is not recognized. '
-                f"Must be one of {pgcheck.core.colorspaces.get_available_colorspaces_names()}"
+                f"Must be one of {gamutin.core.colorspaces.get_available_colorspaces_names()}"
             )
 
     del _given_colorspace, _resolved_colorspace
 
-    if _colorspace == pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE:
+    if _colorspace == gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE:
         raise ValueError(
-            f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as source colorspace !"
+            f"You can't use the {gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as source colorspace !"
         )
-    if _target_colorspace == pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE:
+    if _target_colorspace == gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE:
         raise ValueError(
-            f"You can't use the {pgcheck.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as target colorspace !"
+            f"You can't use the {gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as target colorspace !"
         )
 
-    _blend_mode = pgcheck.core.gamut.CompositeBlendModes[blend_mode]
+    _blend_mode = gamutin.core.gamut.CompositeBlendModes[blend_mode]
 
     _mask_used = bool(mask_file or use_alpha_as_mask)
 
@@ -237,7 +237,7 @@ def check(
         f"  with {_colorspace.name=}, {_target_colorspace.name=}, {tolerance=}, {blend_mode=}"
     )
 
-    input_image = pgcheck.core.io.ImageRead(path=source_file, colorspace=_colorspace)
+    input_image = gamutin.core.io.ImageRead(path=source_file, colorspace=_colorspace)
     input_array = input_image.read_array(
         channels=("R", "G", "B"),
         subimage=subimage,
@@ -246,7 +246,7 @@ def check(
 
     mask_array: Optional[numpy.ndarray] = None
     if mask_file:
-        mask_image = pgcheck.core.io.ImageRead(path=mask_file, colorspace=None)
+        mask_image = gamutin.core.io.ImageRead(path=mask_file, colorspace=None)
         mask_array = mask_image.read_array(channels=("R",))
 
         if mask_array.shape[:-1] != input_array.shape[:-1]:
@@ -267,7 +267,7 @@ def check(
         mask_array = numpy.stack((mask_array,) * 3, axis=-1)
 
     logger.debug("[check] calling transform_out_of_pg_values...")
-    result_array = pgcheck.core.gamut.transform_out_of_gamut_values(
+    result_array = gamutin.core.gamut.transform_out_of_gamut_values(
         input_array=input_array,
         input_colorspace=_colorspace,
         reference_colorspace=_ref_colorspace,
@@ -287,7 +287,7 @@ def check(
         apply_cctf_encoding=True,
     )
 
-    output_image = pgcheck.core.io.ImageWrite(
+    output_image = gamutin.core.io.ImageWrite(
         target_file, colorspace=_target_colorspace
     )
     output_image.set_pixels(output_array)
@@ -304,7 +304,7 @@ def colorspaces():
     List all colorspaces availables.
     """
     colorspace_names_list = (
-        pgcheck.core.colorspaces.get_available_colorspaces_names_aliases()
+        gamutin.core.colorspaces.get_available_colorspaces_names_aliases()
     )
     out_str = ""
     for colorspace_aliases in colorspace_names_list:
@@ -320,7 +320,7 @@ def blendmodes():
     """
     List all blending modes availables.
     """
-    blend_mode_list = pgcheck.core.gamut.CompositeBlendModes.__all__()
+    blend_mode_list = gamutin.core.gamut.CompositeBlendModes.__all__()
     blend_mode_list = [bm.name for bm in blend_mode_list]
     click.echo(blend_mode_list)
 
@@ -338,8 +338,8 @@ def imageinfo(source_file: str, verbose: bool):
     Display useful information about the given file
     """
     source_file = Path(source_file)
-    image = pgcheck.core.io.ImageRead(path=source_file, colorspace=None)
-    image_repr = pgcheck.core.io.ImageRepr(image=image)
+    image = gamutin.core.io.ImageRead(path=source_file, colorspace=None)
+    image_repr = gamutin.core.io.ImageRepr(image=image)
 
     if verbose:
         data_dict = image_repr.full_dict
