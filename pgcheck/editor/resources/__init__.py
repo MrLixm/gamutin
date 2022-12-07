@@ -5,6 +5,20 @@ from .stylesheet import StyleSheet
 from .stylesheet import StyleTheme
 
 
+class DefaultStyleTheme(StyleTheme):
+    """
+    Library of variables to use in StyleSheet.
+    """
+
+    @classmethod
+    def get_name(cls) -> str:
+        return "default"
+
+    color_text_base = 0
+    color_error_red = 0
+    size_border_radius_base = 5
+
+
 class ResourceLibrary:
     def __init__(self, root: Path):
         self.root = root
@@ -23,7 +37,7 @@ class ResourceLibrary:
 
         self.colors = ColorLibrary
 
-        self.theme_main = StyleTheme()
+        self.theme_main = DefaultStyleTheme
         self.style_test = StyleSheet.from_path(self.root_styles / "test.qss")
 
     def register(self):

@@ -3,17 +3,11 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
+from typing import Type
+
+from .theme import StyleTheme
 
 logger = logging.getLogger(__name__)
-
-
-# TODO use a datclass, enum ?
-class StyleTheme:
-    """
-    Library of variables to use in StyleSheet.
-    """
-
-    pass
 
 
 class StyleSheet:
@@ -58,7 +52,7 @@ class StyleSheet:
         pattern = re.compile(rf'"\{{{token_name}(:[\w.-]+)?}}"')
         return list(pattern.finditer(self.content))
 
-    def resolve(self, theme: StyleTheme):
+    def resolve(self, theme: Type[StyleTheme]):
         """
         Resolve all variables in the stylesheet using the given theme.
 
