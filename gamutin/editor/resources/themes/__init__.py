@@ -3,6 +3,12 @@ from gamutin.editor.resources.stylesheet import ColorQtProperty
 from gamutin.editor.resources.stylesheet import LengthQtProperty
 
 
+class BlankStyleTheme(StyleTheme):
+    @classmethod
+    def get_name(cls) -> str:
+        return "blank"
+
+
 class DefaultStyleTheme(StyleTheme):
     """
     Library of variables to use in StyleSheet.
