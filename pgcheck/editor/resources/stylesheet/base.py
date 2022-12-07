@@ -138,10 +138,10 @@ class StyleSheet:
 
             existing_value: Optional[list] = out_dict.get(variable.name)
 
-            if existing_value is not None:
-                out_dict[variable.name] = existing_value.append(variable)
-            else:
+            if existing_value is None:
                 out_dict[variable.name] = [variable]
+            else:
+                existing_value.append(variable)
 
         return out_dict
 
