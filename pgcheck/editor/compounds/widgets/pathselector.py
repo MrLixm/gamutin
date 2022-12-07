@@ -456,13 +456,7 @@ def _test_interface():
 
     window = QtWidgets.QWidget()
     window.setLayout(layout)
-    window.setStyleSheet(
-        """
-        .QWidget{
-            background-color: rgb(150,150,150);
-        }
-        """
-    )
+    resources.style_test.apply_to(window)
 
     status_bar = QtWidgets.QStatusBar()
     lineedit_demo = QtWidgets.QLineEdit()
