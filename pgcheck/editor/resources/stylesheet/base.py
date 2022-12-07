@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Type, Any, Optional
 
+from Qt import QtWidgets
+
 from .properties import BaseQtProperty
 from .theme import StyleTheme
 
@@ -122,6 +124,12 @@ class StyleSheet:
         """
         content = path.read_text("utf-8")
         return cls(content)
+
+    def apply_to(self, widget: QtWidgets.QWidget):
+        """
+        Apply this stylesheet to the given widget.
+        """
+        widget.setStyleSheet(self.content)
 
     def get_variables(self) -> dict[str, list[StyleSheetVariable]]:
         """
