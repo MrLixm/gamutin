@@ -19,6 +19,26 @@ from pgcheck.core.exceptions import raisePathExists
 logger = logging.getLogger(__name__)
 
 
+def launch_gui(source_file: Path = None):
+    """
+    Create and open the interface by showing the main window.
+    """
+
+    logger.debug(f"[launch_gui] Started. Importing <pgcheck.editor> ...")
+    # defer import of the editor package only if the user ask to open the GUI
+    import pgcheck.editor
+
+    app = pgcheck.editor.getQApp()
+    logger.debug(f"[launch_gui] {app=}")
+
+    main_window = pgcheck.editor.MainWindow()
+    main_window.show()
+    # TODO set sourcefile on mainWindow
+
+    if app:
+        sys.exit(app.exec_())
+
+
 @click.group(invoke_without_command=True)
 @click.version_option("{}".format(pgcheck.__version__))
 @click.option(
@@ -37,32 +57,21 @@ def cli(debug: bool):
     logger.debug(f"[cli] Started.(cwd={os.getcwd()})[{debug=}]")
 
     if len(sys.argv) == 1 or (len(sys.argv) == 2 and "--debug" in sys.argv):
-        gui()
+        launch_gui()
 
     return
 
 
 @cli.command()
 @click.argument("source_file", type=click.Path(exists=True), required=False)
-def gui(source_file):
+def gui(source_file: str):
     """
     Specifically ask to launch the GUI with the given configuration.
 
     SOURCE_FILE: path to an existing image file
     """
-    logger.debug(f"[launch_gui] Started. Importing <pgcheck.editor> ...")
-    # defer import of the editor package only if the user ask to open the GUI
-    import pgcheck.editor
-
-    app = pgcheck.editor.getQApp()
-    logger.debug(f"[launch_gui] {app=}")
-
-    main_window = pgcheck.editor.MainWindow()
-    main_window.show()
-    # TODO set sourcefile on mainWindow
-
-    if app:
-        sys.exit(app.exec_())
+    source_file = Path(source_file)
+    launch_gui(source_file=source_file)
 
 
 @cli.command()
