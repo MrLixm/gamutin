@@ -133,6 +133,9 @@ class StyleSheet:
 
     def get_variables(self) -> dict[str, list[StyleSheetVariable]]:
         """
+        Find and return all the variables in the stylesheet.
+
+        A stylesheet with variables cannot be used yet with Qt.
 
         Returns:
             dict[variable_name, list[variable, ...]] : a same variable can be used

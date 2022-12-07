@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class BaseQtProperty(ABC):
+    """
+    Represent a value in a Qt StyleSheet whose type is as defined in
+    https://doc.qt.io/qt-5/stylesheet-reference.html#list-of-property-types.
+    """
+
     def __init__(self, value: Any):
         self.value = value
 
@@ -58,10 +63,7 @@ class LiteralQtProperty(BaseQtProperty):
 
 class LengthQtProperty(BaseQtProperty):
     """
-    px: pixels
-    pt: the size of one point (i.e., 1/72 of an inch)
-    em: the em width of the font (i.e., the width of 'M')
-    ex: the x-height of the font (i.e., the height of 'x')
+    A number value with an associated unit. For now hardcoded to px.
 
     https://doc.qt.io/qt-5/stylesheet-reference.html#length
     """

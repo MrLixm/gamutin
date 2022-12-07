@@ -4,7 +4,9 @@ from abc import abstractmethod
 
 class StyleTheme(enum.Enum):
     """
-    Library of variables to use in StyleSheet.
+    Library of variables to use in StyleSheets.
+
+    This is an abstract class that must be subclassed.
     """
 
     @classmethod
@@ -14,4 +16,9 @@ class StyleTheme(enum.Enum):
     @classmethod
     @abstractmethod
     def get_name(cls) -> str:
+        """
+        Pretty name of the theme.
+
+        Can be displayed in an interface.
+        """
         pass
