@@ -131,6 +131,14 @@ class StyleSheet:
         """
         widget.setStyleSheet(self.content)
 
+    def copy(self) -> StyleSheet:
+        """
+        Return an exact copy of this instance.
+        """
+        stylesheet_copy = StyleSheet(content=self.content)
+        stylesheet_copy._original_content = self._original_content
+        return stylesheet_copy
+
     def get_variables(self) -> dict[str, list[StyleSheetVariable]]:
         """
         Find and return all the variables in the stylesheet.
@@ -155,6 +163,14 @@ class StyleSheet:
                 existing_value.append(variable)
 
         return out_dict
+
+    def reset(self):
+        """
+        Reset the stylesheet to its intial content given at instance time.
+
+        The StyleSheet might have to be resolved again to replace variables.
+        """
+        self.content = self._original_content
 
     def resolve(self, theme: Type[StyleTheme]):
         """
