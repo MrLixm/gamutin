@@ -9,7 +9,7 @@ from typing import Type, Any, Optional
 from Qt import QtWidgets
 
 from .properties import BaseQtProperty
-from .theme import StyleTheme
+from gamutin.editor.resources.themes import StyleTheme
 
 logger = logging.getLogger(__name__)
 

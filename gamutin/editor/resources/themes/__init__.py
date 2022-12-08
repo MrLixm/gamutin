@@ -1,4 +1,4 @@
-from gamutin.editor.resources.stylesheet import StyleTheme
+from .base import StyleTheme
 from gamutin.editor.resources.stylesheet import ColorQtProperty
 from gamutin.editor.resources.stylesheet import LengthQtProperty
 
