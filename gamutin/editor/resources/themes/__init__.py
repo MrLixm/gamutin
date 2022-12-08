@@ -1,15 +1,15 @@
-from .base import StyleTheme
+from .base import BaseStyleTheme
 from gamutin.editor.resources.stylesheet import ColorQtProperty
 from gamutin.editor.resources.stylesheet import LengthQtProperty
 
 
-class BlankStyleTheme(StyleTheme):
+class BlankStyleTheme(BaseStyleTheme):
     @classmethod
     def get_name(cls) -> str:
         return "blank"
 
 
-class DefaultStyleTheme(StyleTheme):
+class DefaultStyleTheme(BaseStyleTheme):
     """
     Library of variables to use in StyleSheet.
     """

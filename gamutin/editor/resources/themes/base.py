@@ -2,7 +2,7 @@ import enum
 from abc import abstractmethod
 
 
-class StyleTheme(enum.Enum):
+class BaseStyleTheme(enum.Enum):
     """
     Library of variables to use in StyleSheets.
 

@@ -9,7 +9,7 @@ from typing import Type, Any, Optional
 from Qt import QtWidgets
 
 from .properties import BaseQtProperty
-from gamutin.editor.resources.themes import StyleTheme
+from gamutin.editor.resources.themes import BaseStyleTheme
 
 logger = logging.getLogger(__name__)
 
@@ -172,7 +172,7 @@ class StyleSheet:
         """
         self.content = self._original_content
 
-    def resolve(self, theme: Type[StyleTheme]):
+    def resolve(self, theme: Type[BaseStyleTheme]):
         """
         Resolve all variables in the stylesheet using the given theme.
 
