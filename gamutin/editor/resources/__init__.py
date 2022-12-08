@@ -3,7 +3,6 @@ from typing import Type
 
 from Qt import QtWidgets
 
-from gamutin.editor.resources.colors import ColorLibrary
 from gamutin.editor.resources.stylesheet import StyleSheet
 from gamutin.editor.resources.stylesheet import StyleTheme
 from gamutin.editor.resources.themes import BlankStyleTheme
@@ -31,10 +30,8 @@ class ResourceLibrary:
         self.icon_information = self.root_icon / "information.svg"
         self.icon_alert_outline = self.root_icon / "alert-circle-outline.svg"
 
-        self.colors = ColorLibrary
-
         self._style_active: StyleSheet = StyleSheet(content="/*empty*/")
-        self._theme_active: Type[StyleTheme] = BlankStyleTheme
+        self._theme_active: Type[DefaultStyleTheme] = DefaultStyleTheme
 
         self.style_test = StyleSheet.from_path(self.root_styles / "test.qss")
 
@@ -69,7 +66,7 @@ class ResourceLibrary:
         return self._style_active
 
     @property
-    def theme_active(self) -> Type[StyleTheme]:
+    def theme_active(self) -> Type[DefaultStyleTheme]:
         """
         The theme currently being used.
         """
