@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Type
 
@@ -7,6 +8,8 @@ from gamutin.editor.resources.stylesheet import StyleSheet
 from gamutin.editor.resources.stylesheet import StyleTheme
 from gamutin.editor.resources.themes import BlankStyleTheme
 from gamutin.editor.resources.themes import DefaultStyleTheme
+
+logger = logging.getLogger(__name__)
 
 
 class ResourceLibrary:
@@ -33,6 +36,7 @@ class ResourceLibrary:
         self._style_active: StyleSheet = StyleSheet(content="/*empty*/")
         self._theme_active: Type[DefaultStyleTheme] = DefaultStyleTheme
 
+        self.theme_default = DefaultStyleTheme
         self.style_test = StyleSheet.from_path(self.root_styles / "test.qss")
 
     def register(self):
@@ -46,7 +50,12 @@ class ResourceLibrary:
 
         self._style_active.resolve(self._theme_active)
         self._style_active.validate()
+        logger.debug(
+            f"[{self.__class__.__name__}][register] Setting stylesheet {self._style_active.content}"
+        )
         self._style_active.apply_to(qapp)
+
+        logger.debug(f"[{self.__class__.__name__}][register] Finished on {qapp}")
 
     def set_active_style(self, style: StyleSheet):
         self._style_active = style
