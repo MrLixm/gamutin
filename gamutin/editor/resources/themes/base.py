@@ -22,3 +22,9 @@ class BaseStyleTheme(enum.Enum):
         Can be displayed in an interface.
         """
         pass
+
+
+class BlankStyleTheme(BaseStyleTheme):
+    @classmethod
+    def get_name(cls) -> str:
+        return "blank"
