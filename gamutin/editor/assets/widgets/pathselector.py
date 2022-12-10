@@ -99,15 +99,8 @@ class PathSelector(QtWidgets.QFrame):
     """
 
     stylesheet = f"""
-    QFrame#PathSelector{{
-        border: 1px solid rgb(63,63,63);
-        border-radius: 10px;
-    }}
     QFrame[dropState="true"]{{
         background-color: rgba(255,255,255,0.15);
-    }}
-    QFrame:disabled#PathSelector{{
-        border-color: rgb(50,50,50);
     }}
 
     *[errorFrame="true"]{{
