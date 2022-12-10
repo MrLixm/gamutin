@@ -28,6 +28,7 @@ class TestStyleThemes(enum.Enum):
 
     dark = "dark"
     default = "default"
+    debug = "debug"
 
 
 class BlankTestWindow(QtWidgets.QWidget):
@@ -79,6 +80,10 @@ class BlankTestWindow(QtWidgets.QWidget):
 
         if theme_asked == TestStyleThemes.dark:
             stylesheet = resources.style_test.copy()
+            stylesheet.resolve(resources.theme_default)
+            stylesheet.apply_to(self)
+        elif theme_asked == TestStyleThemes.debug:
+            stylesheet = resources.style_debug.copy()
             stylesheet.resolve(resources.theme_default)
             stylesheet.apply_to(self)
         else:

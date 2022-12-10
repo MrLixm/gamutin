@@ -38,6 +38,7 @@ class ResourceLibrary(BaseResourceLibrary):
 
         self.theme_default = DefaultStyleTheme
         self.style_test = StyleSheet.from_path(self.root_styles / "test.qss")
+        self.style_debug = StyleSheet.from_path(self.root_styles / "debug.qss")
 
     def register(self):
         """

@@ -1,0 +1,24 @@
+QWidget{
+    border: 1px solid rgb(93, 214, 154);
+    background-color: rgb(99, 93, 185);
+}
+QWidget:disabled{
+    border: 1px solid rgb(155, 211, 189);
+    background-color: rgb(146, 145, 183);
+}
+QAbstractScrollArea{
+    border: 1px solid rgb(93, 214, 154);
+    background-color: rgb(151, 93, 185);
+}
+QAbstractScrollArea:disabled{
+    border: 1px solid rgb(93, 214, 154);
+    background-color: rgb(161, 134, 183);
+}
+.QWidget{
+    border: 1px solid rgb(137, 214, 93);
+    background-color: rgb(67, 116, 185);
+}
+.QFrame{
+    border: 1px solid rgb(101, 214, 93);
+    background-color: rgb(124, 67, 185);
+}
