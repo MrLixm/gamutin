@@ -110,10 +110,10 @@ class PathSelector(QtWidgets.QFrame):
     }}
 
     *[errorFrame="true"]{{
-        border: 1px solid rgba{resources.colors.error_red.value.toTuple()};
+        border: 1px solid {resources.theme_active.color_error_red.value.to_qss()};
     }}
     *[errorState="true"]{{
-       color: rgba{resources.colors.error_red.value.toTuple()};
+       color: {resources.theme_active.color_error_red.value.to_qss()};
     }}
 
     """
