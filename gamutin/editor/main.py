@@ -14,8 +14,9 @@ from Qt import QtCore
 from Qt import QtGui
 
 import gamutin
-from . import cfg
-from . import assets
+from gamutin.editor import cfg
+from gamutin.editor import assets
+from gamutin.editor.assets.widgets.main import GamutinMainWidget
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +90,9 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def cookUI(self):
-
+        self.widget_main = GamutinMainWidget()
         self.setMenuBar(MainMenuBar(self))
+        self.setCentralWidget(self.widget_main)
 
     def closeEvent(self, event: QtGui.QCloseEvent):
         self.saveSettings()
