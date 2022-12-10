@@ -4,8 +4,8 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 import gamutin
-from gamutin.editor.compounds.widgets import ContextWidget
-from gamutin.editor.compounds.widgets import DependencyViewerTreeWidget
+from gamutin.editor.assets.widgets import ContextWidget
+from gamutin.editor.assets.widgets import DependencyViewerTreeWidget
 
 __all__ = ("AboutDialog",)
 

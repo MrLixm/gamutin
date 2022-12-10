@@ -14,7 +14,7 @@ from Qt import QtCore
 from gamutin.editor.cfg import resources
 from gamutin.editor.testing import get_testing_window
 from gamutin.core.io import is_path_exists_or_creatable
-from gamutin.editor.compounds.widgets.icons import BaseDisplayIcon
+from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
 
 
 class PathType(enum.Enum):

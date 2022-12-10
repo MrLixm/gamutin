@@ -15,7 +15,7 @@ from Qt import QtGui
 
 import gamutin
 from . import cfg
-from . import compounds
+from . import assets
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +53,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.settings = cfg.getAppQSettings()
         self.loadSettings()
 
-        self.dialog_about = compounds.dialogs.AboutDialog(self)
-        self.dialog_issue = compounds.dialogs.IssueDialog(self)
+        self.dialog_about = assets.dialogs.AboutDialog(self)
+        self.dialog_issue = assets.dialogs.IssueDialog(self)
 
         self.cookUI()
         return

@@ -7,7 +7,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 import gamutin
-from gamutin.editor.compounds.widgets import ContextWidget
+from gamutin.editor.assets.widgets import ContextWidget
 
 __all__ = ("IssueDialog",)
 
