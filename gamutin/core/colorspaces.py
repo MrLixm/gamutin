@@ -62,6 +62,13 @@ def get_available_colorspaces_names() -> list[str]:
 
 def get_available_colorspaces_names_aliases() -> list[tuple[str]]:
     """
+    Get all the colorspaces available as tuple of the different alias
+    corresponding to a same colorspace.
+
+    Example::
+
+        [("ProPhoto RGB", "prophoto-rgb", "prophoto"), ...]
+
     Returns:
         list of colorspaces names available as a tuple of aliases
     """
@@ -80,7 +87,18 @@ def get_available_colorspaces_names_aliases() -> list[tuple[str]]:
     return [tuple(name_tuple) for name_tuple in buffer_dict.values()]
 
 
-def get_colorspace(name: str) -> Optional[colour.RGB_Colourspace]:
+def get_colorspace(name: Optional[str]) -> Optional[colour.RGB_Colourspace]:
+    """
+    Retrieve the colour colorspace instance corresponding to the given name.
+
+    Args:
+        name: literal name of the colourspace or one of its available alias
+
+    Returns:
+        colour colorspace instance
+    """
+    if not name:
+        return None
 
     linear_asked = name.endswith(":linear")
     name = name.rstrip(":linear")
