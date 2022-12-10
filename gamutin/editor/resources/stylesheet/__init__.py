@@ -1,4 +1,3 @@
-from .theme import StyleTheme
 from .properties import BaseQtProperty
 from .properties import LiteralQtProperty
 from .properties import LengthQtProperty

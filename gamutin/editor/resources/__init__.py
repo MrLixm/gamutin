@@ -5,7 +5,7 @@ from typing import Type
 from Qt import QtWidgets
 
 from gamutin.editor.resources.stylesheet import StyleSheet
-from gamutin.editor.resources.stylesheet import StyleTheme
+from gamutin.editor.resources.themes import BaseStyleTheme
 from gamutin.editor.resources.themes import BlankStyleTheme
 from gamutin.editor.resources.themes import DefaultStyleTheme
 
@@ -61,7 +61,7 @@ class ResourceLibrary:
         self._style_active = style
         self.register()
 
-    def set_active_theme(self, theme: Type[StyleTheme]):
+    def set_active_theme(self, theme: Type[BaseStyleTheme]):
         self._theme_active = theme
         self.register()
 
