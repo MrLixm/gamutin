@@ -8,18 +8,18 @@ from gamutin.editor.resources.stylesheet import StyleSheet
 from gamutin.editor.resources.themes import BaseStyleTheme
 from gamutin.editor.resources.themes import BlankStyleTheme
 from gamutin.editor.resources.themes import DefaultStyleTheme
+from gamutin.editor.resources.libraries import BaseResourceLibrary
 
 logger = logging.getLogger(__name__)
 
 
-class ResourceLibrary:
+class ResourceLibrary(BaseResourceLibrary):
     """
     Collection of disk resources used in the interface for custumization of the look and feel.
     """
 
     def __init__(self, root: Path):
-
-        self.root = root
+        super().__init__(root)
 
         self.root_icon = self.root / "icons"
         self.root_styles = self.root / "styles"
@@ -56,27 +56,3 @@ class ResourceLibrary:
         self._style_active.apply_to(qapp)
 
         logger.debug(f"[{self.__class__.__name__}][register] Finished on {qapp}")
-
-    def set_active_style(self, style: StyleSheet):
-        self._style_active = style
-        self.register()
-
-    def set_active_theme(self, theme: Type[BaseStyleTheme]):
-        self._theme_active = theme
-        self.register()
-
-    @property
-    def style_active(self) -> StyleSheet:
-        """
-        The Qt StyleSheet currently being used.
-
-        (might actually not be the real stylesheet set on the QApplication instance !)
-        """
-        return self._style_active
-
-    @property
-    def theme_active(self) -> Type[DefaultStyleTheme]:
-        """
-        The theme currently being used.
-        """
-        return self._theme_active
