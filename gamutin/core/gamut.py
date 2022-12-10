@@ -8,6 +8,7 @@ import numpy
 from .blending import blend_arrays
 from .blending import BlendModes
 from .colorspaces import POINTER_GAMUT_COLORSPACE
+from .colorspaces import WHITEPOINT_NULL_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,12 @@ def transform_out_of_gamut_values(
     Returns:
         input_array values modified using given parameters
     """
+    cat: Optional[str] = "Bradford"  # TODO move to constant
+    if (
+        input_colorspace.whitepoint_name == WHITEPOINT_NULL_NAME
+        or reference_colorspace.whitepoint_name == WHITEPOINT_NULL_NAME
+    ):
+        cat = None
 
     if reference_colorspace == POINTER_GAMUT_COLORSPACE:
 
@@ -57,7 +64,7 @@ def transform_out_of_gamut_values(
             input_colorspace.whitepoint,
             reference_colorspace.whitepoint,
             input_colorspace.matrix_RGB_to_XYZ,
-            chromatic_adaptation_transform="Bradford",
+            chromatic_adaptation_transform=cat,
             cctf_decoding=input_colorspace.cctf_decoding,
         )
         logger.debug(
@@ -73,7 +80,7 @@ def transform_out_of_gamut_values(
             input_array,
             input_colourspace=input_colorspace,
             output_colourspace=reference_colorspace,
-            chromatic_adaptation_transform="Bradford",  # TODO move to constant
+            chromatic_adaptation_transform=cat,
             apply_cctf_decoding=True,
         )
 

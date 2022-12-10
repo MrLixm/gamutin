@@ -145,3 +145,52 @@ def test_transform_out_of_gamut_values():
             array_expected = numpy.array((0.033, 0.033, 0.033))
 
         assert_array_equal(array_expected, array_result)
+
+
+def test_null_colorspace():
+
+    array_source = numpy.array(
+        [
+            [[0.0, 1.0, 0.0], [0.5, 0.1, 0.3]],
+            [[0.0, 0.0, 0.0], [0.233, -0.1, 0.15]],
+        ]
+    )
+    colorspace = colorspaces.get_colorspace("passthrough")
+    assert colorspace
+
+    array_result = gamut.transform_out_of_gamut_values(
+        input_array=array_source,
+        input_colorspace=colorspace,
+        reference_colorspace=colorspaces.POINTER_GAMUT_COLORSPACE,
+        invalid_color=(1.0, 0.0, 0.0),
+        valid_color=(0.0, 0.0, 0.0),
+        tolerance_amount=0.0,
+        blend_mode=gamut.CompositeBlendModes.invalid_replace,
+        mask=None,
+    )
+    array_expected = numpy.array(
+        [
+            [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+        ]
+    )
+    assert_array_equal(array_expected, array_result)
+
+    array_result = gamut.transform_out_of_gamut_values(
+        input_array=array_source,
+        input_colorspace=colorspace,
+        reference_colorspace=colorspace,
+        invalid_color=(1.0, 0.0, 0.0),
+        valid_color=(0.0, 0.0, 0.0),
+        tolerance_amount=0.0,
+        blend_mode=gamut.CompositeBlendModes.invalid_replace,
+        mask=None,
+    )
+    array_expected = numpy.array(
+        [
+            [[0.0, 1.0, 0.0], [0.5, 0.1, 0.3]],
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+        ]
+    )
+    assert_array_equal(array_expected, array_result)
+    assert array_source is not array_result

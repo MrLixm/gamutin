@@ -10,6 +10,11 @@ _COLORSPACES: dict[str, colour.RGB_Colourspace] = {}
 
 _COLORSPACE_POINTER_GAMUT_NAME = "Pointer's Gamut"
 
+WHITEPOINT_NULL_NAME = "Null"
+"""
+Implies that you don't want chromatic adaptation transform
+"""
+
 
 def _add_colorspace(name: str, colorspace: colour.RGB_Colourspace):
 
@@ -38,6 +43,19 @@ def _load_colorspaces():
         cctf_decoding=colour.linear_function,
         use_derived_matrix_XYZ_to_RGB=True,
         use_derived_matrix_RGB_to_XYZ=True,
+    )
+    _add_colorspace(colorspace.name, colorspace)
+
+    # Add "null" colorspace
+    colorspace = colour.RGB_Colourspace(
+        name="Passthrough",
+        primaries=numpy.array([[1.0, 0.0], [0.0, 1.0], [0.0, 0.0]]),
+        whitepoint=numpy.array([1 / 3, 1 / 3]),  # == illuminant E but not used anyway
+        whitepoint_name=WHITEPOINT_NULL_NAME,
+        matrix_RGB_to_XYZ=numpy.identity(3),
+        matrix_XYZ_to_RGB=numpy.identity(3),
+        cctf_encoding=colour.linear_function,
+        cctf_decoding=colour.linear_function,
     )
     _add_colorspace(colorspace.name, colorspace)
 
