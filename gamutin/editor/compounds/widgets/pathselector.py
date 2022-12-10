@@ -12,6 +12,7 @@ from Qt import QtGui
 from Qt import QtCore
 
 from gamutin.editor.cfg import resources
+from gamutin.editor.testing import get_testing_window
 from gamutin.core.io import is_path_exists_or_creatable
 from gamutin.editor.compounds.widgets.icons import BaseDisplayIcon
 
@@ -447,18 +448,19 @@ class PathInfoIcon(BaseDisplayIcon):
 
 def _test_interface():
 
+    from gamutin.__main__ import _configureLogging
     from gamutin.editor.main import getQApp
 
+    _configureLogging()
     app = getQApp()
+
+    window = get_testing_window()
 
     layout = QtWidgets.QVBoxLayout()
     layout.setSpacing(25)
 
-    window = QtWidgets.QWidget()
-    window.setLayout(layout)
-    resources.style_test.apply_to(window)
+    window.add_layout(layout)
 
-    status_bar = QtWidgets.QStatusBar()
     lineedit_demo = QtWidgets.QLineEdit()
 
     for path_type in PathType.__all__():
@@ -472,7 +474,7 @@ def _test_interface():
             widget.set_path_type(path_type)
             widget.setEnabled(is_enabled)
             widget.error_signal.connect(
-                lambda message: status_bar.showMessage(message, 2000)
+                lambda message: window.show_message(message, 2000)
             )
             row_layout.addWidget(widget)
 
@@ -482,12 +484,11 @@ def _test_interface():
     widget = PathSelector()
     widget.set_path_type(PathType.file_exist)
     widget.set_expected_file_extensions([".jpg", ".py"])
-    widget.error_signal.connect(lambda message: status_bar.showMessage(message, 2000))
+    widget.error_signal.connect(lambda message: window.show_message(message, 2000))
 
     layout.addWidget(widget)
     layout.addStretch(1)
     layout.addWidget(lineedit_demo)
-    layout.addWidget(status_bar)
 
     window.show()
 
