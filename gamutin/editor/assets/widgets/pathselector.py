@@ -12,7 +12,6 @@ from Qt import QtGui
 from Qt import QtCore
 
 from gamutin.editor.cfg import resources
-from gamutin.editor.testing import get_testing_window
 from gamutin.core.io import is_path_exists_or_creatable
 from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
 
@@ -443,6 +442,7 @@ def _test_interface():
 
     from gamutin.__main__ import _configureLogging
     from gamutin.editor.main import getQApp
+    from gamutin.editor.testing import get_testing_window
 
     _configureLogging()
     app = getQApp()

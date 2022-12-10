@@ -3,8 +3,6 @@ from abc import abstractmethod, ABC
 from pathlib import Path
 from typing import Type
 
-from Qt import QtWidgets
-
 from gamutin.editor.resources.stylesheet import StyleSheet
 from gamutin.editor.resources.themes import BaseStyleTheme
 from gamutin.editor.resources.themes import BlankStyleTheme

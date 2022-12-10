@@ -4,10 +4,7 @@ Top level module to build the UI.
 from __future__ import annotations
 
 import logging
-import pprint
 import sys
-import webbrowser
-from functools import partial
 
 from Qt import QtWidgets
 from Qt import QtCore

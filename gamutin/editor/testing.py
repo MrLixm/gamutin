@@ -2,7 +2,6 @@ import enum
 import logging
 
 from Qt import QtWidgets
-from Qt import QtCore
 
 from gamutin.editor.cfg import resources
 
@@ -26,6 +25,7 @@ class TestStyleThemes(enum.Enum):
     """
     Themes availables
     """
+
     dark = "dark"
     default = "default"
 
@@ -55,7 +55,7 @@ class BlankTestWindow(QtWidgets.QWidget):
         self.layout_header.addWidget(self.checkbox_disabled)
         self.layout_header.addStretch()
 
-        self.layout_header.setContentsMargins(*(15,)*4)
+        self.layout_header.setContentsMargins(*(15,) * 4)
         for style_theme in TestStyleThemes:
             self.combobox_theme.addItem(style_theme.value, style_theme)
 
