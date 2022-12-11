@@ -12,12 +12,13 @@ import numpy
 
 from gamutin.core.colorspaces import RgbColorspace
 from gamutin.core.colorspaces import Whitepoint
+from gamutin.core.colorspaces import ChromaticAdaptationTransform
 
 
 def matrix_chromatic_adapation_transform(
     source_whitepoint: Whitepoint,
     target_whitepoint: Whitepoint,
-    transform_name: str,
+    transform_name: ChromaticAdaptationTransform,
 ):
     """
     Return the 3x3 matrix to convert the given illuminant to teh target illuminant
@@ -34,14 +35,14 @@ def matrix_chromatic_adapation_transform(
     return colour.adaptation.matrix_chromatic_adaptation_VonKries(
         colour.models.xy_to_XYZ(source_whitepoint.coordinates),
         colour.models.xy_to_XYZ(target_whitepoint.coordinates),
-        transform_name,
+        str(transform_name.value),
     )
 
 
 def matrix_colorspace_to_colorspace(
     source_colorspace: RgbColorspace,
     target_colorspace: RgbColorspace,
-    chromatic_adaptation_transform: Optional[str],
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform],
 ) -> numpy.ndarray:
     """
     Compute the matrix :math:`M` converting from given input *RGB*
@@ -91,7 +92,7 @@ def colorspace_to_XYZ(
     array: numpy.ndarray,
     source_colorspace: RgbColorspace,
     whitepoint_XYZ: Whitepoint,
-    chromatic_adaptation_transform: Optional[str],
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform],
 ) -> numpy.ndarray:
     """
     Convert given *RGB* colourspace array to *CIE XYZ* tristimulus values.
@@ -126,7 +127,7 @@ def colorspace_to_colorspace(
     array: numpy.ndarray,
     source_colorspace: RgbColorspace,
     target_colorspace: RgbColorspace,
-    chromatic_adaptation_transform: Optional[str] = None,
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform] = None,
 ):
     """
     Convert given *array* colourspace array from given input *RGB* colourspace

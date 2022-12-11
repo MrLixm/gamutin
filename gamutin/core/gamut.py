@@ -7,6 +7,7 @@ import numpy
 
 from .blending import blend_arrays
 from .blending import BlendModes
+from .colorspaces import ChromaticAdaptationTransform
 from .colorspaces import RgbColorspace
 from .colorspaces import POINTER_GAMUT_COLORSPACE
 from .colorspaces import colorspace_to_colorspace
@@ -52,7 +53,8 @@ def transform_out_of_gamut_values(
     Returns:
         input_array values modified using given parameters
     """
-    cat: Optional[str] = "Bradford"  # TODO move to constant
+    cat: Optional[ChromaticAdaptationTransform]
+    cat = ChromaticAdaptationTransform.default  # TODO move to constant
     if input_colorspace.whitepoint is None or reference_colorspace.whitepoint is None:
         cat = None
 

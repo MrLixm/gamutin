@@ -282,7 +282,7 @@ def check(
         result_array,
         _colorspace,
         _target_colorspace,
-        chromatic_adaptation_transform="Bradford",
+        chromatic_adaptation_transform=gamutin.core.colorspaces.ChromaticAdaptationTransform.default,
     )
 
     output_image = gamutin.core.io.ImageWrite(

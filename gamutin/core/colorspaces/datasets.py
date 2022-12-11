@@ -1,4 +1,5 @@
 __all__ = (
+    "ChromaticAdaptationTransform",
     "get_available_colorspaces",
     "get_available_colorspaces_names",
     "get_available_colorspaces_names_aliases",
@@ -6,6 +7,7 @@ __all__ = (
     "POINTER_GAMUT_COLORSPACE",
 )
 
+import enum
 import importlib
 import logging
 from typing import Optional
@@ -313,6 +315,23 @@ _load_colorspaces()
 PUBLIC
 
 """
+
+
+class ChromaticAdaptationTransform(enum.Enum):
+
+    bianco_2010 = "Bianco 2010"
+    bianco_pc_2010 = "Bianco PC 2010"
+    bradford = "Bradford"
+    CAT02_Brill = "CAT02 Brill 2008"
+    CAT02 = "CAT02"
+    CAT16 = "CAT16"
+    CMCCAT2000 = "CMCCAT2000"
+    CMCCAT97 = "CMCCAT97"
+    fairchild = "Fairchild"
+    sharp = "Sharp"
+    von_kries = "Von Kries"
+    XYZ_scaling = "XYZ Scaling"
+    default = "Bradford"
 
 
 def get_available_colorspaces() -> list[RgbColorspace]:
