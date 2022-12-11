@@ -29,13 +29,13 @@ def test_get_colorspace():
 def test_get_colorspace_linear():
 
     result = colorspaces.get_colorspace("srgb")
-    assert result.cctf_decoding != linear_function
+    assert result.transfer_functions != colorspaces.TRANSFER_FUNCTIONS_LINEAR
 
     result = colorspaces.get_colorspace("srgb:linear")
-    assert result.cctf_decoding == linear_function
+    assert result.transfer_functions == colorspaces.TRANSFER_FUNCTIONS_LINEAR
 
     result = colorspaces.get_colorspace("DCI-P3+")
-    assert result.cctf_decoding != linear_function
+    assert result.transfer_functions != colorspaces.TRANSFER_FUNCTIONS_LINEAR
 
     result = colorspaces.get_colorspace("DCI-P3+:linear")
-    assert result.cctf_decoding == linear_function
+    assert result.transfer_functions == colorspaces.TRANSFER_FUNCTIONS_LINEAR

@@ -278,13 +278,11 @@ def check(
         mask=mask_array,
     )
 
-    output_array = colour.RGB_to_RGB(
+    output_array = gamutin.core.colorspaces.colorspace_to_colorspace(
         result_array,
         _colorspace,
         _target_colorspace,
         chromatic_adaptation_transform="Bradford",
-        apply_cctf_decoding=True,
-        apply_cctf_encoding=True,
     )
 
     output_image = gamutin.core.io.ImageWrite(

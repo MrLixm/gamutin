@@ -7,8 +7,10 @@ import numpy
 
 from .blending import blend_arrays
 from .blending import BlendModes
+from .colorspaces import RgbColorspace
 from .colorspaces import POINTER_GAMUT_COLORSPACE
-from .colorspaces import WHITEPOINT_NULL_NAME
+from .colorspaces import colorspace_to_colorspace
+from .colorspaces import colorspace_to_XYZ
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +29,8 @@ class CompositeBlendModes(enum.Enum):
 
 def transform_out_of_gamut_values(
     input_array: numpy.ndarray,
-    input_colorspace: colour.RGB_Colourspace,
-    reference_colorspace: colour.RGB_Colourspace,
+    input_colorspace: RgbColorspace,
+    reference_colorspace: RgbColorspace,
     invalid_color: tuple[float, float, float],
     valid_color: Optional[tuple[float, float, float]],
     tolerance_amount: float,
@@ -51,21 +53,16 @@ def transform_out_of_gamut_values(
         input_array values modified using given parameters
     """
     cat: Optional[str] = "Bradford"  # TODO move to constant
-    if (
-        input_colorspace.whitepoint_name == WHITEPOINT_NULL_NAME
-        or reference_colorspace.whitepoint_name == WHITEPOINT_NULL_NAME
-    ):
+    if input_colorspace.whitepoint is None or reference_colorspace.whitepoint is None:
         cat = None
 
     if reference_colorspace == POINTER_GAMUT_COLORSPACE:
 
-        intermediate_array = colour.RGB_to_XYZ(
+        intermediate_array = colorspace_to_XYZ(
             input_array,
-            input_colorspace.whitepoint,
-            reference_colorspace.whitepoint,
-            input_colorspace.matrix_RGB_to_XYZ,
+            input_colorspace,
+            POINTER_GAMUT_COLORSPACE.whitepoint,
             chromatic_adaptation_transform=cat,
-            cctf_decoding=input_colorspace.cctf_decoding,
         )
         logger.debug(
             "[transform_out_of_gamut_values] calling is_within_pointer_gamut ..."
@@ -76,12 +73,11 @@ def transform_out_of_gamut_values(
 
     else:
 
-        result_array = colour.RGB_to_RGB(
+        result_array = colorspace_to_colorspace(
             input_array,
-            input_colourspace=input_colorspace,
-            output_colourspace=reference_colorspace,
+            source_colorspace=input_colorspace,
+            target_colorspace=reference_colorspace,
             chromatic_adaptation_transform=cat,
-            apply_cctf_decoding=True,
         )
 
         # out of gamut values = False
