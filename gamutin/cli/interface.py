@@ -312,14 +312,22 @@ def colorspaces():
     """
     List all colorspaces availables.
     """
-    colorspace_names_list = (
-        gamutin.core.colorspaces.get_available_colorspaces_names_aliases()
-    )
-    out_str = ""
-    for colorspace_aliases in colorspace_names_list:
-        aliases = '", "'.join(colorspace_aliases[1:])
-        out_str += f'{colorspace_aliases[0]: <30} - aliases: "{aliases}"\n'
 
+    colorspace_names_list = []
+
+    for (
+        colorspace_aliases
+    ) in gamutin.core.colorspaces.get_available_colorspaces_names_aliases():
+        aliases = ", ".join(colorspace_aliases[1:])
+        colorspace_names_list.append([colorspace_aliases[0], aliases])
+
+    out_str = gamutin.core.utils.prettify_table_list(
+        colorspace_names_list,
+        headers_titles=["Main Name", "Aliases"],
+        column_margins=2,
+        column_padding=4,
+        alignement="left",
+    )
     out_str += '\nYou can ask a "linear" variant of the colorspace (== no transfer function) by adding ":linear" at the end of the colorspace name.'
     click.echo(out_str)
 
@@ -330,8 +338,15 @@ def blendmodes():
     List all blending modes availables.
     """
     blend_mode_list = gamutin.core.gamut.CompositeBlendModes.__all__()
-    blend_mode_list = [bm.name for bm in blend_mode_list]
-    click.echo(blend_mode_list)
+    blend_mode_list = [[bm.name] for bm in blend_mode_list]
+
+    out_str = gamutin.core.utils.prettify_table_list(
+        blend_mode_list,
+        headers_titles=["Blend Mode Name"],
+        column_margins=1,
+        column_padding=4,
+    )
+    click.echo(out_str)
 
 
 @cli.command()
@@ -339,11 +354,14 @@ def cats():
     """
     List all chromatic adaptation transform availables
     """
-    # TODO create a toTable function for prettier display
-    cat_list = []
-    for cat in gamutin.core.colorspaces.ChromaticAdaptationTransform:
-        cat_list.append(f'{cat.name: <20} - (pretty name: "{cat.value}")')
-    click.echo("\n".join(cat_list))
+    cat_list = [
+        [cat.name, cat.value]
+        for cat in gamutin.core.colorspaces.ChromaticAdaptationTransform
+    ]
+    out_str = gamutin.core.utils.prettify_table_list(
+        cat_list, headers_titles=["CAT Name", "(Pretty Name)"], column_padding=4
+    )
+    click.echo(out_str)
 
 
 @cli.command()
