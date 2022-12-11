@@ -3,7 +3,10 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
+from gamutin.editor.options import MaskOptions
+from gamutin.editor.options import CompositeBlendModes
 from gamutin.editor.assets.widgets import pathselector
+from gamutin.core.colorspaces import get_available_colorspaces_names_aliases
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +28,17 @@ class GamutinMainWidget(QtWidgets.QWidget):
 
         self.layout_source = QtWidgets.QGridLayout()
         self.widget_path_source = pathselector.PathSelector()
+        self.widget_path_mask_source = pathselector.PathSelector()
         self.label_colorspace_source = QtWidgets.QLabel("Source Colorspace")
+        self.label_mask_source = QtWidgets.QLabel("Mask")
         self.combobox_colorspace_source = QtWidgets.QComboBox()
-        self.checkbox_alpha_mask_source = QtWidgets.QCheckBox("Use Alpha as Mask")
+        self.combobox_mask_source = QtWidgets.QComboBox()
+        self.checkbox_force_linear_source = QtWidgets.QCheckBox(
+            "Force Linear Transfer-Function"
+        )
 
         self.layout_options = QtWidgets.QGridLayout()
-        self.label_colorspace_reference = QtWidgets.QLabel("Reference Colorspace")
+        self.label_colorspace_reference = QtWidgets.QLabel("Reference Gamut")
         self.label_blend_mode = QtWidgets.QLabel("Blend Mode")
         self.label_tolerance = QtWidgets.QLabel("Tolerance")
         self.label_invalid = QtWidgets.QLabel("Invalid Color")
@@ -46,6 +54,9 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.widget_path_target = pathselector.PathSelector()
         self.label_colorspace_target = QtWidgets.QLabel("Target Colorspace")
         self.combobox_colorspace_target = QtWidgets.QComboBox()
+        self.checkbox_force_linear_target = QtWidgets.QCheckBox(
+            "Force Linear Transfer-Function"
+        )
 
         # 2. Add
         self.setLayout(self.layout)
@@ -61,12 +72,16 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_source.addWidget(self.widget_path_source, 0, 0, 1, -1)
         self.layout_source.addWidget(self.label_colorspace_source, 1, 0)
         self.layout_source.addWidget(self.combobox_colorspace_source, 1, 1)
-        self.layout_source.addWidget(self.checkbox_alpha_mask_source, 1, 2)
+        self.layout_source.addWidget(self.checkbox_force_linear_source, 1, 2)
+        self.layout_source.addWidget(self.label_mask_source, 2, 0)
+        self.layout_source.addWidget(self.combobox_mask_source, 2, 1)
+        self.layout_source.addWidget(self.widget_path_mask_source, 3, 0, 1, -1)
 
         self.layout_target.addWidget(self.checkbox_preview_only, 0, 0)
         self.layout_target.addWidget(self.widget_path_target, 1, 0, 1, -1)
         self.layout_target.addWidget(self.label_colorspace_target, 2, 0)
         self.layout_target.addWidget(self.combobox_colorspace_target, 2, 1)
+        self.layout_target.addWidget(self.checkbox_force_linear_target, 2, 2)
 
         self.layout_options.addWidget(self.label_colorspace_reference, 0, 0)
         self.layout_options.addWidget(self.label_blend_mode, 1, 0)
@@ -82,15 +97,17 @@ class GamutinMainWidget(QtWidgets.QWidget):
         # 3. Modify
         self.widget_path_source.set_path_type(pathselector.PathType.file_exist)
         self.widget_path_target.set_path_type(pathselector.PathType.file)
-        self.checkbox_alpha_mask_source.setToolTip(
-            "Use the alpha channel to specify which pixel need to be processed."
-        )
+        self.widget_path_mask_source.set_path_type(pathselector.PathType.file_exist)
         self.checkbox_preview_only.setToolTip(
             "Do not generate a result image on disk. "
             "Instead just preview the result in this application. "
             "<i>(A temporary image will still need to be generated)</i>"
         )
         self.label_colorspace_source.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Fixed,
+        )
+        self.label_mask_source.setSizePolicy(
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed,
         )
@@ -103,7 +120,40 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_options.setContentsMargins(*(25,) * 4)
         self.layout_target.setContentsMargins(*(25,) * 4)
         # 4. Connections
+        self.button_launch.clicked.connect(self.start_processing)
+        self.combobox_mask_source.currentIndexChanged.connect(self.on_mask_changed)
+        self.checkbox_preview_only.stateChanged.connect(self.on_preview_only_toggled)
         return
 
     def bakeUI(self):
+
+        for colorspace_names_tuple in get_available_colorspaces_names_aliases():
+            self.combobox_colorspace_source.addItem(colorspace_names_tuple[0])
+            self.combobox_colorspace_reference.addItem(colorspace_names_tuple[0])
+            self.combobox_colorspace_target.addItem(colorspace_names_tuple[0])
+
+        for composite_blend_mode in CompositeBlendModes:
+            self.combobox_blend_mode.addItem(
+                composite_blend_mode.name,
+                composite_blend_mode,
+            )
+
+        for mask_option in MaskOptions:
+            self.combobox_mask_source.addItem(str(mask_option.value), mask_option)
+
+    def start_processing(self):
+        """
+        Called by the user to start processing the options to produce the result.
+        """
         pass
+
+    def on_mask_changed(self, *args):
+        mask_value: MaskOptions = self.combobox_mask_source.currentData()
+        if mask_value == MaskOptions.from_alpha:
+            self.widget_path_mask_source.setEnabled(False)
+        else:
+            self.widget_path_mask_source.setEnabled(True)
+
+    def on_preview_only_toggled(self, *args):
+        preview_only: bool = self.checkbox_preview_only.isChecked()
+        self.widget_path_target.setEnabled(not preview_only)

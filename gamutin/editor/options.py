@@ -1,5 +1,13 @@
+__all__ = (
+    "CompositeBlendModes",
+    "MaskOptions",
+)
+
 import enum
 import logging
+
+from gamutin.core.gamut import CompositeBlendModes
+
 
 logger = logging.getLogger(__name__)
 
