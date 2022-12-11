@@ -36,6 +36,7 @@ def transform_out_of_gamut_values(
     valid_color: Optional[tuple[float, float, float]],
     tolerance_amount: float,
     blend_mode: CompositeBlendModes,
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform],
     mask: Optional[numpy.ndarray] = None,
 ) -> numpy.ndarray:
     """
@@ -48,15 +49,12 @@ def transform_out_of_gamut_values(
         valid_color: color to use for inside of pointer's gamut values. If none just keep the original values.
         tolerance_amount: higher means less chance of being flag as invalid
         blend_mode: blending operation to use for invalid/valid values
+        chromatic_adaptation_transform: transform name to use for whitepoint conversions
         mask: array of similar shape as input_array. Determine where the transfor is applied.
 
     Returns:
         input_array values modified using given parameters
     """
-    cat: Optional[ChromaticAdaptationTransform]
-    cat = ChromaticAdaptationTransform.default  # TODO move to constant
-    if input_colorspace.whitepoint is None or reference_colorspace.whitepoint is None:
-        cat = None
 
     if reference_colorspace == POINTER_GAMUT_COLORSPACE:
 
@@ -64,7 +62,7 @@ def transform_out_of_gamut_values(
             input_array,
             input_colorspace,
             POINTER_GAMUT_COLORSPACE.whitepoint,
-            chromatic_adaptation_transform=cat,
+            chromatic_adaptation_transform=chromatic_adaptation_transform,
         )
         logger.debug(
             "[transform_out_of_gamut_values] calling is_within_pointer_gamut ..."
@@ -79,7 +77,7 @@ def transform_out_of_gamut_values(
             input_array,
             source_colorspace=input_colorspace,
             target_colorspace=reference_colorspace,
-            chromatic_adaptation_transform=cat,
+            chromatic_adaptation_transform=chromatic_adaptation_transform,
         )
 
         # out of gamut values = False

@@ -275,6 +275,7 @@ def check(
         valid_color=valid_color,
         tolerance_amount=tolerance,
         blend_mode=_blend_mode,
+        chromatic_adaptation_transform=gamutin.core.colorspaces.ChromaticAdaptationTransform.default,
         mask=mask_array,
     )
 

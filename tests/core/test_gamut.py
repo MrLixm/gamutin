@@ -29,6 +29,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=None,
     )
     array_expected = numpy.array(
@@ -47,6 +48,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=None,
     )
     array_expected = numpy.array(
@@ -65,6 +67,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.66, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=None,
     )
     array_expected = numpy.array(
@@ -83,6 +86,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=array_mask,
     )
     array_expected = numpy.array(
@@ -101,6 +105,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.add,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=array_mask,
     )
     array_expected = numpy.array(
@@ -137,6 +142,7 @@ def test_transform_out_of_gamut_values():
             valid_color=(0.033, 0.033, 0.033),
             tolerance_amount=0.0,
             blend_mode=gamut.CompositeBlendModes.over,
+            chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
             mask=None,
         )
         if test_data[3]:
@@ -166,6 +172,7 @@ def test_null_colorspace():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=None,
     )
     array_expected = numpy.array(
@@ -184,6 +191,7 @@ def test_null_colorspace():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
         mask=None,
     )
     array_expected = numpy.array(
