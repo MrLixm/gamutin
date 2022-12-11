@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 from typing import Callable
 from typing import Optional
@@ -68,17 +70,39 @@ class TransferFunctions(BaseColorspaceComponent):
     encoding: Optional[Callable]
     decoding: Optional[Callable]
 
+    is_encoding_linear: bool = False
+    is_decoding_linear: bool = False
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        if self.encoding is None:
+            self.is_encoding_linear = True
+        if self.decoding is None:
+            self.is_decoding_linear = True
+
+    @property
+    def are_linear(self) -> bool:
+        return self.is_encoding_linear and self.is_decoding_linear
+
     @classmethod
     def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
-            "CCTF " + colour_colorspace.name,
-            colour_colorspace.cctf_encoding,
-            colour_colorspace.cctf_decoding,
+            name="CCTF " + colour_colorspace.name,
+            encoding=colour_colorspace.cctf_encoding,
+            decoding=colour_colorspace.cctf_decoding,
+            is_encoding_linear=colour_colorspace.cctf_encoding
+            == colour.linear_function,
+            is_decoding_linear=colour_colorspace.cctf_decoding
+            == colour.linear_function,
         )
 
 
+TRANSFER_FUNCTIONS_LINEAR = TransferFunctions("CCTF Linear", None, None)
+
+
 @dataclasses.dataclass
-class RgbColorspace:
+class RgbColorspace(BaseColorspaceComponent):
 
     gamut: Optional[ColorspaceGamut]
     whitepoint: Optional[Whitepoint]
@@ -94,7 +118,8 @@ class RgbColorspace:
     A bit more details on what/why for this colorspace.
     """
 
-    def is_no_op(self):
+    @property
+    def is_no_op(self) -> bool:
         """
         Return True if the colorspace should not be processed because it
         defines no transform for any component.
@@ -115,3 +140,9 @@ class RgbColorspace:
         )
 
         return not has_gamut and not has_whitepoint and not has_transfer_function
+
+    def copy(self) -> RgbColorspace:
+        """
+        Return a shallow copy of this instance.
+        """
+        return dataclasses.replace(self)
