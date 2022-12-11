@@ -159,18 +159,15 @@ class RgbColorspace(BaseColorspaceComponent):
         defines no transform for any component.
         """
 
-        has_gamut = (
-            self.gamut
-            or self.gamut.matrix_from_XYZ != numpy.identity(3)
-            or self.gamut.matrix_to_XYZ != numpy.identity(3)
+        has_gamut = self.gamut and (
+            not numpy.array_equal(self.gamut.matrix_from_XYZ, numpy.identity(3))
+            or not numpy.array_equal(self.gamut.matrix_to_XYZ, numpy.identity(3))
         )
 
         has_whitepoint = self.whitepoint is not None
 
-        has_transfer_function = (
-            self.transfer_functions
-            or self.transfer_functions.decoding
-            or self.transfer_functions.encoding
+        has_transfer_function = self.transfer_functions and (
+            self.transfer_functions.decoding or self.transfer_functions.encoding
         )
 
         return not has_gamut and not has_whitepoint and not has_transfer_function
