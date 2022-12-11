@@ -336,17 +336,24 @@ class ChromaticAdaptationTransform(enum.Enum):
 
 def get_available_colorspaces() -> list[RgbColorspace]:
     """
-    List of RgbColorspace with no duplicates.
+    List of RgbColorspace with no duplicates and sorted alphabetically by name.
     """
-    return list(set(_COLORSPACES.values()))
+
+    def get_colorspace_name(colorspace: RgbColorspace):
+        return colorspace.name
+
+    return sorted(
+        list(set(_COLORSPACES.values())),
+        key=get_colorspace_name,
+    )
 
 
 def get_available_colorspaces_names() -> list[str]:
     """
-    List of colorspace indentifier taht correspond to a colorspace.
-    No duplicates.
+    List of colorspace indentifier that correspond to a colorspace.
+    No duplicates and sorted alphabetically by name.
     """
-    return list(set(_COLORSPACES.keys()))
+    return sorted(list(set(_COLORSPACES.keys())))
 
 
 def get_available_colorspaces_names_aliases() -> list[tuple[str]]:
