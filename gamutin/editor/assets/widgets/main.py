@@ -6,7 +6,8 @@ from Qt import QtCore
 from gamutin.editor.options import MaskOptions
 from gamutin.editor.options import CompositeBlendModes
 from gamutin.editor.assets.widgets import pathselector
-from gamutin.core.colorspaces import get_available_colorspaces_names_aliases
+from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
+from gamutin.core.colorspaces import get_available_colorspaces
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +32,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.widget_path_mask_source = pathselector.PathSelector()
         self.label_colorspace_source = QtWidgets.QLabel("Source Colorspace")
         self.label_mask_source = QtWidgets.QLabel("Mask")
-        self.combobox_colorspace_source = QtWidgets.QComboBox()
+        self.combobox_colorspace_source = ColorspaceSelector()
         self.combobox_mask_source = QtWidgets.QComboBox()
-        self.checkbox_force_linear_source = QtWidgets.QCheckBox(
-            "Force Linear Transfer-Function"
-        )
 
         self.layout_options = QtWidgets.QGridLayout()
         self.label_colorspace_reference = QtWidgets.QLabel("Reference Gamut")
@@ -43,7 +41,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.label_tolerance = QtWidgets.QLabel("Tolerance")
         self.label_invalid = QtWidgets.QLabel("Invalid Color")
         self.label_valid = QtWidgets.QLabel("Valid Color")
-        self.combobox_colorspace_reference = QtWidgets.QComboBox()
+        self.combobox_colorspace_reference = ColorspaceSelector()
         self.combobox_blend_mode = QtWidgets.QComboBox()
         self.slider_tolerance = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.color_invalid = QtWidgets.QPushButton()
@@ -53,10 +51,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.checkbox_preview_only = QtWidgets.QCheckBox("Preview Only")
         self.widget_path_target = pathselector.PathSelector()
         self.label_colorspace_target = QtWidgets.QLabel("Target Colorspace")
-        self.combobox_colorspace_target = QtWidgets.QComboBox()
-        self.checkbox_force_linear_target = QtWidgets.QCheckBox(
-            "Force Linear Transfer-Function"
-        )
+        self.combobox_colorspace_target = ColorspaceSelector()
 
         # 2. Add
         self.setLayout(self.layout)
@@ -72,7 +67,6 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_source.addWidget(self.widget_path_source, 0, 0, 1, -1)
         self.layout_source.addWidget(self.label_colorspace_source, 1, 0)
         self.layout_source.addWidget(self.combobox_colorspace_source, 1, 1)
-        self.layout_source.addWidget(self.checkbox_force_linear_source, 1, 2)
         self.layout_source.addWidget(self.label_mask_source, 2, 0)
         self.layout_source.addWidget(self.combobox_mask_source, 2, 1)
         self.layout_source.addWidget(self.widget_path_mask_source, 3, 0, 1, -1)
@@ -81,7 +75,6 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_target.addWidget(self.widget_path_target, 1, 0, 1, -1)
         self.layout_target.addWidget(self.label_colorspace_target, 2, 0)
         self.layout_target.addWidget(self.combobox_colorspace_target, 2, 1)
-        self.layout_target.addWidget(self.checkbox_force_linear_target, 2, 2)
 
         self.layout_options.addWidget(self.label_colorspace_reference, 0, 0)
         self.layout_options.addWidget(self.label_blend_mode, 1, 0)
@@ -119,6 +112,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_source.setContentsMargins(*(25,) * 4)
         self.layout_options.setContentsMargins(*(25,) * 4)
         self.layout_target.setContentsMargins(*(25,) * 4)
+        self.combobox_colorspace_reference.set_force_linear_visible(False)
+        self.combobox_colorspace_reference.set_force_linear_enable(False)
         # 4. Connections
         self.button_launch.clicked.connect(self.start_processing)
         self.combobox_mask_source.currentIndexChanged.connect(self.on_mask_changed)
@@ -127,10 +122,12 @@ class GamutinMainWidget(QtWidgets.QWidget):
 
     def bakeUI(self):
 
-        for colorspace_names_tuple in get_available_colorspaces_names_aliases():
-            self.combobox_colorspace_source.addItem(colorspace_names_tuple[0])
-            self.combobox_colorspace_reference.addItem(colorspace_names_tuple[0])
-            self.combobox_colorspace_target.addItem(colorspace_names_tuple[0])
+        for combobox in [
+            self.combobox_colorspace_source,
+            self.combobox_colorspace_reference,
+            self.combobox_colorspace_target,
+        ]:
+            combobox.bakeUI()
 
         for composite_blend_mode in CompositeBlendModes:
             self.combobox_blend_mode.addItem(
