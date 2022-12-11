@@ -9,6 +9,7 @@ __all__ = (
     "RgbColorspace",
 )
 
+import copy
 import dataclasses
 from abc import abstractmethod
 from typing import Callable
@@ -200,7 +201,7 @@ class RgbColorspace(BaseColorspaceComponent):
         """
         Return a shallow copy of this instance.
         """
-        return dataclasses.replace(self)
+        return copy.deepcopy(self)
 
     @classmethod
     def from_colour_colorspace(
