@@ -1,3 +1,5 @@
+__all__ = ("ColorspaceCategory",)
+
 import enum
 
 
