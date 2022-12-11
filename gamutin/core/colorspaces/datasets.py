@@ -54,6 +54,7 @@ def _load_colour_colorspaces():
     colour_colorspace_config = {
         "RGB_COLOURSPACE_ACES2065_1": {
             "category": [ColorspaceCategory.aces],
+            "aliases": ["aces"],
         },
         "RGB_COLOURSPACE_ACESCC": {
             "category": [ColorspaceCategory.aces],
@@ -261,7 +262,8 @@ def _load_colour_colorspaces():
             categories=tuple(colorspace_data.get("category", [])),
         )
 
-        _add_colorspace(colorspace)
+        aliases = colorspace_data.get("aliases", [])
+        _add_colorspace(colorspace, additional_aliases=aliases)
 
     return
 
@@ -280,10 +282,14 @@ def _load_colorspaces():
     )
     _add_colorspace(colorspace, additional_aliases=["raw", "null"])
 
+    whitepoint = Whitepoint(
+        f"{_COLORSPACE_POINTER_GAMUT_NAME} Whitepoint",
+        coordinates=colour.models.CCS_ILLUMINANT_POINTER_GAMUT,
+    )
     colorspace = RgbColorspace(
         name=_COLORSPACE_POINTER_GAMUT_NAME,
         gamut=None,
-        whitepoint=None,
+        whitepoint=whitepoint,
         transfer_functions=None,
         description=(
             "The Pointer’s gamut is (an approximation of) the gamut of real surface "
