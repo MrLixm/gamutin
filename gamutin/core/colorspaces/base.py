@@ -35,6 +35,13 @@ class Whitepoint(BaseColorspaceComponent):
     CIE xy coordinates as a ndarray(2,)
     """
 
+    def __hash__(self) -> int:
+        return (
+            hash(self.__class__.__name__)
+            + hash(self.name)
+            + hash(repr(self.coordinates))
+        )
+
     @classmethod
     def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
@@ -51,6 +58,14 @@ class ColorspaceGamut(BaseColorspaceComponent):
 
     matrix_to_XYZ: numpy.ndarray
     matrix_from_XYZ: numpy.ndarray
+
+    def __hash__(self) -> int:
+        return (
+            hash(self.__class__.__name__)
+            + hash(self.name)
+            + hash(repr(self.matrix_to_XYZ))
+            + hash(repr(self.matrix_from_XYZ))
+        )
 
     @classmethod
     def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
@@ -72,6 +87,14 @@ class TransferFunctions(BaseColorspaceComponent):
 
     is_encoding_linear: bool = False
     is_decoding_linear: bool = False
+
+    def __hash__(self) -> int:
+        return (
+            hash(self.__class__.__name__)
+            + hash(self.name)
+            + hash(self.encoding)
+            + hash(self.decoding)
+        )
 
     def __post_init__(self):
         super().__post_init__()
@@ -108,7 +131,7 @@ class RgbColorspace(BaseColorspaceComponent):
     whitepoint: Optional[Whitepoint]
     transfer_functions: Optional[TransferFunctions]
 
-    categories: list[ColorspaceCategory]
+    categories: tuple[ColorspaceCategory]
     """
     To help sort the colorspace in an interface.
     """
@@ -117,6 +140,17 @@ class RgbColorspace(BaseColorspaceComponent):
     """
     A bit more details on what/why for this colorspace.
     """
+
+    def __hash__(self) -> int:
+        return (
+            hash(self.__class__.__name__)
+            + hash(self.name)
+            + hash(self.gamut)
+            + hash(self.whitepoint)
+            + hash(self.transfer_functions)
+            + hash(self.categories)
+            + hash(self.description)
+        )
 
     @property
     def is_no_op(self) -> bool:
