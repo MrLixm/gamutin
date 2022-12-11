@@ -10,6 +10,7 @@ __all__ = (
 )
 
 import dataclasses
+from abc import abstractmethod
 from typing import Callable
 from typing import Optional
 
@@ -35,8 +36,20 @@ class BaseColorspaceComponent:
     def __post_init__(self):
         self.name_simplified = simplify(self.name)
 
+    @abstractmethod
+    def _tuplerepr(self) -> tuple:
+        pass
 
-@dataclasses.dataclass
+    def __hash__(self):
+        return hash(self._tuplerepr())
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self._tuplerepr() == other._tuplerepr()
+        return NotImplemented
+
+
+@dataclasses.dataclass(eq=False)
 class Whitepoint(BaseColorspaceComponent):
 
     coordinates: numpy.ndarray
@@ -44,11 +57,11 @@ class Whitepoint(BaseColorspaceComponent):
     CIE xy coordinates as a ndarray(2,)
     """
 
-    def __hash__(self) -> int:
+    def _tuplerepr(self):
         return (
-            hash(self.__class__.__name__)
-            + hash(self.name)
-            + hash(repr(self.coordinates))
+            self.__class__.__name__,
+            self.name,
+            repr(self.coordinates),
         )
 
     @classmethod
@@ -59,7 +72,7 @@ class Whitepoint(BaseColorspaceComponent):
         )
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(eq=False)
 class ColorspaceGamut(BaseColorspaceComponent):
     """
     Gamut/Primaries part of a specific colorspace.
@@ -68,12 +81,12 @@ class ColorspaceGamut(BaseColorspaceComponent):
     matrix_to_XYZ: numpy.ndarray
     matrix_from_XYZ: numpy.ndarray
 
-    def __hash__(self) -> int:
+    def _tuplerepr(self):
         return (
-            hash(self.__class__.__name__)
-            + hash(self.name)
-            + hash(repr(self.matrix_to_XYZ))
-            + hash(repr(self.matrix_from_XYZ))
+            self.__class__.__name__,
+            self.name,
+            repr(self.matrix_to_XYZ),
+            repr(self.matrix_from_XYZ),
         )
 
     @classmethod
@@ -85,7 +98,7 @@ class ColorspaceGamut(BaseColorspaceComponent):
         )
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(eq=False)
 class TransferFunctions(BaseColorspaceComponent):
     """
     Transfer function as decoding and encoding.
@@ -97,12 +110,14 @@ class TransferFunctions(BaseColorspaceComponent):
     is_encoding_linear: bool = False
     is_decoding_linear: bool = False
 
-    def __hash__(self) -> int:
+    def _tuplerepr(self):
         return (
-            hash(self.__class__.__name__)
-            + hash(self.name)
-            + hash(self.encoding)
-            + hash(self.decoding)
+            self.__class__.__name__,
+            self.name,
+            self.encoding,
+            self.decoding,
+            self.is_encoding_linear,
+            self.is_decoding_linear,
         )
 
     def __post_init__(self):
@@ -133,7 +148,7 @@ class TransferFunctions(BaseColorspaceComponent):
 TRANSFER_FUNCTIONS_LINEAR = TransferFunctions("CCTF Linear", None, None)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(eq=False)
 class RgbColorspace(BaseColorspaceComponent):
 
     gamut: Optional[ColorspaceGamut]
@@ -150,15 +165,15 @@ class RgbColorspace(BaseColorspaceComponent):
     A bit more details on what/why for this colorspace.
     """
 
-    def __hash__(self) -> int:
+    def _tuplerepr(self) -> tuple:
         return (
-            hash(self.__class__.__name__)
-            + hash(self.name)
-            + hash(self.gamut)
-            + hash(self.whitepoint)
-            + hash(self.transfer_functions)
-            + hash(self.categories)
-            + hash(self.description)
+            self.__class__.__name__,
+            self.name,
+            self.gamut,
+            self.whitepoint,
+            self.transfer_functions,
+            self.categories,
+            self.description,
         )
 
     @property
