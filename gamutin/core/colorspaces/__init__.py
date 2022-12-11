@@ -9,3 +9,6 @@ from gamutin.core.colorspaces.datasets import get_available_colorspaces_names_al
 from gamutin.core.colorspaces.datasets import get_available_colorspaces_names
 from gamutin.core.colorspaces.datasets import get_available_colorspaces
 from gamutin.core.colorspaces.datasets import POINTER_GAMUT_COLORSPACE
+from gamutin.core.colorspaces.transformations import colorspace_to_colorspace
+from gamutin.core.colorspaces.transformations import matrix_colorspace_to_colorspace
+from gamutin.core.colorspaces.transformations import colorspace_to_XYZ
