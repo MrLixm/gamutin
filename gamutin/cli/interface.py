@@ -106,6 +106,13 @@ def gui(source_file: str):
     help="Colorspace to use the gamut as limit for comparing the input.",
 )
 @click.option(
+    "--cat",
+    "--chromatic_adaptation_transform",
+    type=str,
+    default=gamutin.core.colorspaces.ChromaticAdaptationTransform.default.name,
+    help="Transform name to use for whitepoint conversions. Use `cat` command for a list of availables options.",
+)
+@click.option(
     "--blend_mode",
     type=str,
     default=gamutin.core.gamut.CompositeBlendModes.over.name,
@@ -153,6 +160,7 @@ def check(
     blend_mode: str,
     colorspace: str,
     ref_colorspace: str,
+    cat: str,
     target_colorspace: Optional[str],
     tolerance: float,
     invalid_color: str,
@@ -228,6 +236,8 @@ def check(
             f"You can't use the {gamutin.core.colorspaces.POINTER_GAMUT_COLORSPACE.name} colorspace as target colorspace !"
         )
 
+    _cat = gamutin.core.colorspaces.ChromaticAdaptationTransform[cat]
+
     _blend_mode = gamutin.core.gamut.CompositeBlendModes[blend_mode]
 
     _mask_used = bool(mask_file or use_alpha_as_mask)
@@ -275,7 +285,7 @@ def check(
         valid_color=valid_color,
         tolerance_amount=tolerance,
         blend_mode=_blend_mode,
-        chromatic_adaptation_transform=gamutin.core.colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=_cat,
         mask=mask_array,
     )
 
@@ -283,7 +293,7 @@ def check(
         result_array,
         _colorspace,
         _target_colorspace,
-        chromatic_adaptation_transform=gamutin.core.colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=_cat,
     )
 
     output_image = gamutin.core.io.ImageWrite(
@@ -322,6 +332,18 @@ def blendmodes():
     blend_mode_list = gamutin.core.gamut.CompositeBlendModes.__all__()
     blend_mode_list = [bm.name for bm in blend_mode_list]
     click.echo(blend_mode_list)
+
+
+@cli.command()
+def cats():
+    """
+    List all chromatic adaptation transform availables
+    """
+    # TODO create a toTable function for prettier display
+    cat_list = []
+    for cat in gamutin.core.colorspaces.ChromaticAdaptationTransform:
+        cat_list.append(f'{cat.name: <20} - (pretty name: "{cat.value}")')
+    click.echo("\n".join(cat_list))
 
 
 @cli.command()

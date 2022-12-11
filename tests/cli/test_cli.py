@@ -175,3 +175,55 @@ def test_cli_check_invalid_color(imagepath_spacoween, tmp_path):
         ],
     )
     assert result.exit_code == 0
+
+
+def test_cli_cat(imagepath_spacoween, tmp_path):
+    runner = CliRunner()
+
+    tmp_target_path = tmp_path / (imagepath_spacoween.stem + ".jpg")
+
+    result = runner.invoke(
+        cli,
+        [
+            "--debug",
+            "check",
+            str(imagepath_spacoween),
+            str(tmp_target_path),
+            "--colorspace",
+            "aces2065-1:linear",
+            "--ref_colorspace",
+            "acescg",
+            "--target_colorspace",
+            "sRGB",
+            "--blend_mode",
+            "over",
+            "--invalid_color",
+            "(1.0, 0.25, 0.2)",
+            "--cat",
+            "CAT02",
+        ],
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        cli,
+        [
+            "--debug",
+            "check",
+            str(imagepath_spacoween),
+            str(tmp_target_path),
+            "--colorspace",
+            "aces2065-1:linear",
+            "--ref_colorspace",
+            "acescg",
+            "--target_colorspace",
+            "sRGB",
+            "--blend_mode",
+            "over",
+            "--invalid_color",
+            "(1.0, 0.25, 0.2)",
+            "--chromatic_adaptation_transform",
+            "CAT02",
+        ],
+    )
+    assert result.exit_code == 0
