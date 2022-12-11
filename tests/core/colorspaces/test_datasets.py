@@ -1,5 +1,3 @@
-from colour.models import linear_function
-
 from gamutin.core import colorspaces
 
 
