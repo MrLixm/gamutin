@@ -257,16 +257,8 @@ def _load_colour_colorspaces():
             )
             continue
 
-        gamut = ColorspaceGamut.fromColourColorspace(colour_colorspace)
-        whitepoint = Whitepoint.fromColourColorspace(colour_colorspace)
-        transfer_functions = TransferFunctions.fromColourColorspace(colour_colorspace)
-
-        colorspace = RgbColorspace(
-            name=colour_colorspace.name,
-            gamut=gamut,
-            whitepoint=whitepoint,
-            transfer_functions=transfer_functions,
-            description=colour_colorspace.__doc__,
+        colorspace = RgbColorspace.from_colour_colorspace(
+            colour_colorspace,
             categories=tuple(colorspace_data.get("category", [])),
         )
 

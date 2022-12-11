@@ -65,10 +65,10 @@ class Whitepoint(BaseColorspaceComponent):
         )
 
     @classmethod
-    def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
+    def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
             colour_colorspace.whitepoint_name,
-            colour_colorspace.whitepoint,
+            colour_colorspace.whitepoint.copy(),
         )
 
 
@@ -90,11 +90,11 @@ class ColorspaceGamut(BaseColorspaceComponent):
         )
 
     @classmethod
-    def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
+    def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
             "Gamut " + colour_colorspace.name,
-            colour_colorspace.matrix_RGB_to_XYZ,
-            colour_colorspace.matrix_XYZ_to_RGB,
+            colour_colorspace.matrix_RGB_to_XYZ.copy(),
+            colour_colorspace.matrix_XYZ_to_RGB.copy(),
         )
 
 
@@ -133,7 +133,7 @@ class TransferFunctions(BaseColorspaceComponent):
         return self.is_encoding_linear and self.is_decoding_linear
 
     @classmethod
-    def fromColourColorspace(cls, colour_colorspace: colour.RGB_Colourspace):
+    def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
             name="CCTF " + colour_colorspace.name,
             encoding=colour_colorspace.cctf_encoding,
@@ -201,3 +201,23 @@ class RgbColorspace(BaseColorspaceComponent):
         Return a shallow copy of this instance.
         """
         return dataclasses.replace(self)
+
+    @classmethod
+    def from_colour_colorspace(
+        cls,
+        colour_colorspace: colour.RGB_Colourspace,
+        categories: tuple[ColorspaceCategory],
+        description: Optional[str] = None,
+    ):
+        gamut = ColorspaceGamut.from_colour_colorspace(colour_colorspace)
+        whitepoint = Whitepoint.from_colour_colorspace(colour_colorspace)
+        transfer_functions = TransferFunctions.from_colour_colorspace(colour_colorspace)
+
+        return cls(
+            name=colour_colorspace.name,
+            gamut=gamut,
+            whitepoint=whitepoint,
+            transfer_functions=transfer_functions,
+            description=description or colour_colorspace.__doc__,
+            categories=categories,
+        )
