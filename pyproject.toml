@@ -17,6 +17,7 @@ xmltodict = "^0.13"
 [tool.poetry.group.dev.dependencies]
 black = "*"
 pytest = "*"
+Pillow = "*"
 
 [build-system]
 requires = ["poetry-core"]
