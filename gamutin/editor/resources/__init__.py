@@ -24,14 +24,14 @@ class ResourceLibrary(BaseResourceLibrary):
         self.root_icon = self.root / "icons"
         self.root_styles = self.root / "styles"
 
-        self.icon_main = self.root_icon / "icon.ico"
-        self.icon_file_check_outline = self.root_icon / "file-check-outline.svg"
-        self.icon_file_multiple_outline = self.root_icon / "file-multiple-outline.svg"
-        self.icon_file_outline = self.root_icon / "file-outline.svg"
-        self.icon_folder = self.root_icon / "folder.svg"
-        self.icon_folder_check = self.root_icon / "folder-check.svg"
-        self.icon_information = self.root_icon / "information.svg"
-        self.icon_alert_outline = self.root_icon / "alert-circle-outline.svg"
+        self.icon_main = self.get_icon("icon.ico")
+        self.icon_file_check_outline = self.get_icon("file-check-outline.svg")
+        self.icon_file_multiple_outline = self.get_icon("file-multiple-outline.svg")
+        self.icon_file_outline = self.get_icon("file-outline.svg")
+        self.icon_folder = self.get_icon("folder.svg")
+        self.icon_folder_check = self.get_icon("folder-check.svg")
+        self.icon_information = self.get_icon("information.svg")
+        self.icon_alert_outline = self.get_icon("alert-circle-outline.svg")
 
         self._style_active: StyleSheet = StyleSheet(content="/*empty*/")
         self._theme_active: Type[DefaultStyleTheme] = DefaultStyleTheme
@@ -57,3 +57,6 @@ class ResourceLibrary(BaseResourceLibrary):
         self._style_active.apply_to(qapp)
 
         logger.debug(f"[{self.__class__.__name__}][register] Finished on {qapp}")
+
+    def get_icon(self, icon_file_name: str) -> Path:
+        return self.root / "icons" / icon_file_name
