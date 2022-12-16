@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "gamutin"
 version = "0.1.0"
-description = "color-science utility to check image data against the pointer's gamut"
+description = "Color-science utility to check gamut footprint of an image. As CLI and GUI."
 authors = ["Liam Collod <lcollod@gmail.com>"]
 readme = "README.md"
 
