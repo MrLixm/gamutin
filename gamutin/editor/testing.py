@@ -1,5 +1,6 @@
 import enum
 import logging
+import datetime
 
 from Qt import QtWidgets
 
@@ -44,6 +45,9 @@ class BlankTestWindow(QtWidgets.QWidget):
         self.layout_user = QtWidgets.QVBoxLayout()
         self.status_bar = QtWidgets.QStatusBar()
         self.label_theme = QtWidgets.QLabel("Theme")
+        self.label_time = QtWidgets.QLabel(
+            f"Time: <code>{datetime.datetime.now()}</code>"
+        )
         self.combobox_theme = QtWidgets.QComboBox()
         self.checkbox_disabled = QtWidgets.QCheckBox("Disabled")
 
@@ -51,6 +55,7 @@ class BlankTestWindow(QtWidgets.QWidget):
         self.layout.addLayout(self.layout_header)
         self.layout.addLayout(self.layout_user)
         self.layout.addWidget(self.status_bar)
+        self.layout_header.addWidget(self.label_time)
         self.layout_header.addWidget(self.label_theme)
         self.layout_header.addWidget(self.combobox_theme)
         self.layout_header.addWidget(self.checkbox_disabled)
