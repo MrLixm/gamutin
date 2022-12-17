@@ -11,18 +11,31 @@ logger = logging.getLogger(__name__)
 
 class PushButtonAligned(QtWidgets.QPushButton):
     """
-    A button on which you can set in which direction the text and its is icon is aligned.
+    A button on which you can set in which direction the text and its icon is aligned.
+
+    The ``pin_icon...`` methods allow to pin the icon to border of the button, while the
+    ``align_icon...`` align it relative to the text.
 
     Example::
 
+        pin_icon_left, align_text_left
         ————————————————————————
         | [icon] text          |
         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+        pin_icon_left, align_text_left
         ————————————————————————
         | [icon]          text |
         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+        pin_icon_right, align_text_right
         ————————————————————————
         |          text [icon] |
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+        align_icon_right
+        ————————————————————————
+        |     text [icon]      |
         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
     inspired from: https://stackoverflow.com/a/53417349/13806195
@@ -105,7 +118,7 @@ class PushButtonAligned(QtWidgets.QPushButton):
 
     def pin_icon_left(self, margin=0):
         """
-        Align icon relative to the PushButton shape.
+        Align icon relative to the PushButton borders.
         """
         self.align_icon_left()
         self.layout.removeItem(self.stretch_l)
@@ -116,7 +129,7 @@ class PushButtonAligned(QtWidgets.QPushButton):
 
     def pin_icon_right(self, margin=0):
         """
-        Align icon relative to the PushButton shape.
+        Align icon relative to the PushButton borders.
         """
         self.align_icon_right()
         self.layout.removeItem(self.stretch_l)
