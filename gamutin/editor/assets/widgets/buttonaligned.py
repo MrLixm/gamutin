@@ -33,25 +33,25 @@ class PushButtonAligned(QtWidgets.QPushButton):
 
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout(self)
-        label_icon = QtWidgets.QLabel()
+        self.label_icon = QtWidgets.QLabel()
         self.label_text = QtWidgets.QLabel(self.text())
 
         # 2. Add
         self.layout.addWidget(self.label_text)
-        self.layout.addWidget(label_icon)
+        self.layout.addWidget(self.label_icon)
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
-        for label in [self.label_text, label_icon]:
+        for label in [self.label_text, self.label_icon]:
             label.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
 
-        label_icon.setSizePolicy(
+        self.label_icon.setSizePolicy(
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed,
         )
         self.setText("")
-        label_icon.setPixmap(self.icon().pixmap(self.iconSize()))
+        self.label_icon.setPixmap(self.icon().pixmap(self.iconSize()))
         self.setIcon(QtGui.QIcon())
 
         # set default look
