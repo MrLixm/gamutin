@@ -138,8 +138,8 @@ class PushButtonAligned(QtWidgets.QPushButton):
         left, top, right, bottom = self.getContentsMargins()
         self.setContentsMargins(left, top, margin, bottom)
 
-    def set_text_alignement(self, alignement: QtCore.Qt.Alignment):
-        self.label_text.setAlignment(alignement)
+    def set_text_alignment(self, alignment: QtCore.Qt.Alignment):
+        self.label_text.setAlignment(alignment)
 
 
 def _test_interface():
@@ -180,32 +180,32 @@ def _test_interface():
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right(15)
-    widget.set_text_alignement(QtCore.Qt.AlignLeft)
+    widget.set_text_alignment(QtCore.Qt.AlignLeft)
     widget_list.append((widget, "pin_icon_right(15), text AlignLeft"))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right(15)
-    widget.set_text_alignement(QtCore.Qt.AlignRight)
+    widget.set_text_alignment(QtCore.Qt.AlignRight)
     widget_list.append((widget, "pin_icon_right(15), text AlignRight"))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignLeft)
+    widget.set_text_alignment(QtCore.Qt.AlignLeft)
     widget_list.append((widget, "pin_icon_left, text AlignLeft"))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignRight)
+    widget.set_text_alignment(QtCore.Qt.AlignRight)
     widget_list.append((widget, "pin_icon_left, text AlignRight"))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+    widget.set_text_alignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
     widget_list.append((widget, "pin_icon_left, text AlignRight|AlignVCenter"))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignCenter)
+    widget.set_text_alignment(QtCore.Qt.AlignCenter)
     widget_list.append((widget, "pin_icon_left, text AlignCenter"))
 
     widget = PushButtonAligned(icon, button_text)
