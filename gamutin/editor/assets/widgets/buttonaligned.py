@@ -161,72 +161,105 @@ def _test_interface():
     widget_list = []
     button_text = "THis is a test button"
 
+    # PushButtonAligned:basic
+
     icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_ArrowRight)
     widget = PushButtonAligned(icon, button_text)
-    widget_list.append((widget, "default"))
+    expected = "|    [i]t    |"
+    widget_list.append((widget, "default", expected))
 
     icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_ArrowRight)
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
-    widget_list.append((widget, "pin_icon_left"))
+    expected = "|[i]    t    |"
+    widget_list.append((widget, "pin_icon_left", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right()
-    widget_list.append((widget, "pin_icon_right"))
+    expected = "|    t    [i]|"
+    widget_list.append((widget, "pin_icon_right", expected))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.align_text_left()
+    expected = "|[i]t        |"
+    widget_list.append((widget, "align_text_left", expected))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.align_text_right()
+    expected = "|        [i]t|"
+    widget_list.append((widget, "align_text_right", expected))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.align_icon_left()
+    expected = "|    [i]t    |"
+    widget_list.append((widget, "align_icon_left", expected))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.align_icon_right()
+    expected = "|    t[i]    |"
+    widget_list.append((widget, "align_icon_right", expected))
+
+    # PushButtonAligned:advanced
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right(15)
-    widget_list.append((widget, "pin_icon_right(15)"))
+    expected = "|    t    [i] |"
+    widget_list.append((widget, "pin_icon_right(15)", expected))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left(15)
+    expected = "| [i]    t    |"
+    widget_list.append((widget, "pin_icon_left(15)", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right(15)
     widget.set_text_alignment(QtCore.Qt.AlignLeft)
-    widget_list.append((widget, "pin_icon_right(15), text AlignLeft"))
+    expected = "|t       [i] |"
+    widget_list.append((widget, "pin_icon_right(15), text AlignLeft", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_right(15)
     widget.set_text_alignment(QtCore.Qt.AlignRight)
-    widget_list.append((widget, "pin_icon_right(15), text AlignRight"))
+    expected = "|       t[i] |"
+    widget_list.append((widget, "pin_icon_right(15), text AlignRight", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
     widget.set_text_alignment(QtCore.Qt.AlignLeft)
-    widget_list.append((widget, "pin_icon_left, text AlignLeft"))
+    expected = "|[i]t        |"
+    widget_list.append((widget, "pin_icon_left, text AlignLeft", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
     widget.set_text_alignment(QtCore.Qt.AlignRight)
-    widget_list.append((widget, "pin_icon_left, text AlignRight"))
+    expected = "|[i]        t|"
+    widget_list.append((widget, "pin_icon_left, text AlignRight", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
     widget.set_text_alignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-    widget_list.append((widget, "pin_icon_left, text AlignRight|AlignVCenter"))
+    expected = "|[i]        t|"
+    widget_list.append(
+        (widget, "pin_icon_left, text AlignRight|AlignVCenter", expected)
+    )
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
     widget.set_text_alignment(QtCore.Qt.AlignCenter)
-    widget_list.append((widget, "pin_icon_left, text AlignCenter"))
+    expected = "|[i]    t    |"
+    widget_list.append((widget, "pin_icon_left, text AlignCenter", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left()
     widget.align_text_right(15)
-    widget_list.append((widget, "pin_icon_left, align_text_right(15)"))
+    expected = "|[i]       t |"
+    widget_list.append((widget, "pin_icon_left, align_text_right(15)", expected))
 
     widget = PushButtonAligned(icon, button_text)
     widget.pin_icon_left(15)
     widget.align_text_right(15)
-    widget_list.append((widget, "pin_icon_left(15), align_text_right(15)"))
-
-    # align icon
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
-    widget_list.append((widget, "align_icon_left"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_right()
-    widget_list.append((widget, "align_icon_right"))
+    expected = "| [i]      t |"
+    widget_list.append((widget, "pin_icon_left(15), align_text_right(15)", expected))
 
     # succesive call test
 
@@ -234,14 +267,22 @@ def _test_interface():
     widget.pin_icon_left(15)
     widget.align_text_right(15)
     widget.align_icon_left()
+    expected = "|       [i]t |"
     widget_list.append(
-        (widget, "pin_icon_left(15)+align_icon_left, align_text_right(15)")
+        (widget, "pin_icon_left(15)+align_icon_left, align_text_right(15)", expected)
     )
 
+    def to_qt_html(source_str: str) -> str:
+        source_str = source_str.replace(" ", "&nbsp;")
+        source_str = "<code>" + source_str + "</code>"
+        return source_str
+
     for widget_index, widget_data in enumerate(widget_list):
-        label = QtWidgets.QLabel(widget_data[1])
-        layout.addWidget(label, widget_index, 0)
+        label_title = QtWidgets.QLabel(widget_data[1])
+        label_expected = QtWidgets.QLabel(to_qt_html(widget_data[2]))
+        layout.addWidget(label_title, widget_index, 0)
         layout.addWidget(widget_data[0], widget_index, 1)
+        layout.addWidget(label_expected, widget_index, 2)
 
     layout.setColumnStretch(1, 3)
 
