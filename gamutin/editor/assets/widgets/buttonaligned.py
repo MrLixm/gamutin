@@ -35,6 +35,18 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.layout = QtWidgets.QHBoxLayout(self)
         self.label_icon = QtWidgets.QLabel()
         self.label_text = QtWidgets.QLabel(self.text())
+        self.stretch_l = QtWidgets.QSpacerItem(
+            16,
+            16,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Expanding,
+        )
+        self.stretch_r = QtWidgets.QSpacerItem(
+            16,
+            16,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Expanding,
+        )
 
         # 2. Add
         self.layout.addWidget(self.label_text)
@@ -58,15 +70,25 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.align_icon_left()
         self.align_text_center()
 
-    def align_icon_left(self, margin=0):
+    def align_icon_left(self):
+        """
+        Align icon relative to the text.
+        """
         self.layout.setDirection(self.layout.RightToLeft)
-        left, top, right, bottom = self.getContentsMargins()
-        self.setContentsMargins(margin, top, right, bottom)
+        self.layout.removeItem(self.stretch_l)
+        self.layout.removeItem(self.stretch_r)
+        self.layout.insertItem(0, self.stretch_l)
+        self.layout.insertItem(-1, self.stretch_r)
 
-    def align_icon_right(self, margin=0):
+    def align_icon_right(self):
+        """
+        Align icon relative to the text.
+        """
         self.layout.setDirection(self.layout.LeftToRight)
-        left, top, right, bottom = self.getContentsMargins()
-        self.setContentsMargins(left, top, margin, bottom)
+        self.layout.removeItem(self.stretch_l)
+        self.layout.removeItem(self.stretch_r)
+        self.layout.insertItem(0, self.stretch_l)
+        self.layout.insertItem(-1, self.stretch_r)
 
     def align_text_left(self, margin=0):
         self.label_text.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -80,6 +102,28 @@ class PushButtonAligned(QtWidgets.QPushButton):
 
     def align_text_center(self):
         self.label_text.setAlignment(QtCore.Qt.AlignCenter)
+
+    def pin_icon_left(self, margin=0):
+        """
+        Align icon relative to the PushButton shape.
+        """
+        self.align_icon_left()
+        self.layout.removeItem(self.stretch_l)
+        self.layout.removeItem(self.stretch_r)
+
+        left, top, right, bottom = self.getContentsMargins()
+        self.setContentsMargins(margin, top, right, bottom)
+
+    def pin_icon_right(self, margin=0):
+        """
+        Align icon relative to the PushButton shape.
+        """
+        self.align_icon_right()
+        self.layout.removeItem(self.stretch_l)
+        self.layout.removeItem(self.stretch_r)
+
+        left, top, right, bottom = self.getContentsMargins()
+        self.setContentsMargins(left, top, margin, bottom)
 
     def set_text_alignement(self, alignement: QtCore.Qt.Alignment):
         self.label_text.setAlignment(alignement)
@@ -110,6 +154,60 @@ def _test_interface():
 
     icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_ArrowRight)
     widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget_list.append((widget, "pin_icon_left"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_right()
+    widget_list.append((widget, "pin_icon_right"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_right(15)
+    widget_list.append((widget, "pin_icon_right(15)"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_right(15)
+    widget.set_text_alignement(QtCore.Qt.AlignLeft)
+    widget_list.append((widget, "pin_icon_right(15), text AlignLeft"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_right(15)
+    widget.set_text_alignement(QtCore.Qt.AlignRight)
+    widget_list.append((widget, "pin_icon_right(15), text AlignRight"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget.set_text_alignement(QtCore.Qt.AlignLeft)
+    widget_list.append((widget, "pin_icon_left, text AlignLeft"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget.set_text_alignement(QtCore.Qt.AlignRight)
+    widget_list.append((widget, "pin_icon_left, text AlignRight"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget.set_text_alignement(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+    widget_list.append((widget, "pin_icon_left, text AlignRight|AlignVCenter"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget.set_text_alignement(QtCore.Qt.AlignCenter)
+    widget_list.append((widget, "pin_icon_left, text AlignCenter"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left()
+    widget.align_text_right(15)
+    widget_list.append((widget, "pin_icon_left, align_text_right(15)"))
+
+    widget = PushButtonAligned(icon, button_text)
+    widget.pin_icon_left(15)
+    widget.align_text_right(15)
+    widget_list.append((widget, "pin_icon_left(15), align_text_right(15)"))
+
+    # align icon
+
+    widget = PushButtonAligned(icon, button_text)
     widget.align_icon_left()
     widget_list.append((widget, "align_icon_left"))
 
@@ -117,49 +215,15 @@ def _test_interface():
     widget.align_icon_right()
     widget_list.append((widget, "align_icon_right"))
 
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_right(15)
-    widget_list.append((widget, "align_icon_right(15)"))
+    # succesive call test
 
     widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_right(15)
-    widget.set_text_alignement(QtCore.Qt.AlignLeft)
-    widget_list.append((widget, "align_icon_right(15), text AlignLeft"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_right(15)
-    widget.set_text_alignement(QtCore.Qt.AlignRight)
-    widget_list.append((widget, "align_icon_right(15), text AlignRight"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignLeft)
-    widget_list.append((widget, "align_icon_left, text AlignLeft"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignRight)
-    widget_list.append((widget, "align_icon_left, text AlignRight"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-    widget_list.append((widget, "align_icon_left, text AlignRight|AlignVCenter"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
-    widget.set_text_alignement(QtCore.Qt.AlignCenter)
-    widget_list.append((widget, "align_icon_left, text AlignCenter"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left()
+    widget.pin_icon_left(15)
     widget.align_text_right(15)
-    widget_list.append((widget, "align_icon_left, align_text_right(15)"))
-
-    widget = PushButtonAligned(icon, button_text)
-    widget.align_icon_left(15)
-    widget.align_text_right(15)
-    widget_list.append((widget, "align_icon_left(15), align_text_right(15)"))
+    widget.align_icon_left()
+    widget_list.append(
+        (widget, "pin_icon_left(15)+align_icon_left, align_text_right(15)")
+    )
 
     for widget_index, widget_data in enumerate(widget_list):
         label = QtWidgets.QLabel(widget_data[1])
