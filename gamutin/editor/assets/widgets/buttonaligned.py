@@ -238,6 +238,10 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.text_h_alignment = alignment_h
         self._update_layout(alignment_v)
 
+    def unpin_icon(self):
+        self.is_icon_pinned = False
+        self._update_layout()
+
 
 def _test_interface():
     import sys
@@ -406,16 +410,51 @@ def _test_interface():
             self.widget.pin_icon_left(15)
             self.widget.align_text_right(15)
 
-    # succesive call test
-
     class Test18(TestPushButtonAligned):
-        test_name = "pin_icon_left(15)+align_icon_left, align_text_right(15)"
-        expected = "|       [i]t |"
+        test_name = "pin_icon_left(15), align_icon_right()"
+        expected = "|    t    [i]|"
 
         def setup(self):
             self.widget.pin_icon_left(15)
-            self.widget.align_text_right(15)
-            self.widget.align_icon_left()
+            self.widget.align_icon_right()
+
+    class Test19(TestPushButtonAligned):
+        test_name = "pin_icon_left(15), pin_icon_right()"
+        expected = "|    t    [i]|"
+
+        def setup(self):
+            self.widget.pin_icon_left(15)
+            self.widget.pin_icon_right()
+
+    class Test20(TestPushButtonAligned):
+        test_name = "pin_icon_left(15), unpin_icon(), align_icon_right()"
+        expected = "|    t[i]    |"
+
+        def setup(self):
+            self.widget.pin_icon_left(15)
+            self.widget.unpin_icon()
+            self.widget.align_icon_right()
+
+    # TODO not working
+    class Test21(TestPushButtonAligned):
+        test_name = (
+            "pin_icon_left(15), pin_icon_right(), align_text_left(), unpin_icon()"
+        )
+        expected = "|t[i]        |"
+
+        def setup(self):
+            self.widget.pin_icon_left(15)
+            self.widget.pin_icon_right()
+            self.widget.align_text_left()
+            self.widget.unpin_icon()
+
+    class Test22(TestPushButtonAligned):
+        test_name = "align_text_left, pin_icon_right(15)"
+        expected = "|t       [i] |"
+
+        def setup(self):
+            self.widget.align_text_left()
+            self.widget.pin_icon_right(15)
 
     def to_qt_html(source_str: str) -> str:
         source_str = source_str.replace(" ", "&nbsp;")
