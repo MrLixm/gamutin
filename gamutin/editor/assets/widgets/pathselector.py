@@ -116,6 +116,11 @@ class PathSelector(QtWidgets.QFrame):
     Signal emitted when a error happens. Data emmitted is the error message.
     """
 
+    path_changed_signal = QtCore.Signal(object)
+    """
+    Signal emitted when the path is changed. Not emitted when a error is produced.
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -316,6 +321,8 @@ class PathSelector(QtWidgets.QFrame):
 
         path_error = self.is_path_invalid(self.current_path)
         self.set_error(path_error)
+        if not path_error:
+            self.path_changed_signal.emit(self.current_path)
 
     def open_current_path_in_explorer(self):
         """
@@ -469,6 +476,9 @@ def _test_interface():
             widget.error_signal.connect(
                 lambda message: window.show_message(message, 2000)
             )
+            widget.path_changed_signal.connect(
+                lambda message: window.show_message(str(message), 2000)
+            )
             row_layout.addWidget(widget)
 
             if path_type == PathType.error:
@@ -478,6 +488,9 @@ def _test_interface():
     widget.set_path_type(PathType.file_exist)
     widget.set_expected_file_extensions([".jpg", ".py"])
     widget.error_signal.connect(lambda message: window.show_message(message, 2000))
+    widget.path_changed_signal.connect(
+        lambda message: window.show_message(str(message), 2000)
+    )
 
     layout.addWidget(widget)
     layout.addStretch(1)
