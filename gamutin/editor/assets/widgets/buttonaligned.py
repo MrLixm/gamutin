@@ -50,9 +50,10 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.icon_h_alignment: Optional[QtCore.Qt.AlignmentFlag] = None
 
         # 1. Create
+        self._icon: QtGui.QIcon = super().icon()
         self.layout = QtWidgets.QHBoxLayout(self)
         self.label_icon = QtWidgets.QLabel()
-        self.label_text = QtWidgets.QLabel(self.text())
+        self.label_text = QtWidgets.QLabel(super().text())
 
         # 2. Add
         self.layout.addStretch(0)
@@ -72,11 +73,17 @@ class PushButtonAligned(QtWidgets.QPushButton):
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed,
         )
-        self.setText("")
-        self.label_icon.setPixmap(self.icon().pixmap(self.iconSize()))
-        self.setIcon(QtGui.QIcon())
+        super().setText("")
+        self.setIcon(self._icon)
+        super().setIcon(QtGui.QIcon())
 
         self.set_text_alignment(QtCore.Qt.AlignCenter)
+
+    def icon(self) -> QtGui.QIcon:
+        return self._icon
+
+    def text(self) -> str:
+        return self.label_text.text()
 
     def setContentsMargins(
         self,
@@ -99,6 +106,17 @@ class PushButtonAligned(QtWidgets.QPushButton):
         right = right if right is not None else margins[2]
         bottom = bottom if bottom is not None else margins[3]
         super().setContentsMargins(left, top, right, bottom)
+
+    def setText(self, text: str):
+        self.label_text.setText(text)
+
+    def setIcon(self, icon: QtGui.QIcon):
+        self._icon = icon
+        self.label_icon.setPixmap(self.icon().pixmap(self.iconSize()))
+
+    def setIconSize(self, size: QtCore.QSize):
+        super().setIconSize(size)
+        self.setIcon(self._icon)
 
     def _update_layout(
         self,
