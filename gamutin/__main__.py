@@ -39,6 +39,16 @@ def _configureLogging():
                 "level": cfg.logs_level,
                 "propagate": False,
             },
+            f"__main__": {
+                "handlers": ["hl_console"],
+                "level": logging.DEBUG,
+                "propagate": False,
+            },
+            f"{gamutin.__name__}.editor.assets": {
+                "handlers": ["hl_console"],
+                "level": logging.INFO,
+                "propagate": False,
+            },
         },
     }
     # register
