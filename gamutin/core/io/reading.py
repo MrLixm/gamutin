@@ -15,7 +15,7 @@ import numpy
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ImageRead:
     """
     Object to represent an existig image on disk.
