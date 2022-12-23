@@ -19,6 +19,12 @@ class ColorspaceSelector(QtWidgets.QWidget):
     It's possibel to override its default transfer functions using a QCheckBox.
     """
 
+    colorspace_changed_signal = QtCore.Signal(object)
+    """
+    Emitted when the colorspace selected in the interface change.
+    Emit a :class:`gamutin.core.colorspaces.RgbColorspace` instance.
+    """
+
     def __init__(self, parent=None):
         # type: (QtWidgets.QWidget) -> None
         super().__init__(parent)
@@ -58,6 +64,10 @@ class ColorspaceSelector(QtWidgets.QWidget):
         )
 
         # 4. Connections
+        self.checkbox_force_linear_target.stateChanged.connect(
+            self.on_colorspace_changed
+        )
+
         return
 
     def bakeUI(self):
@@ -128,6 +138,8 @@ class ColorspaceSelector(QtWidgets.QWidget):
         self.button_colorspace.setToolTip(colorspace.description)
         self._current_colorspace = colorspace
 
+        self.on_colorspace_changed()
+
     def get_current_colorspace(self) -> gamutin.core.colorspaces.RgbColorspace:
         """
         Return the colorspace currently selected in the interface.
@@ -145,3 +157,13 @@ class ColorspaceSelector(QtWidgets.QWidget):
                 f"{colorspace_name} and {force_linear=}"
             )
         return colorspace
+
+    def on_colorspace_changed(self, *args):
+        """
+        Called when the colorspace selected has changed.
+        """
+        new_colorspace = self.get_current_colorspace()
+        self.colorspace_changed_signal.emit(new_colorspace)
+        logger.debug(
+            f"[{self.__class__.__name__}][on_colorspace_changed] {new_colorspace}"
+        )
