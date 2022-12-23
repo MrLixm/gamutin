@@ -35,6 +35,7 @@ class ColorspaceSelector(QtWidgets.QWidget):
     def cookUI(self):
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout()
+        self.label_legend = QtWidgets.QLabel("ColorSpace")
         self.button_colorspace = PushButtonAligned()
         self.menu_colorspace = QtWidgets.QMenu()
         self.checkbox_force_linear_target = QtWidgets.QCheckBox(
@@ -43,6 +44,7 @@ class ColorspaceSelector(QtWidgets.QWidget):
 
         # 2. Add
         self.setLayout(self.layout)
+        self.layout.addWidget(self.label_legend)
         self.layout.addWidget(self.button_colorspace)
         self.layout.addWidget(self.checkbox_force_linear_target)
 
@@ -50,6 +52,11 @@ class ColorspaceSelector(QtWidgets.QWidget):
         self.layout.setContentsMargins(*(0,) * 4)
         self.button_colorspace.setMenu(self.menu_colorspace)
         self.button_colorspace.align_text_left()
+        self.label_legend.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Fixed,
+        )
+
         # 4. Connections
         return
 
@@ -95,6 +102,20 @@ class ColorspaceSelector(QtWidgets.QWidget):
             enable: True to set enable, False to disable.
         """
         self.checkbox_force_linear_target.setChecked(enable)
+
+    def set_label_visible(self, visible: bool):
+        """
+        Args:
+            visible: True to set visible, False to hide.
+        """
+        self.label_legend.setVisible(visible)
+
+    def set_label_text(self, text: str):
+        """
+        Args:
+            text: any text to use, keep it short.
+        """
+        self.label_legend.setText(text)
 
     def set_current_colorspace(
         self,
