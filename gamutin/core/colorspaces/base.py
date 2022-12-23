@@ -41,6 +41,9 @@ class BaseColorspaceComponent:
     def _tuplerepr(self) -> tuple:
         pass
 
+    def __str__(self):
+        return f"{self.__class__.__name__}<{self.name} at {hex(id(self))}>"
+
     def __hash__(self):
         return hash(self._tuplerepr())
 
