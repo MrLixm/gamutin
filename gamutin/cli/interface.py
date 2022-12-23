@@ -378,12 +378,11 @@ def imageinfo(source_file: str, verbose: bool):
     """
     source_file = Path(source_file)
     image = gamutin.core.io.ImageRead(path=source_file, colorspace=None)
-    image_repr = gamutin.core.io.ImageRepr(image=image)
 
     if verbose:
-        data_dict = image_repr.full_dict
+        data_dict = image.as_dict_full()
     else:
-        data_dict = image_repr.simple_dict
+        data_dict = image.as_dict_simple()
 
     out_str = json.dumps(
         data_dict,

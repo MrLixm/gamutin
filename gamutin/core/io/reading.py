@@ -3,13 +3,20 @@
 """
 from __future__ import annotations
 
+__all__ = ("ImageRead",)
+
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import colour
 import OpenImageIO as oiio
 import numpy
+
+from .representing import repr_spec_full_dict
+from .representing import repr_stats_simplified_str
+from .representing import repr_spec_simplified_str
+
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +94,54 @@ class ImageRead:
         Number of subimage availble in the image.
         """
         return len(self.specglobal.keys())
+
+    def as_dict_simple(self) -> dict[str, dict]:
+        """
+        Get a simplified dict representation with only essential information.
+
+        This doesn't include any actual pixel data.
+        """
+
+        out_dict = {}
+
+        for subimage_index, subimage_data in self.specglobal.items():
+
+            subimage_index = f"subimage {subimage_index}"
+            out_dict[subimage_index] = {}
+
+            for mip_index, level_spec in subimage_data.items():
+
+                mip_index = f"miplevel {mip_index}"
+                out_dict[subimage_index][mip_index] = repr_spec_simplified_str(
+                    level_spec
+                )
+
+        return {str(self.path): out_dict}
+
+    def as_dict_full(self) -> dict[str, Union[dict, str]]:
+        """
+        Get a full dict representation with all the information possible.
+
+        This doesn't include any actual pixel data.
+        """
+
+        out_dict = {}
+
+        for subimage_index, subimage_data in self.specglobal.items():
+
+            subimage_index = f"subimage {subimage_index}"
+            out_dict[subimage_index] = {}
+
+            for mip_index, level_spec in subimage_data.items():
+                mip_index = f"miplevel {mip_index}"
+                out_dict[subimage_index][mip_index] = repr_spec_full_dict(level_spec)
+
+        return {
+            str(self.path): {
+                "__stats__": repr_stats_simplified_str(self.path),
+                "content": out_dict,
+            },
+        }
 
     def get_spec_at(self, subimage: int, miplevel: int) -> Optional[oiio.ImageSpec]:
         """

@@ -1,8 +1,6 @@
 """
 
 """
-from __future__ import annotations
-
 import datetime
 import logging
 from pathlib import Path
@@ -10,65 +8,8 @@ from pathlib import Path
 import OpenImageIO as oiio
 import xmltodict
 
-from .reading import ImageRead
 
 logger = logging.getLogger(__name__)
-
-
-class ImageRepr:
-    """
-    Serialized representation of the image data for human consumption.
-    """
-
-    def __init__(self, image: ImageRead):
-        self.image = image
-
-    @property
-    def simple_dict(self) -> dict:
-        """
-        Get a simplified dict representation with only essential information.
-        """
-
-        out_dict = {}
-
-        for subimage_index, subimage_data in self.image.specglobal.items():
-
-            subimage_index = f"subimage {subimage_index}"
-            out_dict[subimage_index] = {}
-
-            for mip_index, level_spec in subimage_data.items():
-
-                mip_index = f"miplevel {mip_index}"
-                out_dict[subimage_index][mip_index] = repr_spec_simplified_str(
-                    level_spec
-                )
-
-        return {str(self.image.path): out_dict}
-
-    @property
-    def full_dict(self) -> dict:
-        """
-        Get a full dict representation with all the information possible.
-        """
-
-        out_dict = {}
-
-        for subimage_index, subimage_data in self.image.specglobal.items():
-
-            subimage_index = f"subimage {subimage_index}"
-            out_dict[subimage_index] = {}
-
-            for mip_index, level_spec in subimage_data.items():
-
-                mip_index = f"miplevel {mip_index}"
-                out_dict[subimage_index][mip_index] = repr_spec_full_dict(level_spec)
-
-        return {
-            str(self.image.path): {
-                "__stats__": repr_stats_simplified_str(self.image.path),
-                "content": out_dict,
-            },
-        }
 
 
 def convert_bytes(byte_number: int) -> str:
