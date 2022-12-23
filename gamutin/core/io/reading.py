@@ -38,9 +38,6 @@ class ImageRead:
         if not self.path.exists():
             raise FileNotFoundError(f"Given path <{path}> doesn't exists on disk.")
 
-    def __key(self):
-        return self.path, self.colorspace
-
     def __eq__(self, other) -> bool:
         if isinstance(other, self.__class__):
             return self.__key() == other.__key()
@@ -54,26 +51,8 @@ class ImageRead:
             f"{self.__class__.__name__}(path={self.path}, colorspace={self.colorspace})"
         )
 
-    def read_as_image_buf(
-        self,
-        channels: Optional[tuple] = None,
-        subimage: int = 0,
-        mipmap: int = 0,
-    ) -> oiio.ImageBuf:
-        """
-
-        Args:
-            channels: list of name/index of channels to retrieve. ex: ("R", "A")
-            subimage: index of the subimage to retrieve. Usually 0.
-            mipmap: index of the mipmap to retrieve. Usually 0.
-
-        Returns:
-            ImageBUf instance as specified
-        """
-        buf = oiio.ImageBuf(str(self.path), subimage, mipmap)
-        if channels:
-            buf = oiio.ImageBufAlgo.channels(buf, channels)
-        return buf
+    def __key(self):
+        return self.path, self.colorspace
 
     @property
     def specglobal(self) -> dict[int, dict[int, oiio.ImageSpec]]:
@@ -109,18 +88,18 @@ class ImageRead:
         """
         return len(self.specglobal.keys())
 
+    def get_spec_at(self, subimage: int, miplevel: int) -> Optional[oiio.ImageSpec]:
+        """
+        ImageSpec correponding to the image stored at given "levels".
+        """
+        return self.specglobal.get(subimage, {}).get(miplevel, None)
+
     def miplevel_number_at(self, subimage_index: int) -> int:
         """
         Number of miplevel availble at given subimage index.
         """
         subimage = self.specglobal.get(subimage_index, {})
         return len(subimage.keys())
-
-    def get_spec_at(self, subimage: int, miplevel: int) -> Optional[oiio.ImageSpec]:
-        """
-        ImageSpec correponding to the image stored at given "levels".
-        """
-        return self.specglobal.get(subimage, {}).get(miplevel, None)
 
     def read_as_array(
         self,
@@ -142,3 +121,24 @@ class ImageRead:
         return self.read_as_image_buf(channels, subimage, mipmap).get_pixels(
             oiio.TypeFloat
         )
+
+    def read_as_image_buf(
+        self,
+        channels: Optional[tuple] = None,
+        subimage: int = 0,
+        mipmap: int = 0,
+    ) -> oiio.ImageBuf:
+        """
+
+        Args:
+            channels: list of name/index of channels to retrieve. ex: ("R", "A")
+            subimage: index of the subimage to retrieve. Usually 0.
+            mipmap: index of the mipmap to retrieve. Usually 0.
+
+        Returns:
+            ImageBUf instance as specified
+        """
+        buf = oiio.ImageBuf(str(self.path), subimage, mipmap)
+        if channels:
+            buf = oiio.ImageBufAlgo.channels(buf, channels)
+        return buf
