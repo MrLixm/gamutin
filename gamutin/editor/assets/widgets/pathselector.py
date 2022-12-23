@@ -126,6 +126,7 @@ class PathSelector(QtWidgets.QFrame):
 
         self._path_type: Optional[PathType] = None
         self._error_message: Optional[str] = None
+        self._display_error_message: bool = True
         self._expected_file_extensions: list[str] = []
 
         self.setStyleSheet(self.stylesheet)
@@ -260,14 +261,16 @@ class PathSelector(QtWidgets.QFrame):
 
         self.button_icon.set_type(path_type=self._path_type)
 
+        self.label_error.setVisible(
+            self._error_message is not None and self._display_error_message
+        )
+
         if self._error_message is not None:
             self.button_icon.set_type(path_type=PathType.error)
             self.lineedit_path.setProperty("errorFrame", True)
-            self.label_error.setVisible(True)
             self.label_error.setText(self._error_message)
         else:
             self.lineedit_path.setProperty("errorFrame", False)
-            self.label_error.setVisible(False)
             self.label_error.setText("")
 
     def get_error(self) -> Optional[str]:
@@ -399,6 +402,15 @@ class PathSelector(QtWidgets.QFrame):
         """
         self._expected_file_extensions = file_extensions
 
+    def toggle_display_error_message(self, display_errors: bool):
+        """
+        Change if the widget should display an error message when something wrong happens.
+
+        The error signals are still emitted.
+        """
+        self._display_error_message = display_errors
+        self.bakeUI()
+
     def _on_context_menu_requested(self, pointer: QtCore.QPoint):
         def make_current_path_absolute():
             self.current_path = self.current_path
@@ -469,6 +481,14 @@ def _test_interface():
 
     lineedit_demo = QtWidgets.QLineEdit()
 
+    def setup_PathSelector(path_selector):
+        path_selector.error_signal.connect(
+            lambda message: window.show_message(message, 2000)
+        )
+        path_selector.path_changed_signal.connect(
+            lambda message: window.show_message(str(message), 2000)
+        )
+
     for path_type in PathType.__all__():
 
         row_layout = QtWidgets.QHBoxLayout()
@@ -479,12 +499,7 @@ def _test_interface():
             widget = PathSelector()
             widget.set_path_type(path_type)
             widget.setEnabled(is_enabled)
-            widget.error_signal.connect(
-                lambda message: window.show_message(message, 2000)
-            )
-            widget.path_changed_signal.connect(
-                lambda message: window.show_message(str(message), 2000)
-            )
+            setup_PathSelector(widget)
             row_layout.addWidget(widget)
 
             if path_type == PathType.error:
@@ -493,12 +508,16 @@ def _test_interface():
     widget = PathSelector()
     widget.set_path_type(PathType.file_exist)
     widget.set_expected_file_extensions([".jpg", ".py"])
-    widget.error_signal.connect(lambda message: window.show_message(message, 2000))
-    widget.path_changed_signal.connect(
-        lambda message: window.show_message(str(message), 2000)
-    )
-
+    setup_PathSelector(widget)
     layout.addWidget(widget)
+
+    widget = PathSelector()
+    widget.set_path_type(PathType.file_exist)
+    widget.set_expected_file_extensions([".jpg", ".py"])
+    widget.toggle_display_error_message(False)
+    setup_PathSelector(widget)
+    layout.addWidget(widget)
+
     layout.addStretch(1)
     layout.addWidget(lineedit_demo)
 
