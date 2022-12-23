@@ -87,9 +87,13 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def cookUI(self):
+
         self.widget_main = GamutinMainWidget()
+        self.status_bar = QtWidgets.QStatusBar()
+
         self.setMenuBar(MainMenuBar(self))
         self.setCentralWidget(self.widget_main)
+        self.setStatusBar(self.status_bar)
 
     def closeEvent(self, event: QtGui.QCloseEvent):
         self.saveSettings()
