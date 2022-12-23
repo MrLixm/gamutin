@@ -201,23 +201,25 @@ class PathSelector(QtWidgets.QFrame):
         self.setStyleSheet(self.stylesheet)
 
     @property
-    def current_path(self) -> Path:
+    def current_path(self) -> Optional[Path]:
         """
         Path currently set in the interface.
 
-        Never return None, when no path is specified the current working directory
-        is returned instead. (``current_path == Path(".")``)
-
-        When possible an absolute path is returned.
+        When possible an absolute resolved path is returned.
         """
-        path = Path(self.lineedit_path.text())
+        path_input = self.lineedit_path.text()
+        if not path_input:
+            return None
+
+        path = Path(path_input)
         try:
             return path.resolve().absolute()
         except OSError:
             return path
 
     @current_path.setter
-    def current_path(self, new_path: Path):
+    def current_path(self, new_path: Optional[Path]):
+        new_path = new_path or ""
         self.lineedit_path.setText(str(new_path))
 
     def cookUI(self):
@@ -277,7 +279,7 @@ class PathSelector(QtWidgets.QFrame):
         """
         return self._error_message
 
-    def is_path_invalid(self, path: Path) -> Optional[str]:
+    def is_path_invalid(self, path: Optional[Path]) -> Optional[str]:
         """
         Find if the current path set is invalid.
 
@@ -287,6 +289,9 @@ class PathSelector(QtWidgets.QFrame):
         Returns:
             The error message if invalid else None if valid.
         """
+        if path is None:
+            return "No path specified."
+
         error_message = None
         is_valid = self._path_type.get_validate(self._path_type)(path)
 
@@ -322,7 +327,7 @@ class PathSelector(QtWidgets.QFrame):
 
         path_error = self.is_path_invalid(self.current_path)
         self.set_error(path_error)
-        if not path_error:
+        if not path_error and self.current_path:
             self.path_changed_signal.emit(self.current_path)
 
     def open_current_path_in_explorer(self):
@@ -331,7 +336,7 @@ class PathSelector(QtWidgets.QFrame):
         """
         path = self.current_path
 
-        if not path.exists():
+        if not path or not path.exists():
             return
 
         if path.is_file():
@@ -400,7 +405,7 @@ class PathSelector(QtWidgets.QFrame):
 
         menu = self.lineedit_path.createStandardContextMenu()
 
-        if self.current_path.exists():
+        if self.current_path and self.current_path.exists():
 
             action1 = QtWidgets.QAction("Open in Explorer")
             action1.triggered.connect(self.open_current_path_in_explorer)
