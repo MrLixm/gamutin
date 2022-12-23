@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -15,22 +14,47 @@ import numpy
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
 class ImageRead:
     """
     Object to represent an existig image on disk.
 
-    Read is deffered when asked.
+    Everything implying reading the file is deffered on the first call.
 
     Args:
         path: existing path to a file on disk
         colorspace: colorspace the pixel array is encoded in.
+
+    Raises:
+        FileNotFoundError: if the given path doesn't exist on disk.
     """
 
-    path: Path
-    colorspace: Optional[colour.RGB_Colourspace]
+    def __init__(self, path: Path, colorspace: Optional[colour.RGB_Colourspace]):
 
-    def get_image_buf(
+        self._specs_all: Optional[dict[int, dict[int, oiio.ImageSpec]]] = None
+
+        self.path: Path = path
+        self.colorspace: Optional[colour.RGB_Colourspace] = colorspace
+
+        if not self.path.exists():
+            raise FileNotFoundError(f"Given path <{path}> doesn't exists on disk.")
+
+    def __key(self):
+        return self.path, self.colorspace
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, self.__class__):
+            return self.__key() == other.__key()
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.__key())
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(path={self.path}, colorspace={self.colorspace})"
+        )
+
+    def read_as_image_buf(
         self,
         channels: Optional[tuple] = None,
         subimage: int = 0,
@@ -51,32 +75,61 @@ class ImageRead:
             buf = oiio.ImageBufAlgo.channels(buf, channels)
         return buf
 
-    def get_all_specs(self) -> dict[int, dict[int, oiio.ImageSpec]]:
+    @property
+    def specglobal(self) -> dict[int, dict[int, oiio.ImageSpec]]:
         """
-        Returns:
-            dict of all ImageSpec for each part of the file, sorted by subimage > miplevel
+        Get a dict of all ImageSpec for each part of the file, sorted by subimage : miplevel.
+
+        Example::
+
+            {0: {0: <ImageSpec>}, 1: {0: <ImageSpec>}}
         """
+        if self._specs_all:
+            return self._specs_all
+
         out_dict = {}
-        initial_buf = self.get_image_buf()
+        initial_buf = self.read_as_image_buf()
 
         for subimg_index in range(initial_buf.nsubimages):
 
-            buf = self.get_image_buf(subimage=subimg_index)
+            buf = self.read_as_image_buf(subimage=subimg_index)
             out_dict[subimg_index] = {}
 
             for mip_index in range(buf.nmiplevels):
-                buf = self.get_image_buf(subimage=subimg_index, mipmap=mip_index)
+                buf = self.read_as_image_buf(subimage=subimg_index, mipmap=mip_index)
                 out_dict[subimg_index][mip_index] = buf.spec()
 
-        return out_dict
+        self._specs_all = out_dict
+        return self._specs_all
 
-    def read_array(
+    @property
+    def subimage_number(self) -> int:
+        """
+        Number of subimage availble in the image.
+        """
+        return len(self.specglobal.keys())
+
+    def miplevel_number_at(self, subimage_index: int) -> int:
+        """
+        Number of miplevel availble at given subimage index.
+        """
+        subimage = self.specglobal.get(subimage_index, {})
+        return len(subimage.keys())
+
+    def get_spec_at(self, subimage: int, miplevel: int) -> Optional[oiio.ImageSpec]:
+        """
+        ImageSpec correponding to the image stored at given "levels".
+        """
+        return self.specglobal.get(subimage, {}).get(miplevel, None)
+
+    def read_as_array(
         self,
         channels: Optional[tuple] = None,
         subimage: int = 0,
         mipmap: int = 0,
     ) -> numpy.ndarray:
         """
+        Read the content of the image as numpy ndarray.
 
         Args:
             channels: list of name/index of channels to retrieve. ex: ("R", "A")
@@ -86,4 +139,6 @@ class ImageRead:
         Returns:
             pixel data as floating point numpy array
         """
-        return self.get_image_buf(channels, subimage, mipmap).get_pixels(oiio.TypeFloat)
+        return self.read_as_image_buf(channels, subimage, mipmap).get_pixels(
+            oiio.TypeFloat
+        )

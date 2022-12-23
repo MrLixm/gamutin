@@ -248,7 +248,7 @@ def check(
     )
 
     input_image = gamutin.core.io.ImageRead(path=source_file, colorspace=_colorspace)
-    input_array = input_image.read_array(
+    input_array = input_image.read_as_array(
         channels=("R", "G", "B"),
         subimage=subimage,
         mipmap=mipmap,
@@ -257,7 +257,7 @@ def check(
     mask_array: Optional[numpy.ndarray] = None
     if mask_file:
         mask_image = gamutin.core.io.ImageRead(path=mask_file, colorspace=None)
-        mask_array = mask_image.read_array(channels=("R",))
+        mask_array = mask_image.read_as_array(channels=("R",))
 
         if mask_array.shape[:-1] != input_array.shape[:-1]:
             raise ValueError(
@@ -265,7 +265,7 @@ def check(
                 f"{mask_array.shape=} != {input_array.shape=}"
             )
     elif use_alpha_as_mask:
-        mask_array = input_image.read_array(channels=("A",))
+        mask_array = input_image.read_as_array(channels=("A",))
         if not numpy.any(mask_array):
             raise ValueError(
                 '"use_alpha_as_mask" specified but the alpha channel seems empty (only zeros).'

@@ -31,7 +31,7 @@ class ImageRepr:
 
         out_dict = {}
 
-        for subimage_index, subimage_data in self.image.get_all_specs().items():
+        for subimage_index, subimage_data in self.image.specglobal.items():
 
             subimage_index = f"subimage {subimage_index}"
             out_dict[subimage_index] = {}
@@ -53,7 +53,7 @@ class ImageRepr:
 
         out_dict = {}
 
-        for subimage_index, subimage_data in self.image.get_all_specs().items():
+        for subimage_index, subimage_data in self.image.specglobal.items():
 
             subimage_index = f"subimage {subimage_index}"
             out_dict[subimage_index] = {}
