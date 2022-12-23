@@ -237,6 +237,7 @@ class PathSelector(QtWidgets.QFrame):
         self.layout.addWidget(self.label_error, 1, 1)
 
         # 3. Modify
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setVerticalSpacing(0)
         self.label_error.setProperty("errorState", True)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
