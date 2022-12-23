@@ -197,3 +197,9 @@ class ImageRead:
         if channels:
             buf = oiio.ImageBufAlgo.channels(buf, channels)
         return buf
+
+    def reload(self):
+        """
+        Update any cached data in the case the file on disk has changed.
+        """
+        self.__init__(path=self.path, colorspace=self.colorspace)
