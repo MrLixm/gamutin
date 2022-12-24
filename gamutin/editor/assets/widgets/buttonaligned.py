@@ -47,7 +47,7 @@ class PushButtonAligned(QtWidgets.QPushButton):
 
         self.is_icon_pinned: bool = False
         self.text_h_alignment: QtCore.Qt.AlignmentFlag = QtCore.Qt.AlignLeft
-        self.icon_h_alignment: Optional[QtCore.Qt.AlignmentFlag] = None
+        self.icon_h_alignment: QtCore.Qt.AlignmentFlag = QtCore.Qt.AlignLeft
 
         # 1. Create
         self._icon: QtGui.QIcon = super().icon()
@@ -125,25 +125,21 @@ class PushButtonAligned(QtWidgets.QPushButton):
         """
         Call an update on the icon relative to the current text position.
         """
-        self.align_icon_left()
         self.layout.removeWidget(self.label_icon)
         self.layout.removeWidget(self.label_text)
         text_v_alignment = text_v_alignment or QtCore.Qt.AlignVCenter
 
         if self.text_h_alignment == QtCore.Qt.AlignLeft:
-            # [i][t][s][s]
+            # [t][s][s]
             self.layout.insertWidget(0, self.label_text)
-            self.layout.insertWidget(0, self.label_icon)
 
         elif self.text_h_alignment == QtCore.Qt.AlignRight:
-            # [s][s][i][t]
-            self.layout.insertWidget(-1, self.label_icon)
+            # [s][s][t]
             self.layout.insertWidget(-1, self.label_text)
 
         elif self.text_h_alignment == QtCore.Qt.AlignCenter:
-            # [s][i][t][s]
+            # [s][t][s]
             self.layout.insertWidget(1, self.label_text)
-            self.layout.insertWidget(1, self.label_icon)
 
         else:
             raise ValueError(f"Unsupported value for {int(self.text_h_alignment)=}")
@@ -159,17 +155,16 @@ class PushButtonAligned(QtWidgets.QPushButton):
             if self.is_icon_pinned:
                 self.layout.insertWidget(0, self.label_icon)
             else:
-                self.align_icon_left()
+                text_index = self.layout.indexOf(self.label_text)
+                self.layout.insertWidget(text_index, self.label_icon)
 
         elif self.icon_h_alignment == QtCore.Qt.AlignRight:
 
             if self.is_icon_pinned:
                 self.layout.insertWidget(-1, self.label_icon)
             else:
-                self.align_icon_right()
-
-        elif self.icon_h_alignment is None:
-            pass
+                text_index = self.layout.indexOf(self.label_text)
+                self.layout.insertWidget(text_index + 1, self.label_icon)
 
         else:
             raise ValueError(f"Unsupported value for {self.icon_h_alignment=}")
@@ -192,24 +187,21 @@ class PushButtonAligned(QtWidgets.QPushButton):
             else:
                 layout_repr += f"[{l_item.widget().objectName().split(':')[-1][0]}]"
 
-        if self.layout.direction() == self.layout.RightToLeft:
-            layout_repr = layout_repr[::-1].replace("[", "$").replace("]", "@")
-            layout_repr = layout_repr.replace("$", "]").replace("@", "[")
-            layout_repr += "(reverted)"
-
         return layout_repr
 
     def align_icon_left(self):
         """
         Align icon relative to the text.
         """
-        self.layout.setDirection(self.layout.LeftToRight)
+        self.icon_h_alignment = QtCore.Qt.AlignLeft
+        self._update_layout()
 
     def align_icon_right(self):
         """
         Align icon relative to the text.
         """
-        self.layout.setDirection(self.layout.RightToLeft)
+        self.icon_h_alignment = QtCore.Qt.AlignRight
+        self._update_layout()
 
     def align_text_left(self, margin=None):
 
@@ -453,7 +445,6 @@ def _test_interface():
             self.widget.unpin_icon()
             self.widget.align_icon_right()
 
-    # TODO not working
     class Test21(TestPushButtonAligned):
         test_name = (
             "pin_icon_left(15), pin_icon_right(), align_text_left(), unpin_icon()"
