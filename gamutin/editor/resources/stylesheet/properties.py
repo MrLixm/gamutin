@@ -19,6 +19,9 @@ class BaseQtProperty(ABC):
     def __init__(self, value: Any):
         self.value = value
 
+    def __str__(self) -> str:
+        return self.to_qss()
+
     @abstractmethod
     def to_qss(self) -> str:
         """
