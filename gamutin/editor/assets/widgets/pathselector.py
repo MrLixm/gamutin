@@ -440,18 +440,18 @@ class PathSelector(QtWidgets.QFrame):
             self.current_path = self.current_path
 
         menu = self.lineedit_path.createStandardContextMenu()
+        menu.addSeparator()
 
         if self.current_path and self.current_path.exists():
 
             action1 = QtWidgets.QAction("Open in Explorer")
             action1.triggered.connect(self.open_current_path_in_explorer)
-
-            action2 = QtWidgets.QAction("Make Relative Path Absolute")
-            action2.triggered.connect(make_current_path_absolute)
-
-            menu.addSeparator()
             menu.addAction(action1)
-            menu.addAction(action2)
+
+        action2 = QtWidgets.QAction("Make Relative Path Absolute")
+        action2.triggered.connect(make_current_path_absolute)
+
+        menu.addAction(action2)
 
         menu.exec_(QtGui.QCursor.pos())
         return
