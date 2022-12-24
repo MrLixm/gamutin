@@ -43,5 +43,5 @@ class WidgetUserError(Exception):
             msg += f":\n{self.details}"
         return msg
 
-    def clear(self):
+    def delete(self):
         self.is_deleted = True

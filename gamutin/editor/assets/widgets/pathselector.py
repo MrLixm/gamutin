@@ -11,8 +11,9 @@ from Qt import QtWidgets
 from Qt import QtGui
 from Qt import QtCore
 
-from gamutin.editor.cfg import resources
 from gamutin.core.io import is_path_exists_or_creatable
+from gamutin.editor.cfg import resources
+from gamutin.editor.exceptions import WidgetUserError
 from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
 
 
@@ -111,21 +112,27 @@ class PathSelector(QtWidgets.QFrame):
 
     """
 
-    error_signal = QtCore.Signal(str)
+    error_signal = QtCore.Signal(object)
     """
-    Signal emitted when a error happens. Data emmitted is the error message.
+    Signal emitted when an error is produced OR disappear. 
+    
+    Data Type emmitted is a :class:`WidgetUserError` instance when an error is produced.
+    Data Type emmitted is a :obj:`None` if the previosu error has been cleared.
     """
 
     path_changed_signal = QtCore.Signal(object)
     """
-    Signal emitted when the path is changed. Not emitted when a error is produced.
+    Signal emitted when the path is changed. 
+    
+    Not emitted when a error is produced.
+    Data Type emmitted is a :class:`Path` instance.
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self._path_type: Optional[PathType] = None
-        self._error_message: Optional[str] = None
+        self._error: Optional[WidgetUserError] = None
         self._display_error_message: bool = True
         self._expected_file_extensions: list[str] = []
 
@@ -262,27 +269,27 @@ class PathSelector(QtWidgets.QFrame):
         self.button_icon.set_type(path_type=self._path_type)
 
         self.label_error.setVisible(
-            self._error_message is not None and self._display_error_message
+            self._error is not None and self._display_error_message
         )
 
-        if self._error_message is not None:
+        if self._error is not None:
             self.button_icon.set_type(path_type=PathType.error)
             self.lineedit_path.setProperty("errorFrame", True)
-            self.label_error.setText(self._error_message)
+            self.label_error.setText(self._error.message)
         else:
             self.lineedit_path.setProperty("errorFrame", False)
             self.label_error.setText("")
 
-    def get_error(self) -> Optional[str]:
+    def get_error(self) -> Optional[WidgetUserError]:
         """
-        Get the current error message if any.
+        Get the current error object if any.
 
         Returns:
-            None if the path is valid else an nicely formatted error message.
+            None if the path is valid else a error instance with a nicely formatted error message.
         """
-        return self._error_message
+        return self._error
 
-    def is_path_invalid(self, path: Optional[Path]) -> Optional[str]:
+    def is_path_invalid(self, path: Optional[Path]) -> Optional[WidgetUserError]:
         """
         Find if the current path set is invalid.
 
@@ -290,16 +297,20 @@ class PathSelector(QtWidgets.QFrame):
         :meth:`set_error` for this.
 
         Returns:
-            The error message if invalid else None if valid.
+            An error instance if invalid else None if valid.
         """
         if path is None:
-            return "No path specified."
+            return WidgetUserError(ValueError, self, "No path specified.")
 
-        error_message = None
+        error = None
+
         is_valid = self._path_type.get_validate(self._path_type)(path)
-
         if not is_valid:
-            error_message = self._path_type.get_error_message(self._path_type)
+            error = WidgetUserError(
+                "PathInvalid",
+                self,
+                message=self._path_type.get_error_message(self._path_type),
+            )
 
         if (
             is_valid
@@ -307,9 +318,13 @@ class PathSelector(QtWidgets.QFrame):
             and self._expected_file_extensions
             and path.suffix not in self._expected_file_extensions
         ):
-            error_message = f"Invalid extension: '{path.suffix}' not in {self._expected_file_extensions}"
+            error = WidgetUserError(
+                "PathExtensionInvalid",
+                self,
+                message=f"Invalid extension: '{path.suffix}' not in {self._expected_file_extensions}",
+            )
 
-        return error_message
+        return error
 
     def on_path_changed(self):
         """
@@ -372,17 +387,26 @@ class PathSelector(QtWidgets.QFrame):
         file_path = user_selection[0]
         self.current_path = Path(file_path)
 
-    def set_error(self, error_message: Optional[str]):
+    def set_error(self, error: Optional[WidgetUserError]):
         """
         Set the widget to the error state with the given reason.
 
         Args:
-            error_message: error message to set in the UI. None to remove the error state.
+            error: error message to set in the UI. None to remove the error state.
         """
-        if error_message:
-            self.error_signal.emit(error_message)
 
-        self._error_message = error_message
+        if error:
+
+            self.error_signal.emit(error)
+            self._error = error
+
+        else:
+
+            self.error_signal.emit(None)
+            if self._error:
+                self._error.delete()
+            self._error = None
+
         self.bakeUI()
 
     def set_path_type(self, path_type: Optional[PathType]):
@@ -478,15 +502,19 @@ def _test_interface():
     layout.setSpacing(25)
 
     window.add_layout(layout)
-
     lineedit_demo = QtWidgets.QLineEdit()
+    error_list = []
+    qlist_error = QtWidgets.QListWidget()
+
+    def on_error_signal(signal: object):
+        window.show_message(str(signal), 3000)
 
     def setup_PathSelector(path_selector):
         path_selector.error_signal.connect(
-            lambda message: window.show_message(message, 2000)
+            lambda message: window.show_message(str(message), 3000)
         )
         path_selector.path_changed_signal.connect(
-            lambda message: window.show_message(str(message), 2000)
+            lambda message: window.show_message(str(message), 3000)
         )
 
     for path_type in PathType.__all__():
@@ -520,6 +548,7 @@ def _test_interface():
 
     layout.addStretch(1)
     layout.addWidget(lineedit_demo)
+    layout.addWidget(qlist_error)
 
     window.show()
 
