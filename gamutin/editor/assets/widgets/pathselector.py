@@ -98,20 +98,6 @@ class PathSelector(QtWidgets.QFrame):
     If the path is invalid an error message can be retrieved via :meth:`get_error`
     """
 
-    stylesheet = f"""
-    QFrame[dropState="true"]{{
-        background-color: rgba(255,255,255,0.15);
-    }}
-
-    *[errorFrame="true"]{{
-        border: 1px solid {resources.theme_active.color_error_red.value.to_qss()};
-    }}
-    *[errorState="true"]{{
-       color: {resources.theme_active.color_error_red.value.to_qss()};
-    }}
-
-    """
-
     error_signal = QtCore.Signal(object)
     """
     Signal emitted when an error is produced OR disappear. 
@@ -136,7 +122,6 @@ class PathSelector(QtWidgets.QFrame):
         self._display_error_message: bool = True
         self._expected_file_extensions: list[str] = []
 
-        self.setStyleSheet(self.stylesheet)
         self.setObjectName("PathSelector")
         self.setAcceptDrops(True)
 
@@ -205,8 +190,8 @@ class PathSelector(QtWidgets.QFrame):
         """
         Style the widget to make it looks like it accepts drag&drop or not.
         """
-        self.setProperty("dropState", enable)
-        self.setStyleSheet(self.stylesheet)
+        self.setProperty(str(resources.theme_default.var_drop_state.value), enable)
+        self.style().polish(self)
 
     @property
     def current_path(self) -> Optional[Path]:
