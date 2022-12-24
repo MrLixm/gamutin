@@ -1,6 +1,7 @@
 from .base import BaseStyleTheme
 from gamutin.editor.resources.stylesheet import ColorQtProperty
 from gamutin.editor.resources.stylesheet import LengthQtProperty
+from gamutin.editor.resources.stylesheet import LiteralQtProperty
 
 
 class DefaultStyleTheme(BaseStyleTheme):
@@ -12,7 +13,15 @@ class DefaultStyleTheme(BaseStyleTheme):
     def get_name(cls) -> str:
         return "default"
 
-    app_primary = ColorQtProperty((201, 229, 119, 255))
+    # colors
+    color_app_primary = ColorQtProperty((201, 229, 119, 255))
     color_text_base = ColorQtProperty((250, 250, 250, 255))
     color_error_red = ColorQtProperty((187, 76, 76, 255))
+
+    # sizes
     size_border_radius_base = LengthQtProperty(4)
+
+    # variables: simple search and replace
+    # TODO this is not really part of the theme ...
+    var_error_state = LiteralQtProperty("errorState")
+    var_error_text_colored = LiteralQtProperty("errorTextColored")
