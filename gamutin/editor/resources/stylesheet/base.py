@@ -194,6 +194,7 @@ class StyleSheet:
             for stylesheet_variable in stylesheet_variable_list:
 
                 property_value: BaseQtProperty = theme_variable.value
+                property_value = property_value.copy()
                 property_value.apply_overrides(**stylesheet_variable.overrides)
 
                 source_str = stylesheet_variable.original_str

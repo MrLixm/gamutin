@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import copy
 import enum
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypeVar
 
 from Qt import QtGui
 
 logger = logging.getLogger(__name__)
+
+
+P = TypeVar("P")
 
 
 class BaseQtProperty(ABC):
@@ -45,6 +49,9 @@ class BaseQtProperty(ABC):
         Raise an exception if the internal value stored are not in the expected state.
         """
         pass
+
+    def copy(self: P) -> P:
+        return copy.deepcopy(self)
 
 
 class LiteralQtProperty(BaseQtProperty):
