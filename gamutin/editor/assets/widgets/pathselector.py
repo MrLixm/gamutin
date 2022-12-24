@@ -114,6 +114,15 @@ class PathSelector(QtWidgets.QFrame):
     Data Type emmitted is a :class:`Path` instance.
     """
 
+    class Properties:
+        """
+        Qt properties that can be used in the stylesheet for advanced styling.
+        """
+
+        dropState = str(resources.theme_default.var_drop_state.value)
+        errorState = str(resources.theme_default.var_error_state.value)
+        errorFrame = str(resources.theme_default.var_error_frame.value)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -190,7 +199,7 @@ class PathSelector(QtWidgets.QFrame):
         """
         Style the widget to make it looks like it accepts drag&drop or not.
         """
-        self.setProperty(str(resources.theme_default.var_drop_state.value), enable)
+        self.setProperty(self.Properties.dropState, enable)
         self.style().polish(self)
 
     @property
@@ -234,7 +243,7 @@ class PathSelector(QtWidgets.QFrame):
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setVerticalSpacing(0)
-        self.label_error.setProperty("errorState", True)
+        self.label_error.setProperty(self.Properties.errorState, True)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.lineedit_path.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
@@ -259,10 +268,10 @@ class PathSelector(QtWidgets.QFrame):
 
         if self._error is not None:
             self.button_icon.set_type(path_type=PathType.error)
-            self.lineedit_path.setProperty("errorFrame", True)
+            self.lineedit_path.setProperty(self.Properties.errorFrame, True)
             self.label_error.setText(self._error.message)
         else:
-            self.lineedit_path.setProperty("errorFrame", False)
+            self.lineedit_path.setProperty(self.Properties.errorFrame, False)
             self.label_error.setText("")
 
     def get_error(self) -> Optional[WidgetUserError]:
