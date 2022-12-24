@@ -202,7 +202,7 @@ class StyleSheet:
                 self.content = self.content.replace(source_str, target_str)
 
                 logger.debug(
-                    f"[{self.__class__.__name__}][resolve] replaced {source_str} with {target_str}"
+                    f"[{self.__class__.__name__}][resolve]    replaced {source_str} with <{target_str}>"
                 )
                 continue
 
