@@ -20,8 +20,12 @@ class DefaultStyleTheme(BaseStyleTheme):
 
     # sizes
     size_border_radius_base = LengthQtProperty(4)
+    size_min_height_default = LengthQtProperty(20)
+    size_padding_default = LengthQtProperty(5)
 
     # variables: simple search and replace
     # TODO this is not really part of the theme ...
+    var_drop_state = LiteralQtProperty("dropState")
     var_error_state = LiteralQtProperty("errorState")
     var_error_text_colored = LiteralQtProperty("errorTextColored")
+    var_error_frame = LiteralQtProperty("errorFrame")
