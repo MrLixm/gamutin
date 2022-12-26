@@ -24,6 +24,7 @@ class BaseDisplayIcon(QtWidgets.QLabel):
         self.isActive = False
         self._lock_ratio = True
         self.icon_alignment = QtCore.Qt.AlignCenter
+        self.icon_margin = 0
 
     def drawIcon(self, painter: QtGui.QPainter, rect: QtCore.QRect):
         """
@@ -37,6 +38,7 @@ class BaseDisplayIcon(QtWidgets.QLabel):
             icon_mode = QtGui.QIcon.Active
 
         dimension = min(rect.width(), rect.height())
+        dimension -= self.icon_margin
 
         pixmap = self.icon.pixmap(
             QtCore.QSize(
@@ -80,6 +82,15 @@ class BaseDisplayIcon(QtWidgets.QLabel):
     def setIcon(self, icon: QtGui.QIcon):
         self.icon = icon
 
+    def lock_ratio(self, lock: bool):
+        """
+        Set to True to prevent the icon to become wider when the widget become wider.
+
+        Args:
+            lock: True to lock ratio.
+        """
+        self._lock_ratio = lock
+
     def set_icon_alignment(self, alignment: QtCore.Qt.AlignmentFlag):
         """
         How to align the icon when text is wider than the icon and lock_ratio = True.
@@ -94,14 +105,11 @@ class BaseDisplayIcon(QtWidgets.QLabel):
 
         self.icon_alignment = alignment
 
-    def lock_ratio(self, lock: bool):
+    def set_icon_margin(self, margin: int):
         """
-        Set to True to prevent the icon to become wider when the widget become wider.
-
-        Args:
-            lock: True to lock ratio.
+        How many pixels to put between the icon and the widget border.
         """
-        self._lock_ratio = lock
+        self.icon_margin = margin
 
 
 def _test_interface():
@@ -119,53 +127,67 @@ def _test_interface():
 
     layout = QtWidgets.QGridLayout()
 
+    def get_instance() -> BaseDisplayIcon:
+        _widget = BaseDisplayIcon()
+        _widget.setStyleSheet("color: red;")
+        return _widget
+
     def get_test_icon_1():
         _icon = QtGui.QIcon(str(resources.icon_file_check_outline))
         _icon.addFile(str(resources.icon_file_outline), QtCore.QSize(), _icon.Active)
         return _icon
 
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_main)))
     layout.addWidget(widget, 0, 0)
 
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_main)))
     widget.setFixedSize(40, 40)
     layout.addWidget(widget, 1, 0)
 
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
     layout.addWidget(widget, 0, 1)
 
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
     widget.setMinimumSize(40, 40)
     layout.addWidget(widget, 1, 1)
 
     icon = get_test_icon_1()
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(icon)
     layout.addWidget(widget, 2, 0)
 
     icon = get_test_icon_1()
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(icon)
     widget.setText("some text over")
     layout.addWidget(widget, 2, 1)
 
     icon = get_test_icon_1()
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(icon)
     widget.set_icon_alignment(QtCore.Qt.AlignRight)
     widget.setText("some text over")
     layout.addWidget(widget, 2, 2)
 
     icon = get_test_icon_1()
-    widget = BaseDisplayIcon()
+    widget = get_instance()
     widget.setIcon(icon)
     widget.lock_ratio(False)
     widget.setText("some text over")
     layout.addWidget(widget, 2, 3)
+
+    icon = get_test_icon_1()
+    widget = get_instance()
+    widget.setIcon(icon)
+    widget.lock_ratio(True)
+    widget.setText("some text over")
+    widget.setMargin(25)
+    widget.set_icon_margin(15)
+    layout.addWidget(widget, 3, 0)
 
     window.add_layout(layout)
     window.show()
