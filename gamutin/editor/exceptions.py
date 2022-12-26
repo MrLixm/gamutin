@@ -1,5 +1,6 @@
 __all__ = ("WidgetUserError",)
 
+import datetime
 import logging
 from typing import Union, Type
 
@@ -28,9 +29,10 @@ class WidgetUserError(Exception):
     ):
         super().__init__(message)
 
-        if issubclass(name, Exception):
+        if not isinstance(name, str):
             name = name.__name__
 
+        self.time = datetime.datetime.now()
         self.name = name
         self.message = message
         self.details = details
@@ -43,5 +45,24 @@ class WidgetUserError(Exception):
             msg += f":\n{self.details}"
         return msg
 
+    def as_dict(self) -> dict[str, str]:
+        return {
+            "time": str(self.time),
+            "name": self.name,
+            "message": self.message,
+            "details": self.details,
+            "widget": repr(self.widget),
+        }
+
     def delete(self):
+        """
+        Mark the error as deleted. This mean it has been resolved.
+        """
         self.is_deleted = True
+
+    def time_clock(self) -> str:
+        """
+        Time at which the error occured as hours:min:second.microseconds
+        """
+        error_time = self.time.strftime("%H:%M:%S")
+        return f"{error_time}.{self.time.microsecond}"
