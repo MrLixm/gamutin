@@ -1,5 +1,19 @@
 /* Simple test stylesheet for debugging */
 
+/*region **/
+*[errorFrame="true"]{
+    border: 1px solid "{color_error_red}";
+}
+*[errorFrame="true"]:hover{
+    border: 1px solid "{color_error_red}";
+}
+*[errorState="true"]{
+   color: "{color_error_red}";
+}
+
+/*endregion*/
+
+/*region QWidget*/
 QWidget{
     background-color: rgb(25,25,25);
     color: "{color_text_base}";
@@ -7,23 +21,45 @@ QWidget{
 QWidget:disabled{
     color: rgb(100,100,100);
 }
+/*endregion*/
 
+/*region QLabel*/
+QLabel["{var_error_text_colored}"="true"]{
+    color: "{color_error_red}";
+}
+/*endregion*/
+
+/*region QPushButton*/
 QPushButton{
     border-radius: "{size_border_radius_base}";
     background-color: rgb(50,50,50);
-    padding: 6px;
+    padding: "{size_padding_default}";
+    padding-left: "{size_padding_default:scale=1.5}";
+    padding-right: "{size_padding_default:scale=1.5}";
+    min-height: "{size_min_height_default}";
+    border: 1px solid rgba(255, 255, 255, 0);
 }
 QPushButton:hover{
     background-color: rgb(80,80,80);
+    border: 1px solid rgba(255, 255, 255, 10);
+}
+QPushButton:pressed{
+    background-color: rgba(255, 255, 255, 7);
+    border: 1px solid rgba(255, 255, 255, 13);
+    color: rgb(255, 255, 255, 200);
 }
 QPushButton:disabled{
     background-color: rgb(30,30,30);
 }
+/*endregion*/
+
+/*region QLineEdit*/
 QLineEdit{
     border-radius: "{size_border_radius_base}";
     border: 1px solid transparent;
     background-color: rgb(50,50,50);
-    padding: 4px;
+    padding: "{size_padding_default}";
+    min-height: "{size_min_height_default}";
 }
 QLineEdit:hover{
     border-color: rgb(80,80,80);
@@ -31,8 +67,35 @@ QLineEdit:hover{
 QLineEdit:disabled{
     background-color: rgb(30,30,30);
 }
+/*endregion*/
 
+/*region QStatusBar*/
 QStatusBar{
-    color: "{color_error_red}";
     border-bottom: 1px solid rgb(60,60,60);
 }
+QStatusBar["{var_error_text_colored}"="true"]{
+    color: "{color_error_red}";
+}
+/*endregion*/
+
+/*region QComboBox*/
+QComboBox {
+    background-color: rgb(255, 255, 255, 16);
+    border: 1px solid rgb(255, 255, 255, 13);
+    border-radius: "{size_border_radius_base}";
+    padding: "{size_padding_default}";
+    padding-left: 10px;
+    min-height: "{size_min_height_default}";
+}
+QComboBox:hover {
+    background-color: rgb(255, 255, 255, 20);
+    border: 1px solid rgb(255, 255, 255, 10);
+}
+/*endregion*/
+
+/*region QFrame*/
+QFrame[dropState="true"]{
+    background-color: rgba(255,255,255,0.15);
+}
+/*endregion*/
+
