@@ -21,10 +21,12 @@ class BaseDisplayIcon(QtWidgets.QLabel):
         self.setMinimumSize(min_width, min_height)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.icon = QtGui.QIcon()
-        self.isActive = False
+        self.is_active = False
         self._lock_ratio = True
         self.icon_alignment = QtCore.Qt.AlignCenter
         self.icon_margin = 0
+        self.scale_on_active = False
+        self.scale_on_active_factor = 0.2
 
     def drawIcon(self, painter: QtGui.QPainter, rect: QtCore.QRect):
         """
@@ -34,11 +36,13 @@ class BaseDisplayIcon(QtWidgets.QLabel):
         icon_mode = QtGui.QIcon.Normal
         if not self.isEnabled():
             icon_mode = QtGui.QIcon.Disabled
-        if self.isActive:
+        if self.is_active and not self.scale_on_active:
             icon_mode = QtGui.QIcon.Active
 
         dimension = min(rect.width(), rect.height())
         dimension -= self.icon_margin
+        if self.scale_on_active and not self.is_active:
+            dimension -= int(dimension * self.scale_on_active_factor)
 
         pixmap = self.icon.pixmap(
             QtCore.QSize(
@@ -63,12 +67,12 @@ class BaseDisplayIcon(QtWidgets.QLabel):
         painter.drawPixmap(target_rect, pixmap)
 
     def enterEvent(self, event: QtCore.QEvent):
-        self.isActive = True
+        self.is_active = True
         super().enterEvent(event)
         self.update()
 
     def leaveEvent(self, event: QtCore.QEvent):
-        self.isActive = False
+        self.is_active = False
         super().enterEvent(event)
         self.update()
 
@@ -81,6 +85,18 @@ class BaseDisplayIcon(QtWidgets.QLabel):
 
     def setIcon(self, icon: QtGui.QIcon):
         self.icon = icon
+
+    def enable_scaling_on_active(self, enable: bool, scale_factor: float = None):
+        """
+        Change the apperance of the icon when it is active by scaling it up.
+
+        Args:
+            enable: If True the icon will be rescaled when active.
+            scale_factor: [0-1] range. how much of the widget width/height to remove when teh icon is smaller.
+        """
+        self.scale_on_active = enable
+        if scale_factor:
+            self.scale_on_active_factor = scale_factor
 
     def lock_ratio(self, lock: bool):
         """
@@ -137,48 +153,58 @@ def _test_interface():
         _icon.addFile(str(resources.icon_file_outline), QtCore.QSize(), _icon.Active)
         return _icon
 
+    row = 0
+
     widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_main)))
-    layout.addWidget(widget, 0, 0)
+    layout.addWidget(widget, row, 0)
+
+    widget = get_instance()
+    widget.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
+    layout.addWidget(widget, row, 1)
+
+    row += 1
 
     widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_main)))
     widget.setFixedSize(40, 40)
-    layout.addWidget(widget, 1, 0)
-
-    widget = get_instance()
-    widget.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
-    layout.addWidget(widget, 0, 1)
+    layout.addWidget(widget, row, 0)
 
     widget = get_instance()
     widget.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
     widget.setMinimumSize(40, 40)
-    layout.addWidget(widget, 1, 1)
+    layout.addWidget(widget, row, 1)
 
     icon = get_test_icon_1()
     widget = get_instance()
     widget.setIcon(icon)
-    layout.addWidget(widget, 2, 0)
+    layout.addWidget(widget, row, 2)
+
+    row += 1
 
     icon = get_test_icon_1()
     widget = get_instance()
     widget.setIcon(icon)
     widget.setText("some text over")
-    layout.addWidget(widget, 2, 1)
+    layout.addWidget(widget, row, 0)
 
     icon = get_test_icon_1()
     widget = get_instance()
     widget.setIcon(icon)
     widget.set_icon_alignment(QtCore.Qt.AlignRight)
     widget.setText("some text over")
-    layout.addWidget(widget, 2, 2)
+    layout.addWidget(widget, row, 1)
+
+    row += 1
 
     icon = get_test_icon_1()
     widget = get_instance()
     widget.setIcon(icon)
     widget.lock_ratio(False)
     widget.setText("some text over")
-    layout.addWidget(widget, 2, 3)
+    layout.addWidget(widget, row, 2)
+
+    row += 1
 
     icon = get_test_icon_1()
     widget = get_instance()
@@ -187,7 +213,38 @@ def _test_interface():
     widget.setText("some text over")
     widget.setMargin(25)
     widget.set_icon_margin(15)
-    layout.addWidget(widget, 3, 0)
+    layout.addWidget(widget, row, 0)
+
+    row += 1
+
+    widget = QtWidgets.QLabel("some text over QLabel")
+    widget.setMargin(25)
+    layout.addWidget(widget, row, 0)
+
+    row += 1
+
+    for size_index, size in enumerate((8, 16, 32, 64, 128)):
+
+        icon = get_test_icon_1()
+        widget = get_instance()
+        widget.setFixedSize(size, size)
+        widget.setIcon(icon)
+        widget.enable_scaling_on_active(False)
+        layout.addWidget(widget, row + 1, size_index)
+
+        icon = get_test_icon_1()
+        widget = get_instance()
+        widget.setFixedSize(size, size)
+        widget.setIcon(icon)
+        widget.enable_scaling_on_active(True)
+        layout.addWidget(widget, row + 2, size_index)
+
+        icon = get_test_icon_1()
+        widget = get_instance()
+        widget.setFixedSize(size, size)
+        widget.setIcon(icon)
+        widget.enable_scaling_on_active(True, 0.1)
+        layout.addWidget(widget, row + 3, size_index)
 
     window.add_layout(layout)
     window.show()
