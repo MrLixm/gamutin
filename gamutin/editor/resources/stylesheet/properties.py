@@ -133,6 +133,9 @@ class ColorQtProperty(BaseQtProperty):
         qcolor = qcolor.toRgb()
         return cls(value=qcolor.toTuple())
 
+    def as_qcolor(self) -> QtGui.QColor:
+        return QtGui.QColor(*self.value)
+
     def to_qss(self) -> str:
         return f"rgba{self.value}"
 
