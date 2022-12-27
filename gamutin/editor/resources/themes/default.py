@@ -17,6 +17,7 @@ class DefaultStyleTheme(BaseStyleTheme):
     color_app_primary = ColorQtProperty((201, 229, 119, 255))
     color_text_base = ColorQtProperty((250, 250, 250, 255))
     color_error_red = ColorQtProperty((187, 76, 76, 255))
+    color_notification = ColorQtProperty((224, 57, 57, 255))
 
     # sizes
     size_border_radius_base = LengthQtProperty(4)
