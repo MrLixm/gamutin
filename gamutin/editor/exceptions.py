@@ -40,9 +40,9 @@ class WidgetUserError(Exception):
         self.is_deleted = False
 
     def __str__(self):
-        msg = f"{self.name}: {self.widget.__class__}>>>{self.message}"
+        msg = f"{self.widget.__class__.__name__} {self.name}: {self.message}"
         if self.details:
-            msg += f":\n{self.details}"
+            msg += f" :\n{self.details}"
         return msg
 
     def as_dict(self) -> dict[str, str]:
@@ -65,4 +65,4 @@ class WidgetUserError(Exception):
         Time at which the error occured as hours:min:second.microseconds
         """
         error_time = self.time.strftime("%H:%M:%S")
-        return f"{error_time}.{self.time.microsecond}"
+        return f"{error_time}.{str(self.time.microsecond)[:3]}"
