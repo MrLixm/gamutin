@@ -167,7 +167,26 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
     A horizontal widget to stock and manage errors.
 
     The widget only display the last error but offer options to display all the errors.
+
+    Styling
+    ======
+
+    Accessible controls for styling :
+
+    Object names
+    ------------
+
+    - ``ErrorHandlerWidget`` : name for this whole QWidget
+    - ``ErrorMessage``: QLabel displaying the error message
+    - ``ErrorTime`` : QLabel displayign the time of the error
+
+    Properties
+    ----------
+
+    - :attr:`resources.theme_default.var_error_text_colored`
     """
+
+    error_added_signal = QtCore.Signal(object)
 
     def __init__(self, parent=None):
         # type: (QtWidgets.QWidget) -> None
@@ -194,6 +213,9 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         self.layout.addStretch(0)
 
         # 3. Modify
+        self.label_error.setObjectName("ErrorMessage")
+        self.label_time.setObjectName("ErrorTime")
+
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         for label in [self.label_error, self.label_time]:
             label.setProperty(
@@ -204,6 +226,8 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         return
 
     def bakeUI(self):
+
+        self.filter_errors()
 
         self.setVisible(False)
         self.label_error.setText("")
@@ -217,29 +241,52 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         self.icon_error.refresh()
         self.label_time.setText(last_error.time_clock())
         self.label_error.setText(f"{last_error.name}: {last_error.message}")
+        self.setToolTip(last_error.details)
+        return
 
     @property
     def errors(self) -> list[WidgetUserError]:
         """
         Get all the *active* errors this widget is holding.
         """
-        self.filter_errors()
         return self._errors
 
     @property
-    def current_error_message(self) -> str:
-        return f"{self.label_time.text()} {self.label_error.text()}"
+    def current_error(self) -> Optional[WidgetUserError]:
+        if not self.errors:
+            return None
+        return self.errors[-1]
 
     def add_error(self, error: WidgetUserError):
-        self.update_errors()
         self._errors.append(error)
+        self.error_added_signal.emit(error)
         self.bakeUI()
 
     def copy_current_error(self):
         """
-        Copy error message currently being displayed to application clipboard.
+        Copy the last error currently being displayed to application clipboard.
         """
-        copy_to_clipboard(self.current_error_message)
+        if not self.current_error:
+            return
+        copy_to_clipboard(str(self.current_error))
+
+    def toggle_visibility_of(
+        self,
+        icon_visible: bool = None,
+        text_visible: bool = None,
+    ):
+        """
+        Args:
+            icon_visible: True to show the icon in the interface.
+            text_visible: True to show the text message in the interface.
+        """
+        if icon_visible is not None:
+            self.icon_error.setVisible(icon_visible)
+        if text_visible is not None:
+            self.label_error.setVisible(text_visible)
+            self.label_time.setVisible(text_visible)
+
+        self.updateGeometry()
 
     def filter_errors(self):
         """
@@ -262,17 +309,21 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         action_copy.triggered.connect(self.copy_current_error)
 
         action_show_all = QtWidgets.QAction("Show All Errors")
-        action_show_all.triggered.connect(self.show_all_error_widget)
+        action_show_all.triggered.connect(self.show_error_tree_widget)
+
+        action_refresh = QtWidgets.QAction("Refresh Errors")
+        action_refresh.triggered.connect(self.update_errors)
 
         menu.addAction(action_copy)
         menu.addAction(action_show_all)
+        menu.addAction(action_refresh)
 
         menu.exec_(QtGui.QCursor.pos())
         return
 
-    def show_all_error_widget(self):
+    def show_error_tree_widget(self):
         """
-        Show a TreeWidget with all the error for better parsing.
+        Show a TreeWidget with all the errors the widget holds.
         """
 
         window = QtWidgets.QMainWindow(self)
@@ -349,6 +400,26 @@ def _test_interface():
     button2.clicked.connect(partial(create_error, button2))
     button3.clicked.connect(delete_last_error)
     button4.clicked.connect(update_widgets)
+
+    layout2 = QtWidgets.QVBoxLayout()
+    error_1 = WidgetUserError(
+        ValueError,
+        layout2,
+        f"An other test error with {random.random()} number.",
+        "And this shoudl be the detailed message which is much more long usually.",
+    )
+
+    widget = ErrorHandlerWidget()
+    widget.toggle_visibility_of(text_visible=False)
+    widget.add_error(error_1)
+    layout2.addWidget(widget)
+
+    widget = ErrorHandlerWidget()
+    widget.toggle_visibility_of(icon_visible=False)
+    widget.add_error(error_1)
+    layout2.addWidget(widget)
+
+    layout.addLayout(layout2)
 
     window.show()
 
