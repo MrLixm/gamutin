@@ -26,33 +26,38 @@ logger = logging.getLogger(__name__)
 
 class ErrorIcon(BaseDisplayIcon, BadgeOverlayWidget):
     """
-    A simple transparent icon to represent an issue.
+    A simple transparent icon to notice th euser something has gone wrong.
 
-    A rounded outlined  circle with an exaclamation mark inside.
+    It can be associated to an :class:`ErrorHandlerWidget` to display additional
+    information like a "notification badge" for how many errors are holded.
     """
 
     def __init__(self, error_handler: Optional[ErrorHandlerWidget] = None):
         super().__init__()
         self.setIcon(QtGui.QIcon(str(resources.icon_alert_outline)))
-        self.enable_scaling_on_active(True, 0.15)
         self.setMargin(8)
-        self.error_handler: Optional[ErrorHandlerWidget] = error_handler
         self.badge_size = 12
+        self.error_handler: Optional[ErrorHandlerWidget] = None
+        self.set_error_handler(error_handler)
 
-    def refresh(self):
-
+    def refresh(self, *args):
         if self.error_handler:
             self.badge_number = len(self.error_handler.errors)
+            self.setToolTip(str(self.error_handler.current_error))
         else:
             self.badge_number = None
 
-        self.setToolTip(self.error_handler.current_error_message)
         self.update()
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
         if self.error_handler:
             self.paint_badge(event)
+
+    def set_error_handler(self, error_handler: Optional[ErrorHandlerWidget]):
+        self.error_handler = error_handler
+        if self.error_handler:
+            self.error_handler.error_added_signal.connect(self.refresh)
 
 
 class ErrorTreeWidgetItem(QtWidgets.QTreeWidgetItem):
