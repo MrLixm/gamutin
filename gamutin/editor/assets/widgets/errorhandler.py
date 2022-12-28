@@ -65,15 +65,17 @@ class ErrorTreeWidgetItem(QtWidgets.QTreeWidgetItem):
     TreeWidget Item representation of a :class:`WidgetUserError` instance.
     """
 
-    columns = ["Name", "Message", "Source"]
+    columns = ["Time", "Name", "Message", "Source", "Details"]
 
     def __init__(self, error: WidgetUserError, parent: QtWidgets.QWidget):
         super().__init__(parent)
         self.error = error
 
-        self.setText(0, self.error.name)
-        self.setText(1, self.error.message)
-        self.setText(2, str(self.error.widget))
+        self.setText(0, str(self.error.time_clock()))
+        self.setText(1, str(self.error.name))
+        self.setText(2, str(self.error.message))
+        self.setText(3, str(self.error.widget))
+        self.setText(4, str(self.error.details))
 
 
 class ErrorHandlerTreeWidget(QtWidgets.QTreeWidget):
