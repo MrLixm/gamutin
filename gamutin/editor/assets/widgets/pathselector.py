@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import enum
+import logging
 import sys
 import webbrowser
 from pathlib import Path
@@ -15,6 +16,10 @@ from gamutin.core.io import is_path_exists_or_creatable
 from gamutin.editor.cfg import resources
 from gamutin.editor.exceptions import WidgetUserError
 from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
+from gamutin.editor.assets.widgets.errorhandler import ErrorHandlerWidget
+
+
+logger = logging.getLogger(__name__)
 
 
 class PathType(enum.Enum):
@@ -101,7 +106,7 @@ class PathSelector(QtWidgets.QFrame):
     error_signal = QtCore.Signal(object)
     """
     Signal emitted when an error is produced OR disappear. 
-    
+
     Data Type emmitted is a :class:`WidgetUserError` instance when an error is produced.
     Data Type emmitted is a :obj:`None` if the previosu error has been cleared.
     """
@@ -109,7 +114,7 @@ class PathSelector(QtWidgets.QFrame):
     path_changed_signal = QtCore.Signal(object)
     """
     Signal emitted when the path is changed. 
-    
+
     Not emitted when a error is produced.
     Data Type emmitted is a :class:`Path` instance.
     """
@@ -150,7 +155,7 @@ class PathSelector(QtWidgets.QFrame):
             event.accept()
 
         except InterruptedError as excp:
-            self.error_signal.emit(f"[DropError] {excp}")
+            logger.error(f"[{self.__class__.__name__}][dragEnterEvent] {excp}")
             event.setDropAction(QtCore.Qt.IgnoreAction)
             event.ignore()
 
@@ -231,7 +236,7 @@ class PathSelector(QtWidgets.QFrame):
         self.button_icon = PathInfoIcon()
         self.lineedit_path = QtWidgets.QLineEdit()
         self.button_browse = QtWidgets.QPushButton("Browse")
-        self.label_error = QtWidgets.QLabel()
+        self.label_error = ErrorHandlerWidget()
 
         # 2. Add
         self.setLayout(self.layout)
@@ -243,7 +248,7 @@ class PathSelector(QtWidgets.QFrame):
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setVerticalSpacing(0)
-        self.label_error.setProperty(self.Properties.errorState, True)
+        self.label_error.toggle_visibility_of(icon_visible=False)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.lineedit_path.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
@@ -260,19 +265,22 @@ class PathSelector(QtWidgets.QFrame):
 
     def bakeUI(self):
 
+        if self._error and self._error.is_deleted:
+            self._error = None
+
         self.button_icon.set_type(path_type=self._path_type)
 
         self.label_error.setVisible(
             self._error is not None and self._display_error_message
         )
+        self.label_error.update_errors()
 
         if self._error is not None:
             self.button_icon.set_type(path_type=PathType.error)
             self.lineedit_path.setProperty(self.Properties.errorFrame, True)
-            self.label_error.setText(self._error.message)
+            self.label_error.add_error(self._error)
         else:
             self.lineedit_path.setProperty(self.Properties.errorFrame, False)
-            self.label_error.setText("")
 
     def get_error(self) -> Optional[WidgetUserError]:
         """
@@ -388,6 +396,8 @@ class PathSelector(QtWidgets.QFrame):
         Args:
             error: error message to set in the UI. None to remove the error state.
         """
+        if self._error:
+            self._error.delete()
 
         if error:
 
@@ -397,8 +407,6 @@ class PathSelector(QtWidgets.QFrame):
         else:
 
             self.error_signal.emit(None)
-            if self._error:
-                self._error.delete()
             self._error = None
 
         self.bakeUI()
@@ -437,7 +445,6 @@ class PathSelector(QtWidgets.QFrame):
         menu.addSeparator()
 
         if self.current_path and self.current_path.exists():
-
             action1 = QtWidgets.QAction("Open in Explorer")
             action1.triggered.connect(self.open_current_path_in_explorer)
             menu.addAction(action1)
@@ -482,7 +489,6 @@ class PathInfoIcon(BaseDisplayIcon):
 
 
 def _test_interface():
-
     from gamutin.__main__ import _configureLogging
     from gamutin.editor.main import getQApp
     from gamutin.editor.testing import get_testing_window
@@ -497,11 +503,6 @@ def _test_interface():
 
     window.add_layout(layout)
     lineedit_demo = QtWidgets.QLineEdit()
-    error_list = []
-    qlist_error = QtWidgets.QListWidget()
-
-    def on_error_signal(signal: object):
-        window.show_message(str(signal), 3000)
 
     def setup_PathSelector(path_selector):
         path_selector.error_signal.connect(
@@ -525,7 +526,7 @@ def _test_interface():
             row_layout.addWidget(widget)
 
             if path_type == PathType.error:
-                widget.set_error("test error")
+                widget.set_error(WidgetUserError(TypeError, window, "test error"))
 
     widget = PathSelector()
     widget.set_path_type(PathType.file_exist)
@@ -542,7 +543,6 @@ def _test_interface():
 
     layout.addStretch(1)
     layout.addWidget(lineedit_demo)
-    layout.addWidget(qlist_error)
 
     window.show()
 
