@@ -108,7 +108,7 @@ class PathSelector(QtWidgets.QFrame):
     Signal emitted when an error is produced OR disappear. 
 
     Data Type emmitted is a :class:`WidgetUserError` instance when an error is produced.
-    Data Type emmitted is a :obj:`None` if the previosu error has been cleared.
+    Data Type emmitted is a :obj:`None` if the previous error has been cleared.
     """
 
     path_changed_signal = QtCore.Signal(object)
@@ -142,71 +142,6 @@ class PathSelector(QtWidgets.QFrame):
         self.cookUI()
         self.bakeUI()
 
-    def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
-        """
-        User starting a drag&drop, producing a "drag".
-        """
-
-        try:
-
-            self.process_drop_event(event=event)
-            self.set_drop_style(True)
-            event.setDropAction(QtCore.Qt.LinkAction)
-            event.accept()
-
-        except InterruptedError as excp:
-            logger.error(f"[{self.__class__.__name__}][dragEnterEvent] {excp}")
-            event.setDropAction(QtCore.Qt.IgnoreAction)
-            event.ignore()
-
-    def dropEvent(self, event: QtGui.QDropEvent):
-        """
-        User released the drag&drop, producing a "drop".
-        """
-        self.current_path = self.process_drop_event(event=event)
-        self.set_drop_style(False)
-
-    def dragLeaveEvent(self, event: QtGui.QDragLeaveEvent):
-        """
-        User aborted drag&drop.
-        """
-        self.set_drop_style(False)
-
-    def process_drop_event(self, event: QtGui.QDropEvent) -> Path:
-        """
-
-        Args:
-            event: drop event with the data to use
-
-        Returns:
-            data from the drop properly converted for use. Currently, a Path.
-
-        Raises:
-            InterruptedError: if the data from the drop is invalid
-        """
-        if not event.mimeData() or not event.mimeData().hasUrls():
-            raise InterruptedError("No or invalid mimeData type (expected URLs).")
-
-        mime_urls = event.mimeData().urls()
-        if len(mime_urls) != 1:
-            raise InterruptedError("Only one URL expected, not multiple.")
-
-        mime_urls: QtCore.QUrl = mime_urls[0]
-        mime_path = Path(mime_urls.toLocalFile())
-
-        path_error = self.is_path_invalid(mime_path)
-        if path_error:
-            raise InterruptedError(f"Path {mime_path} is invalid: {path_error}")
-
-        return mime_path
-
-    def set_drop_style(self, enable: bool):
-        """
-        Style the widget to make it looks like it accepts drag&drop or not.
-        """
-        self.setProperty(self.Properties.dropState, enable)
-        self.style().polish(self)
-
     @property
     def current_path(self) -> Optional[Path]:
         """
@@ -228,6 +163,49 @@ class PathSelector(QtWidgets.QFrame):
     def current_path(self, new_path: Optional[Path]):
         new_path = new_path or ""
         self.lineedit_path.setText(str(new_path))
+
+    def bakeUI(self):
+
+        if self._error and self._error.is_deleted:
+            self._error = None
+
+        self.button_icon.set_type(path_type=self._path_type)
+
+        self.label_error.setVisible(
+            self._error is not None and self._display_error_message
+        )
+        self.label_error.update_errors()
+
+        if self._error is not None:
+            self.button_icon.set_type(path_type=PathType.error)
+            self.lineedit_path.setProperty(self.Properties.errorFrame, True)
+            self.label_error.add_error(self._error)
+        else:
+            self.lineedit_path.setProperty(self.Properties.errorFrame, False)
+
+    def browse_path(self):
+        """
+        Open a file dialog to browse a path.
+        """
+        file_dialog = QtWidgets.QFileDialog()
+        file_dialog.setWindowTitle(self._path_type.get_description(self._path_type))
+        if file_mode := self._path_type.get_qtmode(self._path_type):
+            file_dialog.setFileMode(file_mode)
+        if self._expected_file_extensions:
+            supported_extensions = " *".join(self._expected_file_extensions)
+            file_dialog.setNameFilter(f"Supported (*{supported_extensions});; Any (*)")
+        if self.current_path:
+            start_path = self.current_path
+            if start_path.is_file():
+                start_path = start_path.parent
+            file_dialog.setDirectory(str(start_path))
+
+        if file_dialog.exec_() != file_dialog.Accepted:
+            return
+
+        user_selection = file_dialog.selectedFiles()
+        file_path = user_selection[0]
+        self.current_path = Path(file_path)
 
     def cookUI(self):
         # 1. Create
@@ -263,24 +241,35 @@ class PathSelector(QtWidgets.QFrame):
         )
         return
 
-    def bakeUI(self):
+    def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
+        """
+        User starting a drag&drop, producing a "drag".
+        """
 
-        if self._error and self._error.is_deleted:
-            self._error = None
+        try:
 
-        self.button_icon.set_type(path_type=self._path_type)
+            self.process_drop_event(event=event)
+            self.set_drop_style(True)
+            event.setDropAction(QtCore.Qt.LinkAction)
+            event.accept()
 
-        self.label_error.setVisible(
-            self._error is not None and self._display_error_message
-        )
-        self.label_error.update_errors()
+        except InterruptedError as excp:
+            logger.error(f"[{self.__class__.__name__}][dragEnterEvent] {excp}")
+            event.setDropAction(QtCore.Qt.IgnoreAction)
+            event.ignore()
 
-        if self._error is not None:
-            self.button_icon.set_type(path_type=PathType.error)
-            self.lineedit_path.setProperty(self.Properties.errorFrame, True)
-            self.label_error.add_error(self._error)
-        else:
-            self.lineedit_path.setProperty(self.Properties.errorFrame, False)
+    def dropEvent(self, event: QtGui.QDropEvent):
+        """
+        User released the drag&drop, producing a "drop".
+        """
+        self.current_path = self.process_drop_event(event=event)
+        self.set_drop_style(False)
+
+    def dragLeaveEvent(self, event: QtGui.QDragLeaveEvent):
+        """
+        User aborted drag&drop.
+        """
+        self.set_drop_style(False)
 
     def get_error(self) -> Optional[WidgetUserError]:
         """
@@ -365,29 +354,40 @@ class PathSelector(QtWidgets.QFrame):
         webbrowser.open(str(path))
         return
 
-    def browse_path(self):
+    def process_drop_event(self, event: QtGui.QDropEvent) -> Path:
         """
-        Open a file dialog to browse a path.
+
+        Args:
+            event: drop event with the data to use
+
+        Returns:
+            data from the drop properly converted for use. Currently, a Path.
+
+        Raises:
+            InterruptedError: if the data from the drop is invalid
         """
-        file_dialog = QtWidgets.QFileDialog()
-        file_dialog.setWindowTitle(self._path_type.get_description(self._path_type))
-        if file_mode := self._path_type.get_qtmode(self._path_type):
-            file_dialog.setFileMode(file_mode)
-        if self._expected_file_extensions:
-            supported_extensions = " *".join(self._expected_file_extensions)
-            file_dialog.setNameFilter(f"Supported (*{supported_extensions});; Any (*)")
-        if self.current_path:
-            start_path = self.current_path
-            if start_path.is_file():
-                start_path = start_path.parent
-            file_dialog.setDirectory(str(start_path))
+        if not event.mimeData() or not event.mimeData().hasUrls():
+            raise InterruptedError("No or invalid mimeData type (expected URLs).")
 
-        if file_dialog.exec_() != file_dialog.Accepted:
-            return
+        mime_urls = event.mimeData().urls()
+        if len(mime_urls) != 1:
+            raise InterruptedError("Only one URL expected, not multiple.")
 
-        user_selection = file_dialog.selectedFiles()
-        file_path = user_selection[0]
-        self.current_path = Path(file_path)
+        mime_urls: QtCore.QUrl = mime_urls[0]
+        mime_path = Path(mime_urls.toLocalFile())
+
+        path_error = self.is_path_invalid(mime_path)
+        if path_error:
+            raise InterruptedError(f"Path {mime_path} is invalid: {path_error}")
+
+        return mime_path
+
+    def set_drop_style(self, enable: bool):
+        """
+        Style the widget to make it looks like it accepts drag&drop or not.
+        """
+        self.setProperty(self.Properties.dropState, enable)
+        self.style().polish(self)
 
     def set_error(self, error: Optional[WidgetUserError]):
         """
