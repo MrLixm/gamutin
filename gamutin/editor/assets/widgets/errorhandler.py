@@ -265,7 +265,12 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
             return None
         return self.errors[-1]
 
-    def add_error(self, error: WidgetUserError):
+    def add_error(self, error: Optional[WidgetUserError]):
+
+        if not error:
+            self.bakeUI()
+            return
+
         self._errors.append(error)
         self.error_added_signal.emit(error)
         self.bakeUI()
