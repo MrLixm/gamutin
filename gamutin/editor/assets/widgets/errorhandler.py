@@ -193,6 +193,9 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
     - :attr:`resources.theme_default.var_error_text_colored`
     """
 
+    class Properties:
+        errorText = str(resources.theme_default.var_error_text_colored.value)
+
     error_added_signal = QtCore.Signal(object)
 
     def __init__(self, parent=None):
@@ -225,9 +228,7 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
 
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         for label in [self.label_error, self.label_time]:
-            label.setProperty(
-                str(resources.theme_default.var_error_text_colored.value), True
-            )
+            label.setProperty(self.Properties.errorText, True)
         # 4. Connections
         self.customContextMenuRequested[QtCore.QPoint].connect(self.show_context_menu)
         return
