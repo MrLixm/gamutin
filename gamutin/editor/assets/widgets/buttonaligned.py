@@ -118,6 +118,15 @@ class PushButtonAligned(QtWidgets.QPushButton):
         super().setIconSize(size)
         self.setIcon(self._icon)
 
+    def sizeHint(self):
+
+        base_hint = super().sizeHint()
+        target_hint = self.layout.sizeHint()
+        return QtCore.QSize(
+            base_hint.width() + target_hint.width(),
+            max(base_hint.height(), target_hint.height()),
+        )
+
     def _update_layout(
         self,
         text_v_alignment: QtCore.Qt.AlignmentFlag = None,
