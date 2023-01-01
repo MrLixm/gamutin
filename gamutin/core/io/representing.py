@@ -51,7 +51,7 @@ def repr_spec_full_dict(image_spec: oiio.ImageSpec) -> dict:
     def attrib_post_process(path, key, value):
         if key != "attrib":
             return key, value
-        return key, f"{value['@type']: >10} {value['@name']} = {value['#text']}"
+        return key, f"{value['@type']: >10} {value['@name']} = {value.get('#text')}"
 
     return xmltodict.parse(
         image_spec.serialize(format="XML", verbose="detailed"),
