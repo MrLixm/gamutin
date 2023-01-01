@@ -82,23 +82,20 @@ class ColorspaceGamut(BaseColorspaceComponent):
     Gamut/Primaries part of a specific colorspace.
     """
 
-    matrix_to_XYZ: numpy.ndarray
-    matrix_from_XYZ: numpy.ndarray
+    primaries: numpy.ndarray
 
     def _tuplerepr(self):
         return (
             self.__class__.__name__,
             self.name,
-            repr(self.matrix_to_XYZ),
-            repr(self.matrix_from_XYZ),
+            repr(self.primaries),
         )
 
     @classmethod
     def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
             "Gamut " + colour_colorspace.name,
-            colour_colorspace.matrix_RGB_to_XYZ.copy(),
-            colour_colorspace.matrix_XYZ_to_RGB.copy(),
+            colour_colorspace.primaries,
         )
 
 
@@ -169,6 +166,26 @@ class RgbColorspace(BaseColorspaceComponent):
     A bit more details on what/why for this colorspace.
     """
 
+    matrix_to_XYZ: numpy.ndarray = None
+    matrix_from_XYZ: numpy.ndarray = None
+
+    def __post_init__(self):
+
+        super().__post_init__()
+
+        if (
+            self.matrix_to_XYZ is None
+            and self.matrix_from_XYZ is None
+            and self.gamut
+            and self.whitepoint
+        ):
+
+            self.matrix_to_XYZ: numpy.ndarray = colour.normalised_primary_matrix(
+                primaries=self.gamut.primaries,
+                whitepoint=self.whitepoint.coordinates,
+            )
+            self.matrix_from_XYZ: numpy.ndarray = numpy.linalg.inv(self.matrix_to_XYZ)
+
     def _tuplerepr(self) -> tuple:
         return (
             self.__class__.__name__,
@@ -187,14 +204,21 @@ class RgbColorspace(BaseColorspaceComponent):
         defines no transform for any component.
         """
 
-        has_gamut = self.gamut and (
-            not numpy.array_equal(self.gamut.matrix_from_XYZ, numpy.identity(3))
-            or not numpy.array_equal(self.gamut.matrix_to_XYZ, numpy.identity(3))
+        has_gamut = (
+            self.gamut is not None
+            or (
+                self.matrix_from_XYZ is not None
+                and not numpy.array_equal(self.matrix_from_XYZ, numpy.identity(3))
+            )
+            or (
+                self.matrix_to_XYZ is not None
+                and not numpy.array_equal(self.matrix_to_XYZ, numpy.identity(3))
+            )
         )
 
         has_whitepoint = self.whitepoint is not None
 
-        has_transfer_function = self.transfer_functions and (
+        has_transfer_function = self.transfer_functions is not None and (
             self.transfer_functions.decoding or self.transfer_functions.encoding
         )
 
@@ -224,4 +248,6 @@ class RgbColorspace(BaseColorspaceComponent):
             transfer_functions=transfer_functions,
             description=description or colour_colorspace.__doc__,
             categories=categories,
+            matrix_from_XYZ=colour_colorspace.matrix_XYZ_to_RGB.copy(),
+            matrix_to_XYZ=colour_colorspace.matrix_RGB_to_XYZ.copy(),
         )

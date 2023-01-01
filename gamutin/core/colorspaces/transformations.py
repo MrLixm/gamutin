@@ -15,6 +15,7 @@ from gamutin.core.colorspaces import Whitepoint
 from gamutin.core.colorspaces import ChromaticAdaptationTransform
 
 
+# TODO typo in function name
 def matrix_chromatic_adapation_transform(
     source_whitepoint: Whitepoint,
     target_whitepoint: Whitepoint,
@@ -68,7 +69,7 @@ def matrix_colorspace_to_colorspace(
     ):
         return numpy.identity(3)
 
-    M = source_colorspace.gamut.matrix_to_XYZ
+    M = source_colorspace.matrix_to_XYZ
 
     if (
         chromatic_adaptation_transform is not None
@@ -81,9 +82,9 @@ def matrix_colorspace_to_colorspace(
             chromatic_adaptation_transform,
         )
 
-        M = colour.algebra.matrix_dot(M_CAT, source_colorspace.gamut.matrix_to_XYZ)
+        M = colour.algebra.matrix_dot(M_CAT, source_colorspace.matrix_to_XYZ)
 
-    M = colour.algebra.matrix_dot(target_colorspace.gamut.matrix_from_XYZ, M)
+    M = colour.algebra.matrix_dot(target_colorspace.matrix_from_XYZ, M)
 
     return M
 
@@ -109,7 +110,7 @@ def colorspace_to_XYZ(
         with colour.utilities.domain_range_scale("ignore"):
             RGB = source_colorspace.transfer_functions.decoding(RGB)
 
-    XYZ = colour.algebra.vector_dot(source_colorspace.gamut.matrix_to_XYZ, RGB)
+    XYZ = colour.algebra.vector_dot(source_colorspace.matrix_to_XYZ, RGB)
 
     if chromatic_adaptation_transform is not None and source_colorspace.whitepoint:
 
