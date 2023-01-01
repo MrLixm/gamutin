@@ -230,6 +230,15 @@ class RgbColorspace(BaseColorspaceComponent):
         """
         return copy.deepcopy(self)
 
+    def get_linear_copy(self) -> RgbColorspace:
+        """
+        Return a copy of this colorspace but with linear transfer-functions set.
+        """
+        colorspace = self.copy()
+        colorspace.name = colorspace.name + " Linear"
+        colorspace.transfer_functions = TRANSFER_FUNCTIONS_LINEAR
+        return colorspace
+
     @classmethod
     def from_colour_colorspace(
         cls,
