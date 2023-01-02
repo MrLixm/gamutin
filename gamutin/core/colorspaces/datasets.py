@@ -64,7 +64,7 @@ def _load_colour_colorspaces():
     colour_colorspace_config = {
         "RGB_COLOURSPACE_ACES2065_1": {
             "category": [ColorspaceCategory.aces],
-            "aliases": ["aces"],
+            "aliases": ["aces", "ap0"],
         },
         "RGB_COLOURSPACE_ACESCC": {
             "category": [ColorspaceCategory.aces],
@@ -77,6 +77,7 @@ def _load_colour_colorspaces():
         },
         "RGB_COLOURSPACE_ACESCG": {
             "category": [ColorspaceCategory.aces, ColorspaceCategory.working_space],
+            "aliases": ["ap1"],
         },
         "RGB_COLOURSPACE_ADOBE_RGB1998": {
             "category": [ColorspaceCategory.common],
@@ -107,9 +108,11 @@ def _load_colour_colorspaces():
         },
         "RGB_COLOURSPACE_BT709": {
             "category": [ColorspaceCategory.common],
+            "aliases": ["rec709", "bt709"],
         },
         "RGB_COLOURSPACE_BT2020": {
             "category": [ColorspaceCategory.working_space],
+            "aliases": ["rec2020", "bt2020"],
         },
         "RGB_COLOURSPACE_CIE_RGB": {
             "category": [],
