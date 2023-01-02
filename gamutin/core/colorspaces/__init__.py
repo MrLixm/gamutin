@@ -13,3 +13,5 @@ from gamutin.core.colorspaces.datasets import POINTER_GAMUT_COLORSPACE
 from gamutin.core.colorspaces.transformations import colorspace_to_colorspace
 from gamutin.core.colorspaces.transformations import matrix_colorspace_to_colorspace
 from gamutin.core.colorspaces.transformations import colorspace_to_XYZ
+from gamutin.core.colorspaces.transformations import exr_chromaticities_to_colorspace
+from gamutin.core.colorspaces.transformations import colorspace_to_exr_chromaticities
