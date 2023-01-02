@@ -2,6 +2,7 @@ __all__ = (
     "getCurrentDependencies",
     "getSysContext",
     "simplify",
+    "split_at_words",
 )
 
 import json
@@ -193,3 +194,46 @@ def prettify_table_list(
     row_list.append("_" * len(row_list[0]))
 
     return "\n".join(row_list)
+
+
+def split_at_words(source_str: str, split_camel_case: bool = False) -> list[str]:
+    """
+    Split the given string into multiple words using commonly used delimiter characters.
+
+    Example::
+
+        >>> source = "5D Mark II - Spac-o-ween - XS - 001"
+        >>> result = utils.split_at_words(source)
+        ["5D", "Mark", "II", "Spac", "o", "ween", "XS", "001"]
+
+        >>> source = "A009C002_190210_R0EI_Alexa_LogCWideGamut"
+        >>> result = utils.split_at_words(source, split_camel_case=True)
+        ["A009C002", "190210", "R0EI", "Alexa", "Log", "C", "Wide", "Gamut"]
+
+
+    Args:
+        source_str:
+        split_camel_case:
+            If True, consider camelcase string like a group of word and
+            split at each uppercase letter.
+
+    Returns:
+        list of string white the word delimiter removed.
+    """
+
+    if split_camel_case:
+
+        splitted = re.sub(
+            r"([A-Z][a-z]+)|[._-]",
+            r" \1",
+            re.sub(
+                r"([A-Z0-9]+)",
+                r" \1",
+                source_str,
+            ),
+        ).split()
+
+    else:
+        splitted = re.sub(r"[._-]", r" ", source_str).split()
+
+    return splitted
