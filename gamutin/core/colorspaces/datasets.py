@@ -5,6 +5,8 @@ __all__ = (
     "get_available_colorspaces_names_aliases",
     "get_colorspace",
     "POINTER_GAMUT_COLORSPACE",
+    "sRGB_COLORSPACE",
+    "sRGB_LINEAR_COLORSPACE",
 )
 
 import enum
@@ -60,7 +62,6 @@ def _add_colorspace(colorspace: RgbColorspace, additional_aliases: list[str] = N
 
 
 def _load_colour_colorspaces():
-
     colour_colorspace_config = {
         "RGB_COLOURSPACE_ACES2065_1": {
             "category": [ColorspaceCategory.aces],
@@ -251,7 +252,6 @@ def _load_colour_colorspaces():
     colour_dataset = importlib.import_module("colour.models.rgb.datasets")
 
     for colorspace_name, colorspace_data in colour_colorspace_config.items():
-
         try:
             colour_colorspace: colour.RGB_Colourspace = getattr(
                 colour_dataset, colorspace_name
@@ -274,7 +274,6 @@ def _load_colour_colorspaces():
 
 
 def _load_colorspaces():
-
     _load_colour_colorspaces()
 
     colorspace = RgbColorspace(
@@ -321,7 +320,6 @@ PUBLIC
 
 
 class ChromaticAdaptationTransform(enum.Enum):
-
     bianco_2010 = "Bianco 2010"
     bianco_pc_2010 = "Bianco PC 2010"
     bradford = "Bradford"
@@ -375,7 +373,6 @@ def get_available_colorspaces_names_aliases() -> list[tuple[str]]:
     buffer_dict = {}
 
     for colorspace_name, colorspace in _COLORSPACES.items():
-
         identifier = hash(colorspace)
 
         if buffer_dict.get(identifier):
@@ -416,3 +413,8 @@ def get_colorspace(name: Optional[str]) -> Optional[RgbColorspace]:
 
 POINTER_GAMUT_COLORSPACE = get_colorspace(_COLORSPACE_POINTER_GAMUT_NAME)
 assert POINTER_GAMUT_COLORSPACE
+
+sRGB_COLORSPACE = get_colorspace("sRGB")
+assert sRGB_COLORSPACE
+sRGB_LINEAR_COLORSPACE = get_colorspace("sRGB:linear")
+assert sRGB_LINEAR_COLORSPACE
