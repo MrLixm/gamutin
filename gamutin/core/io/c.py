@@ -44,6 +44,15 @@ Generated from OIIO :
 >>> )
 """
 
+SUPPORTED_FILE_EXTENSIONS = [
+    "." + extension
+    for extension_list in SUPPORTED_FILE_FORMATS.values()
+    for extension in extension_list
+]
+"""
+List of all file extensions supported. With the dot delimiter.
+"""
+
 
 def get_extensions_for_supported_formats(format_names: Sequence[str]) -> list[str]:
     """
