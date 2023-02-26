@@ -51,7 +51,6 @@ class DependencyViewerTreeWidget(QtWidgets.QTreeWidget):
 
 
 class ContextWidget(QtWidgets.QFrame):
-
     name = "ContextWidget"
     style = f"""
     QFrame#{name} {{
@@ -68,6 +67,7 @@ class ContextWidget(QtWidgets.QFrame):
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None):
         super().__init__(parent)
         self.setObjectName(self.name)
+        self._context: Optional[str] = None
         self.cookUI()
         self.bakeUI()
 
@@ -88,4 +88,11 @@ class ContextWidget(QtWidgets.QFrame):
         return
 
     def bakeUI(self):
-        self.label.setText(f"<pre>{gamutin.core.utils.getSysContext()}</pre>")
+        self._context = gamutin.core.utils.getSysContext()
+        self.label.setText(f"<pre>{self._context}</pre>")
+
+    def getContext(self) -> Optional[str]:
+        """
+        Get the string representing the context currently being displayed.
+        """
+        return self._context
