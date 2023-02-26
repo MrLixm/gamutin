@@ -49,7 +49,6 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_target = QtWidgets.QGridLayout()
         self.checkbox_preview_only = QtWidgets.QCheckBox("Preview Only")
         self.widget_path_target = pathselector.PathSelector()
-        self.label_colorspace_target = QtWidgets.QLabel("Target Colorspace")
         self.combobox_colorspace_target = ColorspaceSelector()
 
         # 2. Add
@@ -70,8 +69,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
 
         self.layout_target.addWidget(self.checkbox_preview_only, 0, 0)
         self.layout_target.addWidget(self.widget_path_target, 1, 0, 1, -1)
-        self.layout_target.addWidget(self.label_colorspace_target, 2, 0)
-        self.layout_target.addWidget(self.combobox_colorspace_target, 2, 1)
+        self.layout_target.addWidget(self.combobox_colorspace_target, 2, 0)
 
         self.layout_options.addWidget(self.label_colorspace_reference, 0, 0)
         self.layout_options.addWidget(self.label_blend_mode, 1, 0)
@@ -97,10 +95,6 @@ class GamutinMainWidget(QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed,
         )
-        self.label_colorspace_target.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed,
-        )
         self.layout.setContentsMargins(*(15,) * 4)
         self.layout_source.setContentsMargins(*(25,) * 4)
         self.layout_source.setVerticalSpacing(15)
@@ -108,6 +102,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_target.setContentsMargins(*(25,) * 4)
         self.combobox_colorspace_reference.set_force_linear_visible(False)
         self.combobox_colorspace_reference.set_force_linear_enable(False)
+        self.combobox_colorspace_target.set_label_text("Target Colorspace")
         # 4. Connections
         self.button_launch.clicked.connect(self.start_processing)
         self.combobox_mask_source.currentIndexChanged.connect(self.on_mask_changed)
@@ -138,8 +133,12 @@ class GamutinMainWidget(QtWidgets.QWidget):
 
     def on_mask_changed(self, *args):
         mask_value: MaskOptions = self.combobox_mask_source.currentData()
+        self.widget_path_mask_source.setVisible(True)
+
         if mask_value == MaskOptions.from_alpha:
             self.widget_path_mask_source.setEnabled(False)
+        elif mask_value == MaskOptions.none:
+            self.widget_path_mask_source.setVisible(False)
         else:
             self.widget_path_mask_source.setEnabled(True)
 
