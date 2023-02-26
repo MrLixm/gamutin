@@ -7,7 +7,7 @@ from gamutin.editor.options import MaskOptions
 from gamutin.editor.options import CompositeBlendModes
 from gamutin.editor.assets.widgets import pathselector
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.core.colorspaces import get_available_colorspaces
+from gamutin.editor.assets.widgets.imageselector import ImageSelectorWidget
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +28,9 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.button_launch = QtWidgets.QPushButton("Launch Processing")
 
         self.layout_source = QtWidgets.QGridLayout()
-        self.widget_path_source = pathselector.PathSelector()
+        self.widget_image_source = ImageSelectorWidget()
         self.widget_path_mask_source = pathselector.PathSelector()
-        self.label_colorspace_source = QtWidgets.QLabel("Source Colorspace")
         self.label_mask_source = QtWidgets.QLabel("Mask")
-        self.combobox_colorspace_source = ColorspaceSelector()
         self.combobox_mask_source = QtWidgets.QComboBox()
 
         self.layout_options = QtWidgets.QGridLayout()
@@ -64,12 +62,10 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.button_launch)
         self.layout.addStretch()
 
-        self.layout_source.addWidget(self.widget_path_source, 0, 0, 1, -1)
-        self.layout_source.addWidget(self.label_colorspace_source, 1, 0)
-        self.layout_source.addWidget(self.combobox_colorspace_source, 1, 1)
-        self.layout_source.addWidget(self.label_mask_source, 2, 0)
-        self.layout_source.addWidget(self.combobox_mask_source, 2, 1)
-        self.layout_source.addWidget(self.widget_path_mask_source, 3, 0, 1, -1)
+        self.layout_source.addWidget(self.widget_image_source, 0, 0, 1, -1)
+        self.layout_source.addWidget(self.label_mask_source, 1, 0)
+        self.layout_source.addWidget(self.combobox_mask_source, 1, 1)
+        self.layout_source.addWidget(self.widget_path_mask_source, 2, 0, 1, -1)
 
         self.layout_target.addWidget(self.checkbox_preview_only, 0, 0)
         self.layout_target.addWidget(self.widget_path_target, 1, 0, 1, -1)
@@ -88,17 +84,12 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_options.addWidget(self.color_valid, 4, 1)
 
         # 3. Modify
-        self.widget_path_source.set_path_type(pathselector.PathType.file_exist)
         self.widget_path_target.set_path_type(pathselector.PathType.file)
         self.widget_path_mask_source.set_path_type(pathselector.PathType.file_exist)
         self.checkbox_preview_only.setToolTip(
             "Do not generate a result image on disk. "
             "Instead just preview the result in this application. "
             "<i>(A temporary image will still need to be generated)</i>"
-        )
-        self.label_colorspace_source.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed,
         )
         self.label_mask_source.setSizePolicy(
             QtWidgets.QSizePolicy.Fixed,
@@ -110,6 +101,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         )
         self.layout.setContentsMargins(*(15,) * 4)
         self.layout_source.setContentsMargins(*(25,) * 4)
+        self.layout_source.setVerticalSpacing(15)
         self.layout_options.setContentsMargins(*(25,) * 4)
         self.layout_target.setContentsMargins(*(25,) * 4)
         self.combobox_colorspace_reference.set_force_linear_visible(False)
@@ -121,9 +113,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         return
 
     def bakeUI(self):
-
         for combobox in [
-            self.combobox_colorspace_source,
             self.combobox_colorspace_reference,
             self.combobox_colorspace_target,
         ]:
