@@ -39,7 +39,7 @@ def _configureLogging():
                 "level": cfg.logs_level,
                 "propagate": False,
             },
-            f"__main__": {
+            "__main__": {
                 "handlers": ["hl_console"],
                 "level": logging.DEBUG,
                 "propagate": False,

@@ -286,7 +286,7 @@ def find_colorspace(file_path: Path) -> Optional[RgbColorspace]:
                     colorspace = get_colorspace(colorspace_alias)
 
     if colorspace:
-        logger.debug(f"[find_colorspace] found from file path.")
+        logger.debug("[find_colorspace] found from file path.")
         return colorspace
 
     if not file_path.exists():

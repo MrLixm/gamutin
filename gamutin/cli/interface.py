@@ -24,7 +24,7 @@ def launch_gui(source_file: Path = None):
     Create and open the interface by showing the main window.
     """
 
-    logger.debug(f"[launch_gui] Started. Importing <gamutin.editor> ...")
+    logger.debug("[launch_gui] Started. Importing <gamutin.editor> ...")
     # defer import of the editor package only if the user ask to open the GUI
     import gamutin.editor
 
@@ -218,7 +218,6 @@ def check(
         (colorspace, ref_colorspace, target_colorspace),
         (_colorspace, _ref_colorspace, _target_colorspace),
     ):
-
         if not _resolved_colorspace:
             raise ValueError(
                 f'Given colorspace "{_given_colorspace}" is not recognized. '

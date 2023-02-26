@@ -1,3 +1,8 @@
+__all__ = (
+    "c",
+    "cfg",
+    "__version__",
+)
 # initialization of the package
 from . import c
 from .c import __version__

@@ -92,12 +92,12 @@ def test_timing(imagepath_wheel_mchannel):
         colorspace=colorspaces.get_colorspace("sRGB:linear"),
     )
     start_time_ref = time.time()
-    buf = image1.read_as_image_buf()
+    image1.read_as_image_buf()
     end_time_ref = time.time() - start_time_ref
 
     start_time_test = time.time()
     for iteration in range(1000):
-        buf = image1.read_as_image_buf()
+        image1.read_as_image_buf()
     end_time_test = time.time() - start_time_test
 
     print(end_time_ref, end_time_test)

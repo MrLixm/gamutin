@@ -11,7 +11,6 @@ targets = (gamutin.editor.cfg.resources.icon_main,)
 
 
 def pathToIco(source_path: Path, target_path: Path):
-
     assert str(target_path).endswith(".ico"), f"{target_path} is not a .ico file."
     source_path = source_path.resolve()
     target_path = target_path.resolve()
@@ -41,7 +40,7 @@ def run():
     for source, target in zip(sources, targets):
         pathToIco(source, target)
 
-    print(f"[ico_builder][run] Finished.")
+    print("[ico_builder][run] Finished.")
     return
 
 

@@ -18,6 +18,15 @@ xmltodict = "^0.13"
 black = "*"
 pytest = "*"
 Pillow = "*"
+ruff = "*"
+
+[tool.ruff]
+exclude = [
+    "vendor"
+]
+ignore = ["F401"]
+[tool.ruff.pydocstyle]
+convention = "google"
 
 [build-system]
 requires = ["poetry-core"]

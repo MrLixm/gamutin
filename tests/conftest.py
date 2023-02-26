@@ -65,7 +65,7 @@ def _configureLogging():
             },
         },
         "loggers": {
-            f"": {
+            "": {
                 "handlers": ["hl_console"],
                 "level": logging.DEBUG,
                 "propagate": False,
