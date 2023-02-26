@@ -31,6 +31,7 @@ def getQApp() -> QtWidgets.QApplication | None:
         app.setOrganizationName(gamutin.c.org)
         app.setApplicationName(gamutin.c.name)
         app.setApplicationVersion(gamutin.__version__)
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         if not gamutin.c.plateform.is_mac:
             app.setWindowIcon(QtGui.QIcon(str(cfg.resources.icon_main)))
 
