@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import OpenImageIO as oiio
 
 from gamutin.core import io
@@ -5,7 +7,6 @@ from gamutin.core import colorspaces
 
 
 def test_read_multipart(imagepath_wheel_mpart):
-
     image = io.ImageRead(
         path=imagepath_wheel_mpart,
         colorspace=colorspaces.get_colorspace("sRGB:linear"),
@@ -42,7 +43,6 @@ def test_read_multipart(imagepath_wheel_mpart):
 
 
 def test_read_channels(imagepath_wheel_mchannel):
-
     image = io.ImageRead(
         path=imagepath_wheel_mchannel,
         colorspace=colorspaces.get_colorspace("sRGB:linear"),
@@ -58,7 +58,6 @@ def test_read_channels(imagepath_wheel_mchannel):
 
 
 def test_class_frozen(imagepath_wheel_mchannel):
-
     image1 = io.ImageRead(
         path=imagepath_wheel_mchannel,
         colorspace=colorspaces.get_colorspace("sRGB:linear"),
@@ -73,7 +72,6 @@ def test_class_frozen(imagepath_wheel_mchannel):
 
 
 def test_specs_all(imagepath_wheel_mchannel):
-
     image1 = io.ImageRead(
         path=imagepath_wheel_mchannel,
         colorspace=colorspaces.get_colorspace("sRGB:linear"),
@@ -103,3 +101,53 @@ def test_timing(imagepath_wheel_mchannel):
     end_time_test = time.time() - start_time_test
 
     print(end_time_ref, end_time_test)
+
+
+def test_guess_colorspace(imagepath_color_bars_alpha, imagepath_wheel_mchannel):
+    file_colorspace = io.guess_colorspace(imagepath_color_bars_alpha)
+    assert file_colorspace is colorspaces.sRGB_COLORSPACE
+
+    file_colorspace = io.guess_colorspace(imagepath_wheel_mchannel)
+    assert file_colorspace is colorspaces.sRGB_LINEAR_COLORSPACE
+
+    # tif image does not exists on disk so can't guess
+    file_colorspace = io.guess_colorspace(Path(r"imageDontExists_01.tif"))
+    assert file_colorspace is None
+
+    file_colorspace = io.guess_colorspace(Path(r"imageDontExists_01.jpg"))
+    assert file_colorspace is colorspaces.sRGB_COLORSPACE
+
+    return
+
+
+def test_find_colorspace(imagepath_spacoween, imagepath_wheel_mchannel):
+    ap0_colorspace = colorspaces.get_colorspace("ACES2065-1")
+    assert ap0_colorspace
+
+    ap1_colorspace = colorspaces.get_colorspace("ACEScg")
+    assert ap1_colorspace
+
+    # test chromaticities attribute
+    file_colorspace = io.find_colorspace(imagepath_spacoween)
+    assert file_colorspace == ap0_colorspace
+
+    file_colorspace = io.find_colorspace(imagepath_wheel_mchannel)
+    assert file_colorspace is None
+
+    file_colorspace = io.find_colorspace(Path("imageDoesntExist_test.exr"))
+    assert file_colorspace is None
+
+    file_colorspace = io.find_colorspace(Path("imageDoesntExist_sRGB.jpg"))
+    assert file_colorspace == colorspaces.sRGB_COLORSPACE
+
+    file_colorspace = io.find_colorspace(
+        Path("imageDoesntExist_sRGB_test_ap0.1001.jpg")
+    )
+    assert file_colorspace == ap0_colorspace
+
+    file_colorspace = io.find_colorspace(
+        Path("test/ACEScg/imageDoesntExist_whatever-base.1001.jpg").resolve()
+    )
+    assert file_colorspace == ap1_colorspace
+
+    return

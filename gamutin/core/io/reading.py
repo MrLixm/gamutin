@@ -3,19 +3,30 @@
 """
 from __future__ import annotations
 
-__all__ = ("ImageRead",)
+__all__ = (
+    "ImageRead",
+    "find_colorspace",
+    "guess_colorspace",
+)
 
 import logging
 from pathlib import Path
 from typing import Optional, Union
 
-import colour
 import OpenImageIO as oiio
 import numpy
 
+from .c import get_extensions_for_supported_formats
 from .representing import repr_spec_full_dict
 from .representing import repr_stats_simplified_str
 from .representing import repr_spec_simplified_str
+from gamutin.core.colorspaces import RgbColorspace
+from gamutin.core.colorspaces import get_available_colorspaces_names_aliases
+from gamutin.core.colorspaces import get_colorspace
+from gamutin.core.colorspaces import exr_chromaticities_to_colorspace
+from gamutin.core.colorspaces import sRGB_COLORSPACE
+from gamutin.core.colorspaces import sRGB_LINEAR_COLORSPACE
+from gamutin.core.utils import split_at_words
 
 
 logger = logging.getLogger(__name__)
@@ -35,12 +46,11 @@ class ImageRead:
         FileNotFoundError: if the given path doesn't exist on disk.
     """
 
-    def __init__(self, path: Path, colorspace: Optional[colour.RGB_Colourspace]):
-
+    def __init__(self, path: Path, colorspace: Optional[RgbColorspace]):
         self._specs_all: Optional[dict[int, dict[int, oiio.ImageSpec]]] = None
 
         self.path: Path = path
-        self.colorspace: Optional[colour.RGB_Colourspace] = colorspace
+        self.colorspace: Optional[RgbColorspace] = colorspace
 
         if not self.path.exists():
             raise FileNotFoundError(f"Given path <{path}> doesn't exists on disk.")
@@ -77,7 +87,6 @@ class ImageRead:
         initial_buf = self.read_as_image_buf()
 
         for subimg_index in range(initial_buf.nsubimages):
-
             buf = self.read_as_image_buf(subimage=subimg_index)
             out_dict[subimg_index] = {}
 
@@ -105,12 +114,10 @@ class ImageRead:
         out_dict = {}
 
         for subimage_index, subimage_data in self.specglobal.items():
-
             subimage_index = f"subimage {subimage_index}"
             out_dict[subimage_index] = {}
 
             for mip_index, level_spec in subimage_data.items():
-
                 mip_index = f"miplevel {mip_index}"
                 out_dict[subimage_index][mip_index] = repr_spec_simplified_str(
                     level_spec
@@ -128,7 +135,6 @@ class ImageRead:
         out_dict = {}
 
         for subimage_index, subimage_data in self.specglobal.items():
-
             subimage_index = f"subimage {subimage_index}"
             out_dict[subimage_index] = {}
 
@@ -203,3 +209,106 @@ class ImageRead:
         Update any cached data in the case the file on disk has changed.
         """
         self.__init__(path=self.path, colorspace=self.colorspace)
+
+
+def guess_colorspace(file_path: Path) -> Optional[RgbColorspace]:
+    """
+    Try to guess the colorspace encoding of the given file.
+
+    This is a highly probable but not 100% accurate result. Better chance to return
+    a colorspace than :func:`find_colorspace` function.
+
+    Args:
+        file_path: path to a file on disk that may not exist
+
+    Returns:
+
+    """
+    if result := find_colorspace(file_path):
+        return result
+
+    if file_path.suffix in get_extensions_for_supported_formats(["openexr", "hdr"]):
+        return sRGB_LINEAR_COLORSPACE
+
+    elif file_path.suffix in get_extensions_for_supported_formats(
+        ["jpeg", "png", "targa", "dds", "bmp"]
+    ):
+        return sRGB_COLORSPACE
+
+    elif (
+        file_path.suffix in get_extensions_for_supported_formats(["tiff"])
+        and file_path.exists()
+    ):
+        file = ImageRead(file_path, None)
+        file_spec = file.get_spec_at(0, 0)
+        if file_spec.format == oiio.FLOAT:
+            return sRGB_LINEAR_COLORSPACE
+        else:
+            return sRGB_COLORSPACE
+
+    return None
+
+
+def find_colorspace(file_path: Path) -> Optional[RgbColorspace]:
+    """
+    Return the colorspace encoding of the given file.
+
+    This is a safe result with NO hypothetic guesses, but as such it might have less
+    chance of finding one.
+
+    The find is performed as :
+
+    - check the file path :
+        - check for an exact with the full directory name of the file
+        - check for the colorspace name in the filename when split at word. The right-most occurence is picked.
+    - if .exr
+        - get "chromaticities" metadata attribute and derive a colorspace from it
+
+    Args:
+        file_path: path to a file on disk that may not exist
+
+    Returns:
+        None if no colorspace can be found.
+    """
+
+    file_name_split = split_at_words(file_path.stem, split_camel_case=False)
+
+    # list of word to check that they correspond to a colorspace name
+    words_list = [file_path.parent.name] + file_name_split
+
+    colorspace = None
+
+    # TODO potential performance improvement here ?
+    for word in words_list:
+        for colorspaces_aliases in get_available_colorspaces_names_aliases():
+            for colorspace_alias in colorspaces_aliases:
+                if colorspace_alias == word:
+                    colorspace = get_colorspace(colorspace_alias)
+
+    if colorspace:
+        logger.debug(f"[find_colorspace] found from file path.")
+        return colorspace
+
+    if not file_path.exists():
+        return None
+
+    file = ImageRead(file_path, None)
+    file_spec = file.get_spec_at(0, 0)
+
+    if file_spec and file_path.suffix == ".exr":
+        exr_chromaticities = file_spec.getattribute("chromaticities")
+
+        if exr_chromaticities:
+            assert isinstance(exr_chromaticities, tuple)
+
+            colorspace = exr_chromaticities_to_colorspace(
+                exr_chromaticities,
+                ensure_linear_cctf=True,
+            )
+            logger.debug(
+                f"[find_colorspace] found from OpenEXR chromaticities attribute: "
+                f"{list(map(str, colorspace))}"
+            )
+            colorspace = colorspace[0]
+
+    return colorspace
