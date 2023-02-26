@@ -39,6 +39,9 @@ class BaseColorspaceComponent:
 
     @abstractmethod
     def _tuplerepr(self) -> tuple:
+        """
+        The class represented as a tuple object. Used for hashing.
+        """
         pass
 
     def __str__(self):
@@ -55,7 +58,6 @@ class BaseColorspaceComponent:
 
 @dataclasses.dataclass(eq=False)
 class Whitepoint(BaseColorspaceComponent):
-
     coordinates: numpy.ndarray
     """
     CIE xy coordinates as a ndarray(2,)
@@ -102,7 +104,9 @@ class ColorspaceGamut(BaseColorspaceComponent):
 @dataclasses.dataclass(eq=False)
 class TransferFunctions(BaseColorspaceComponent):
     """
-    Transfer function as decoding and encoding.
+    Transfer functions as decoding and encoding.
+
+    A transfer function might or might not be linear and need to be specified if so.
     """
 
     encoding: Optional[Callable]
@@ -131,6 +135,9 @@ class TransferFunctions(BaseColorspaceComponent):
 
     @property
     def are_linear(self) -> bool:
+        """
+        Return True if the encoding and decoding are linear transfer-functions.
+        """
         return self.is_encoding_linear and self.is_decoding_linear
 
     @classmethod
@@ -151,6 +158,18 @@ TRANSFER_FUNCTIONS_LINEAR = TransferFunctions("CCTF Linear", None, None)
 
 @dataclasses.dataclass(eq=False)
 class RgbColorspace(BaseColorspaceComponent):
+    """
+    Top level entity specifying how a colorspace is defined.
+
+    By color-science standard, every colorspace define :
+    - gamut
+    - whitepoint
+    - transfer functions
+
+    To perform colorspace conversion a 3x3 matrix from and to CIE XYZ is required,
+    which can be derived automatically from the gamut and whitepoint if not specified.
+
+    """
 
     gamut: Optional[ColorspaceGamut]
     whitepoint: Optional[Whitepoint]
@@ -170,7 +189,6 @@ class RgbColorspace(BaseColorspaceComponent):
     matrix_from_XYZ: numpy.ndarray = None
 
     def __post_init__(self):
-
         super().__post_init__()
 
         if (
@@ -179,7 +197,6 @@ class RgbColorspace(BaseColorspaceComponent):
             and self.gamut
             and self.whitepoint
         ):
-
             self.matrix_to_XYZ: numpy.ndarray = colour.normalised_primary_matrix(
                 primaries=self.gamut.primaries,
                 whitepoint=self.whitepoint.coordinates,
