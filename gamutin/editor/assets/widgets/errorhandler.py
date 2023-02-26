@@ -20,6 +20,7 @@ from gamutin.editor.utils import copy_to_clipboard
 from gamutin.editor.exceptions import WidgetUserError
 from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
 from gamutin.editor.assets.widgets.badge import BadgeOverlayWidget
+from gamutin.editor.assets.widgets.labelelided import ElidingLabel
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,6 @@ class ErrorHandlerTreeWidget(QtWidgets.QTreeWidget):
     """
 
     def __init__(self, parent: QtWidgets.QWidget = None):
-
         super().__init__(parent)
 
         self.setColumnCount(len(ErrorTreeWidgetItem.columns))
@@ -112,13 +112,11 @@ class ErrorHandlerTreeWidget(QtWidgets.QTreeWidget):
         self.customContextMenuRequested[QtCore.QPoint].connect(self.show_context_menu)
 
     def add_error(self, error: WidgetUserError) -> ErrorTreeWidgetItem:
-
         error_item = ErrorTreeWidgetItem(error, self)
         self.update_errors()  # take the opportunity to refresh
         return error_item
 
     def copy_selection_as_json(self):
-
         out_dict = {}
         selected_items: list[ErrorTreeWidgetItem] = self.selectedItems()
 
@@ -146,7 +144,6 @@ class ErrorHandlerTreeWidget(QtWidgets.QTreeWidget):
         return item_list
 
     def show_context_menu(self, *args):
-
         menu = QtWidgets.QMenu()
         selected_items: list[ErrorTreeWidgetItem] = self.selectedItems()
 
@@ -164,7 +161,6 @@ class ErrorHandlerTreeWidget(QtWidgets.QTreeWidget):
         """
 
         for error_item in self.get_all_items():
-
             if error_item.error.is_deleted:
                 self.invisibleRootItem().removeChild(error_item)
 
@@ -213,7 +209,7 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QHBoxLayout()
         self.icon_error = ErrorIcon(error_handler=self)
         self.label_time = QtWidgets.QLabel()
-        self.label_error = QtWidgets.QLabel()
+        self.label_error = ElidingLabel(mode=QtCore.Qt.ElideRight)
 
         # 2. Add
         self.setLayout(self.layout)
@@ -234,7 +230,6 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         return
 
     def bakeUI(self):
-
         self.filter_errors()
 
         self.setVisible(False)
@@ -266,7 +261,6 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         return self.errors[-1]
 
     def add_error(self, error: Optional[WidgetUserError]):
-
         if not error:
             self.bakeUI()
             return
@@ -315,7 +309,6 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
         return
 
     def show_context_menu(self, *args):
-
         menu = QtWidgets.QMenu()
 
         action_copy = QtWidgets.QAction("Copy Error")
@@ -357,7 +350,6 @@ class ErrorHandlerWidget(QtWidgets.QWidget):
 
 
 def _test_interface():
-
     import sys
     import random
     from functools import partial
