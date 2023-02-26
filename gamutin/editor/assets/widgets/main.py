@@ -3,6 +3,7 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
+from gamutin.editor.options import SUPPORTED_FILE_EXTENSIONS
 from gamutin.editor.options import MaskOptions
 from gamutin.editor.options import CompositeBlendModes
 from gamutin.editor.assets.widgets import pathselector
@@ -84,6 +85,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_options.addWidget(self.color_valid, 4, 1)
 
         # 3. Modify
+        self.widget_image_source.set_expected_file_extensions(SUPPORTED_FILE_EXTENSIONS)
         self.widget_path_target.set_path_type(pathselector.PathType.file)
         self.widget_path_mask_source.set_path_type(pathselector.PathType.file_exist)
         self.checkbox_preview_only.setToolTip(
