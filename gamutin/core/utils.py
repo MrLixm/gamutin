@@ -59,7 +59,7 @@ def getSysContext() -> str:
         f"{vardata[0]}={vardata[1]}" for vardata in gamutin.c.Env.__asdict__().items()
     ]
     out = (
-        f"coco: {gamutin.__version__}\n"
+        f"{gamutin.c.name}: {gamutin.__version__}\n"
         f"platform: {platform.platform()}\n"
         f"frozen: {gamutin.c.is_frozen}\n"
         f"env: {json.dumps(env, indent=4, default=str)}\n"
@@ -177,9 +177,7 @@ def prettify_table_list(
     row_list = []
 
     for row_index, row_data in enumerate(table_list):
-
         if not row_index == 1:  # ignore header separator
-
             row_data = map(
                 lambda obj: str_adjust(str(obj), maximum_length_padded, " "),
                 row_data,
@@ -222,7 +220,6 @@ def split_at_words(source_str: str, split_camel_case: bool = False) -> list[str]
     """
 
     if split_camel_case:
-
         splitted = re.sub(
             r"([A-Z][a-z]+)|[._-]",
             r" \1",
