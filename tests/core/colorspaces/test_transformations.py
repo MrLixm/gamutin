@@ -19,7 +19,7 @@ def test_exr_chromaticities():
         chromat_bt709,
         ensure_linear_cctf=True,
     )
-    assert colorspaces.get_colorspace("sRGB").get_linear_copy() in result
+    assert colorspaces.get_colorspace("sRGB").as_linear_copy() in result
 
     result = colorspaces.exr_chromaticities_to_colorspace(
         chromat_apo,

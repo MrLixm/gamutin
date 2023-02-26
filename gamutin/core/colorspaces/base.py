@@ -188,6 +188,11 @@ class RgbColorspace(BaseColorspaceComponent):
     matrix_to_XYZ: numpy.ndarray = None
     matrix_from_XYZ: numpy.ndarray = None
 
+    _linear_source: Optional[RgbColorspace] = None
+    """
+    Initial colorspace this instance was derived from when linearized.
+    """
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -241,20 +246,41 @@ class RgbColorspace(BaseColorspaceComponent):
 
         return not has_gamut and not has_whitepoint and not has_transfer_function
 
+    @property
+    def is_linear_copy(self) -> bool:
+        """
+        True if this colorspace was generated from :meth:`as_linear_copy`
+        """
+        return bool(self._linear_source)
+
     def copy(self) -> RgbColorspace:
         """
         Return a shallow copy of this instance.
         """
         return copy.deepcopy(self)
 
-    def get_linear_copy(self) -> RgbColorspace:
+    def as_linear_copy(self) -> RgbColorspace:
         """
-        Return a copy of this colorspace but with linear transfer-functions set.
+        Return a copy of this colorspace but with all transfer-functions as linear.
+
+        If the transfer functions are already linear, just return a regular copy.
         """
         colorspace = self.copy()
+
+        if self.transfer_functions.are_linear:
+            return colorspace
+
+        colorspace._linear_source = self
         colorspace.name = colorspace.name + " Linear"
         colorspace.transfer_functions = TRANSFER_FUNCTIONS_LINEAR
         return colorspace
+
+    def retrieve_linear_source(self) -> Optional[RgbColorspace]:
+        """
+        The non-linear colorspace this linear instance was derived from. Else None
+        if :meth:`is_linear_copy` is False.
+        """
+        return self._linear_source
 
     @classmethod
     def from_colour_colorspace(

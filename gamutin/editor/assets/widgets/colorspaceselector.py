@@ -71,11 +71,9 @@ class ColorspaceSelector(QtWidgets.QWidget):
         return
 
     def bakeUI(self):
-
         self.menu_colorspace.clear()
         menu_categories = {}
         for colorspace in gamutin.core.colorspaces.get_available_colorspaces():
-
             colorspace_categories: list[str] = [
                 str(colorspace_category.value)
                 for colorspace_category in colorspace.categories
@@ -83,7 +81,6 @@ class ColorspaceSelector(QtWidgets.QWidget):
             colorspace_categories.append("All")
 
             for category in colorspace_categories:
-
                 menu = menu_categories.get(category)
                 if not menu:
                     menu = QtWidgets.QMenu(category)
@@ -134,6 +131,13 @@ class ColorspaceSelector(QtWidgets.QWidget):
         """
         Set the given colorspace to be the currently actively selected one in the interface.
         """
+
+        if colorspace.is_linear_copy:
+            self.set_force_linear_enable(True)
+            colorspace = colorspace.retrieve_linear_source()
+        else:
+            self.set_force_linear_enable(False)
+
         self.button_colorspace.setText(colorspace.name)
         self.button_colorspace.setToolTip(colorspace.description)
         self._current_colorspace = colorspace

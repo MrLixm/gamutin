@@ -406,7 +406,7 @@ def get_colorspace(name: Optional[str]) -> Optional[RgbColorspace]:
         return None
 
     if linear_asked:
-        colorspace = colorspace.get_linear_copy()
+        colorspace = colorspace.as_linear_copy()
 
     return colorspace
 

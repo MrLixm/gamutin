@@ -6,7 +6,6 @@ from gamutin.core import colorspaces
 
 
 def test_Whitepoint():
-
     # valid for now, see in the future
     whitepoint = colorspaces.Whitepoint("blank", coordinates=[])
 
@@ -31,7 +30,6 @@ def test_Whitepoint():
 
 
 def test_TransferFunctions():
-
     # valid for now, see in the future
     transfer_functions = colorspaces.TransferFunctions(
         "CCTF test",
@@ -127,7 +125,6 @@ def test_TransferFunctions():
 
 
 def test_RgbColorspace_fromColour():
-
     colour_colorspace: colour.RGB_Colourspace = colour.RGB_COLOURSPACES["sRGB"]
 
     colorspace = colorspaces.RgbColorspace.from_colour_colorspace(
@@ -163,7 +160,6 @@ def test_RgbColorspace_fromColour():
 
 
 def test_RgbColorspace_is_no_op():
-
     try:
         colorspace = colorspaces.RgbColorspace("test fail")
     except TypeError:
@@ -478,3 +474,52 @@ def test_RgbColorspace_hashing():
         ),
     ]
     assert len(set(colorspace_list)) == 2
+
+
+def test_RgbColorspace_get_linear_copy():
+    def temp_decoding_1(array):
+        return array**2
+
+    def temp_encoding_1(array):
+        return array**1 / 2
+
+    transfer_functions = colorspaces.TransferFunctions(
+        "CCTF test",
+        encoding=temp_encoding_1,
+        decoding=temp_decoding_1,
+    )
+
+    gamut_1 = colorspaces.ColorspaceGamut(
+        "gamut 1",
+        numpy.array([[0.64, 0.33], [0.3, 0.6], [0.15, 0.06]]),
+    )
+
+    whitepoint = colorspaces.Whitepoint(
+        "test illuminant",
+        numpy.array([1 / 3, 1 / 3, 1 / 3]),
+    )
+
+    colorspace = colorspaces.RgbColorspace(
+        "test null",
+        gamut=gamut_1,
+        whitepoint=whitepoint,
+        transfer_functions=transfer_functions,
+        categories=tuple(),
+        description="",
+    )
+
+    assert colorspace.is_linear_copy is False
+    assert colorspace.transfer_functions.are_linear is False
+
+    linear_colorspace = colorspace.as_linear_copy()
+    assert linear_colorspace.is_linear_copy is True
+    assert linear_colorspace.transfer_functions.are_linear is True
+    assert linear_colorspace.retrieve_linear_source() is colorspace
+
+    linear_colorspace_2 = linear_colorspace.as_linear_copy()
+    assert linear_colorspace_2 is not linear_colorspace
+    assert linear_colorspace_2.is_linear_copy is True
+    assert linear_colorspace_2.transfer_functions.are_linear is True
+    assert linear_colorspace_2.retrieve_linear_source() == colorspace
+    # we made a deepcopy
+    assert linear_colorspace_2.retrieve_linear_source() is not colorspace

@@ -238,7 +238,7 @@ def exr_chromaticities_to_colorspace(
             continue
 
         if ensure_linear_cctf and not colorspace.transfer_functions.are_linear:
-            colorspace_list.append(colorspace.get_linear_copy())
+            colorspace_list.append(colorspace.as_linear_copy())
         else:
             colorspace_list.append(colorspace)
 
