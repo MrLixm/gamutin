@@ -8,6 +8,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 from gamutin.core.io import ImageRead
+from gamutin.core.io import guess_colorspace
 from gamutin.editor.utils import block_signals
 from gamutin.editor.assets.widgets import pathselector
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
@@ -123,6 +124,7 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         self.combobox_channel.currentIndexChanged.connect(self.on_image_changed)
         self.combobox_channel.currentTextChanged.connect(self.on_image_changed)
         self.button_info.clicked.connect(self.show_image_repr)
+        self.button_colorspace_detect.clicked.connect(self.detect_image_colorspace)
         return
 
     def bakeUI(self):
@@ -205,7 +207,14 @@ class ImageSelectorWidget(QtWidgets.QFrame):
 
         if not self.current_image:
             return
-        # TODO
+
+        colorspace = guess_colorspace(self.current_image.path)
+        if colorspace:
+            self.widget_colorspace_source.set_current_colorspace(colorspace)
+
+        logger.debug(
+            f"[{self.__class__.__name__}][detect_image_colorspace] {str(colorspace)=})"
+        )
         return
 
     def on_image_changed(self, *args):
