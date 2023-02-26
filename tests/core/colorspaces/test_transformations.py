@@ -2,10 +2,10 @@ from gamutin.core import colorspaces
 
 
 def test_exr_chromaticities():
-
     chromat_bt709 = (0.64, 0.33, 0.3, 0.6, 0.15, 0.06, 0.3127, 0.329)
     chromat_CIE_XYZ = (1, 0, 0, 1, 0, 0, 1 / 3, 1 / 3)
     chromat_random = (0.99, 0.99, 0.99, 0.99, 0.99, 0.99, 0.5, 0.5)
+    chromat_apo = (0.7347, 0.2653, 0, 1, 0.0001, -0.077, 0.32168, 0.33767)
 
     colorspace = colorspaces.get_colorspace("sRGB")
     result = colorspaces.colorspace_to_exr_chromaticities(colorspace)
@@ -17,13 +17,19 @@ def test_exr_chromaticities():
 
     result = colorspaces.exr_chromaticities_to_colorspace(
         chromat_bt709,
-        force_linear_cctf=True,
+        ensure_linear_cctf=True,
     )
     assert colorspaces.get_colorspace("sRGB").get_linear_copy() in result
 
     result = colorspaces.exr_chromaticities_to_colorspace(
+        chromat_apo,
+        ensure_linear_cctf=True,
+    )
+    assert result == [colorspaces.get_colorspace("ACES2065-1")]
+
+    result = colorspaces.exr_chromaticities_to_colorspace(
         chromat_bt709,
-        force_linear_cctf=False,
+        ensure_linear_cctf=False,
     )
     assert colorspaces.get_colorspace("sRGB") in result
     assert result == [
@@ -33,13 +39,13 @@ def test_exr_chromaticities():
 
     result = colorspaces.exr_chromaticities_to_colorspace(
         chromat_CIE_XYZ,
-        force_linear_cctf=False,
+        ensure_linear_cctf=False,
     )
     assert result == []
 
     result = colorspaces.exr_chromaticities_to_colorspace(
         chromat_random,
-        force_linear_cctf=False,
+        ensure_linear_cctf=False,
     )
     assert result == []
 

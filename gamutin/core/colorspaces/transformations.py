@@ -116,7 +116,6 @@ def colorspace_to_XYZ(
     XYZ = colour.algebra.vector_dot(source_colorspace.matrix_to_XYZ, RGB)
 
     if chromatic_adaptation_transform is not None and source_colorspace.whitepoint:
-
         M_CAT = matrix_chromatic_adapation_transform(
             source_colorspace.whitepoint,
             whitepoint_XYZ,
@@ -194,7 +193,7 @@ References:
 
 def exr_chromaticities_to_colorspace(
     exr_chromaticities: exr_chromaticities_type,
-    force_linear_cctf: bool = True,
+    ensure_linear_cctf: bool = True,
 ) -> list[RgbColorspace]:
     """
     Convert OpenEXR ``chromaticities`` attribute to pontential RgbColorspace instances.
@@ -209,8 +208,9 @@ def exr_chromaticities_to_colorspace(
        exr_chromaticities:
             chromaticities attribute as defined in the OpenEXR spec.
             (R.x, R.y, G.x, G.y, B.x, B.y, whitepoint.x, whitepoint.y)
-       force_linear_cctf:
-            If True make sure the returned colorspace instance use a linear transfer-function.
+       ensure_linear_cctf:
+            If True make sure the returned colorspace instance use a linear transfer-function
+            only if that not already the case.
             If False, the instance might or might not use a linear cctf.
             The OpenEXR spec imply this should be True by default.
 
@@ -228,7 +228,6 @@ def exr_chromaticities_to_colorspace(
     exr_primaries = exr_primaries.reshape((3, 2))
 
     for colorspace in get_available_colorspaces():
-
         if colorspace.whitepoint is None or colorspace.gamut is None:
             continue
 
@@ -238,7 +237,7 @@ def exr_chromaticities_to_colorspace(
         if not numpy.allclose(exr_primaries, colorspace.gamut.primaries):
             continue
 
-        if force_linear_cctf:
+        if ensure_linear_cctf and not colorspace.transfer_functions.are_linear:
             colorspace_list.append(colorspace.get_linear_copy())
         else:
             colorspace_list.append(colorspace)
