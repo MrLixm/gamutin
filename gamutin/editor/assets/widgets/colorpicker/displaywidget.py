@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = ("",)
 
+import ast
 import enum
 import logging
 import re
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 class ColorFloat:
     """
     Represent a floating point RGB triplet that can easily be manipulated for UI integration.
+
+    Defined in range [-0-1+]
+    Displayed without any additional character where the channels are just split by a whitespace.
     """
 
     DECIMALS = 4
@@ -48,6 +52,66 @@ class ColorFloat:
         """
         channels = color_str.split(cls.SEPARATOR)
         channels = [float(channel) for channel in channels]
+        return cls(*channels)
+
+
+class ColorFloatTuple(ColorFloat):
+    """
+    Represent a floating point RGB triplet that can easily be manipulated for UI integration.
+
+    Defined in range [-0-1+]
+    Displayed as a python tuple.
+    """
+
+    SEPARATOR = ", "
+
+    def __str__(self) -> str:
+        return (
+            f"({self.r:.{self.DECIMALS}f}{self.SEPARATOR}"
+            f"{self.g:.{self.DECIMALS}f}{self.SEPARATOR}"
+            f"{self.b:.{self.DECIMALS}f})"
+        )
+
+    @classmethod
+    def from_string(cls, color_str: str) -> ColorFloatTuple:
+        """
+        Convert the properly formatted color_str string to a ColorFloat instance.
+
+        Example of properly formatted: ``(0.1560, -0.2681, 1.5041)``
+        """
+        channels = ast.literal_eval(color_str)
+        return cls(*channels)
+
+
+class Color8Bit:
+    """
+    Represent a 8bit integer RGB triplet that can easily be manipulated for UI integration.
+
+    Defined in range [0-255] even if not clamped.
+    """
+
+    SEPARATOR = " "
+
+    def __init__(self, r: int, g: int, b: int):
+        self.r = r
+        self.g = g
+        self.b = b
+
+    def __str__(self) -> str:
+        return f"{self.r}{self.SEPARATOR}{self.g}{self.SEPARATOR}{self.b}"
+
+    def as_tuple(self) -> tuple[int, int, int]:
+        return self.r, self.g, self.b
+
+    @classmethod
+    def from_string(cls, color_str: str) -> Color8Bit:
+        """
+        Convert the properly formatted color_str string to a ColorFloat instance.
+
+        Example of properly formatted: ``0.1560 -0.2681 1.5041``
+        """
+        channels = color_str.split(cls.SEPARATOR)
+        channels = [int(channel) for channel in channels]
         return cls(*channels)
 
 
@@ -114,6 +178,73 @@ class ColorFloatValidator(QtGui.QValidator):
         return ColorFloat.from_string(fixed_str)
 
 
+class ColorFloatTupleValidator(QtGui.QValidator):
+    """
+    Validator for a floating point RGB tuple represented as python tuple.
+
+    Example of a valid string: ``0.1560 -0.2681 1.5041``
+    """
+
+    DECIMALS = 4
+    DEFAULT_VALUE = 0.0
+
+    def validate(self, user_input: str, cursor_pos: int) -> QtGui.QValidator.State:
+        if not user_input.startswith("(") or not user_input.endswith(")"):
+            return self.Invalid
+
+        simplified_input = user_input.lstrip("(").rstrip(")")
+
+        if re.search("[^\d.\s\-,]", simplified_input):
+            return self.Invalid
+
+        return self.Acceptable
+
+    def fix(self, user_input: str) -> ColorFloatTuple:
+        """
+        Convert the given string into a usable color.
+        """
+        if not user_input:
+            return ColorFloatTuple(*((self.DEFAULT_VALUE,) * 3))
+
+        fixed_str = user_input.lstrip("(").rstrip(")")
+        fixed_str = fixed_str.replace(" ", "")
+        channels = fixed_str.split(",")
+        channel_number = len(channels)
+
+        if channel_number > 3:
+            # strip out additional channels
+            channels = channels[:3]
+
+        elif channel_number < 3:
+            # add missing channels with default value
+            channels += [f"{self.DEFAULT_VALUE:.{self.DECIMALS}f}"] * (
+                3 - channel_number
+            )
+
+        fixed_channels = []
+        for channel in channels:
+            minus_char_number = channel.count("-")
+
+            if channel.startswith("-") and minus_char_number == 1:
+                fixed_channel = channel
+
+            else:
+                fixed_channel = channel.replace("-", "")
+
+                if channel.startswith("-"):
+                    fixed_channel = "-" + fixed_channel
+
+            dot_char_number = fixed_channel.count(".")
+            if dot_char_number >= 2:
+                before, after = fixed_channel.split(".", 1)
+                fixed_channel = before + "." + after.replace(".", "")
+
+            fixed_channels.append(fixed_channel)
+
+        fixed_str = ColorFloatTuple.SEPARATOR.join(fixed_channels)
+        return ColorFloatTuple.from_string(fixed_str)
+
+
 class ColorDisplayFormat(enum.Enum):
     float = "0.0"
     tuple = "(0.0,)"
@@ -131,19 +262,25 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
     def __init__(self, currentFormat: ColorDisplayFormat = None):
         super().__init__()
         self._format = currentFormat or ColorDisplayFormat.float
-        self.returnPressed.connect(self.onReturnPressed)
+        self.returnPressed.connect(self.apply_validator_fix)
         self.bakeUI()
 
     def bakeUI(self):
         if self._format == self.formats.float:
-            self.setValidator(ColorFloatValidator(self))
+            self.setValidator(ColorFloatValidator())
 
-            if not self.text():
-                self.onReturnPressed()
+        elif self._format == self.formats.tuple:
+            self.setValidator(ColorFloatTupleValidator())
+
+        else:
+            raise ValueError(f"Unsupported format {self._format}")
+
+        if not self.text():
+            self.apply_validator_fix()
 
         return
 
-    def onReturnPressed(self):
+    def apply_validator_fix(self):
         new_color: ColorFloat = self.validator().fix(self.text())
         self.setText(str(new_color))
         return
