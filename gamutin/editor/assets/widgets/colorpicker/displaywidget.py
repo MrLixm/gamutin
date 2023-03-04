@@ -10,8 +10,8 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.editor.assets.widgets.colorpicker.datatypes import ColorFloat
-from gamutin.editor.assets.widgets.colorpicker.datatypes import ColorFloatTuple
+from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
+from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import (
     ColorFloatTupleValidator,
@@ -85,6 +85,7 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
     def __init__(self, currentFormat: ColorDisplayFormat = None):
         super().__init__()
         self._format = currentFormat or ColorDisplayFormat.float
+        self.color = DEFAULT_COLOR
         self.returnPressed.connect(self.apply_validator_fix)
         self.ui_bake()
 
@@ -111,9 +112,12 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         """
         Sanitize the user input by using the fix method of the current validator.
         """
-        new_color: ColorFloat = self.validator().fix(self.text())
+        new_color = self.validator().fix(self.text())
         self.setText(str(new_color))
         return
+
+    def get_color(self) -> RGBAData:
+        pass
 
     @property
     def format(self):
