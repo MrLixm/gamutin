@@ -4,6 +4,7 @@ __all__ = (
     "BaseColorValidator",
     "ColorFloatValidator",
     "ColorFloatTupleValidator",
+    "ColorHexValidator",
     "ColorInt8Validator",
 )
 
@@ -245,3 +246,52 @@ class ColorInt8Validator(BaseColorValidator):
         fixed_input = self.SEPARATOR.join(fixed_channels)
         color = self.to_color(fixed_input)
         return self.from_color(color)
+
+
+class ColorHexValidator(BaseColorValidator):
+    """
+    Validator for a hexadecimal RGB colors.
+
+    Example of a valid string: ``#78BD68``
+    """
+
+    def validate(self, user_input: str, cursor_pos: int) -> QtGui.QValidator.State:
+        if not user_input.startswith("#"):
+            return self.Invalid
+
+        sanitized_input = user_input.lstrip("#").lower()
+
+        if re.search("[^a-f0-9]", sanitized_input):
+            return self.Invalid
+
+        return self.Acceptable
+
+    def to_color(self, user_input: str) -> RGBAData:
+        """
+        Args:
+            user_input: example: ``#78BD68``
+        """
+        if not user_input:
+            return DEFAULT_COLOR
+
+        return RGBAData.from_hex(user_input)
+
+    def from_color(self, color: RGBAData) -> str:
+        return color.to_hex()
+
+    def fix(self, user_input: str) -> str:
+        """
+        Convert the given string into a usable color.
+        """
+        if not user_input:
+            return self.from_color(DEFAULT_COLOR)
+
+        sanitized_user_input = user_input.lstrip("#").lower()
+        sanitized_user_input = sanitized_user_input[:6]
+
+        if len(sanitized_user_input) == 2:
+            fixed_input = sanitized_user_input * 3
+        else:
+            fixed_input = sanitized_user_input.ljust(6, "0")
+
+        return f"#{fixed_input}"

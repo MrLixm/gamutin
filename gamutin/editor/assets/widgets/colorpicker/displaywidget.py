@@ -17,6 +17,7 @@ from gamutin.editor.assets.widgets.colorpicker.datamodel import sRGB_LINEAR_COLO
 from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorInt8Validator
+from gamutin.editor.assets.widgets.colorpicker.validators import ColorHexValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import (
     ColorFloatTupleValidator,
 )
@@ -155,6 +156,9 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
 
         elif self._format == self.formats.int8:
             self.setValidator(ColorInt8Validator())
+
+        elif self._format == self.formats.hexadecimal:
+            self.setValidator(ColorHexValidator())
 
         else:
             raise ValueError(f"Unsupported format {self._format}")
