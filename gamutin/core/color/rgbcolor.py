@@ -1,0 +1,288 @@
+from __future__ import annotations
+
+__all__ = ("RGBData",)
+
+import logging
+from typing import Literal
+from typing import overload
+from typing import Optional
+from typing import Union
+
+import numpy
+
+from gamutin.core.colorspaces import RgbColorspace
+from gamutin.core.colorspaces import sRGB_COLORSPACE
+from gamutin.core.colorspaces import colorspace_to_colorspace
+from gamutin.core.colorspaces import ChromaticAdaptationTransform
+from gamutin.core.color.colordepth import convert8bitToFloat
+from gamutin.core.color.colordepth import convertFloatTo8Bit
+
+logger = logging.getLogger(__name__)
+
+
+class RGBData:
+    """
+    Dataclass to represent a color expressed under the R-G-B color model.
+
+    Internal values are stored as floats expressed in the given colorspace.
+
+    TODO research if not better to store numpy array instead of builtin floats. This
+        would allow to store full images.
+
+    Args:
+        red: [-0-1+] range
+        green: [-0-1+] range
+        blue: [-0-1+] range
+        colorspace: colorspace in which the R,G,B triplet is encoded in.
+        alpha: optional alpha values associated with the RGB triplet. [0-1] range.
+    """
+
+    def __init__(
+        self,
+        red: float,
+        green: float,
+        blue: float,
+        colorspace: RgbColorspace,
+        alpha: Optional[float] = None,
+    ):
+        self._r = red
+        self._g = green
+        self._b = blue
+        self._a = alpha
+        self.colorspace: RgbColorspace = colorspace
+
+    @property
+    def r(self) -> float:
+        return self._r
+
+    @property
+    def g(self) -> float:
+        return self._g
+
+    @property
+    def b(self) -> float:
+        return self._b
+
+    @property
+    def a(self) -> Optional[float]:
+        return self._a
+
+    @property
+    def red(self) -> float:
+        return self.r
+
+    @property
+    def green(self) -> float:
+        return self.g
+
+    @property
+    def blue(self) -> float:
+        return self.b
+
+    @property
+    def alpha(self) -> Optional[float]:
+        return self.a
+
+    @classmethod
+    def from8Bit(
+        cls,
+        red: int,
+        green: int,
+        blue: int,
+        alpha: Optional[float] = None,
+    ) -> RGBData:
+        """
+        Get a RGBColor instance from a 8bit RGB triplet. The triplet is assumed to
+        always be encoded in sRGB(EOTF) colorspace.
+
+        Args:
+            red: 0-255 range
+            green: 0-255 range
+            blue: 0-255 range
+            alpha: optional alpha values associated with the RGB triplet. [0-1] range.
+
+        Returns:
+            RGBColor instance corresponding to the given parameters.
+        """
+        new_array = convert8bitToFloat(
+            numpy.array((red, green, blue), dtype=numpy.core.uint8)
+        )
+        return cls.fromArray(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
+
+    @classmethod
+    def fromHex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBData:
+        """
+        Get a RGBColor instance from a hexadecimal color encoding.
+
+        Args:
+            hexadecimal: with or without the "#"
+            alpha: optional alpha values associated with the RGB triplet. [0-1] range.
+
+        Returns:
+            RGBColor instance corresponding to the given parameters.
+        """
+
+        hexadecimal = hexadecimal.lstrip("#")
+        # SRC: https://stackoverflow.com/a/29643643/13806195
+        r, g, b = tuple(int(hexadecimal[i : i + 2], 16) for i in (0, 2, 4))
+        return cls.from8Bit(r, g, b, alpha)
+
+    @classmethod
+    def fromArray(
+        cls,
+        array: numpy.ndarray,
+        colorspace: RgbColorspace,
+        alpha: Optional[float] = None,
+    ) -> RGBData:
+        """
+
+        Args:
+            array:
+                R,G,B triplet with an optional 4th alpha component.
+                [r,g,b] or [r,g,b,a].
+                RGB channels are expressed in floats.
+            colorspace: colorspace in which the R,G,B triplet is encoded in.
+            alpha: optional alpha values associated with the RGB triplet. [0-1] range.
+
+        Returns:
+            RGBColor instance corresponding to the given parameters.
+        """
+
+        if array.shape[0] == 4 and alpha is None:
+            alpha = array[3]
+
+        return cls(array[0], array[1], array[2], colorspace=colorspace, alpha=alpha)
+
+    def copy(self) -> RGBData:
+        """
+        Returns:
+            return a new instance copy of this one
+        """
+        copy = self.__class__(
+            self.red,
+            self.green,
+            self.blue,
+            colorspace=self.colorspace,
+            alpha=self.alpha,
+        )
+        return copy
+
+    def toArray(self, alpha: Union[bool, float] = True) -> numpy.ndarray:
+        """
+        Args:
+            alpha:
+                - If True, return the internal alpha value if not none at the end of the array. (size 4 or 3)
+                - If False, always return a ndarray of size 3
+                - If a float, return an array with the value passed (size 4)
+
+        Returns:
+            array(3,) == [r,g,b] or array(4,) == [r,g,b,a]
+        """
+        return numpy.array(self.toTupleFloat(alpha=alpha))
+
+    @overload
+    def toTupleFloat(self, alpha: float = ...) -> tuple[float, float, float, float]:
+        ...
+
+    @overload
+    def toTupleFloat(self, alpha: Literal[False] = ...) -> tuple[float, float, float]:
+        ...
+
+    @overload
+    def toTupleFloat(
+        self,
+        alpha: Literal[True] = ...,
+    ) -> Union[tuple[float, float, float], tuple[float, float, float, float]]:
+        ...
+
+    def toTupleFloat(
+        self,
+        alpha: Union[bool, float] = True,
+    ) -> Union[tuple[float, float, float], tuple[float, float, float, float]]:
+        """
+        Args:
+            alpha:
+                - If True, return the internal alpha value if not none at the end of the tuple. (len 4 or 3)
+                - If False, always return a tuple of len 3
+                - If a float, return a tuple with the value passed (len 4)
+
+        Returns:
+            (r,g,b) or (r,g,b,a) where component is a float
+        """
+        if alpha is False:
+            return self.red, self.green, self.blue
+
+        if alpha is True and self.alpha is not None:
+            return self.red, self.green, self.blue, self.alpha
+
+        return self.red, self.green, self.blue, alpha
+
+    def toHex(self) -> str:
+        """
+        Get a hexadecimal representation of the current color.
+
+        Returns:
+            hexadecimal color with the "#". Letters in lowercase.
+        """
+        r, g, b = self.to8Bit(alpha=False)
+        # SRC: https://stackoverflow.com/a/3380754/13806195
+        return "#{0:02x}{1:02x}{2:02x}".format(r, g, b)
+
+    def to8Bit(
+        self,
+        alpha: Union[bool, float] = True,
+    ) -> Union[tuple[int, int, int], tuple[int, int, int, float]]:
+        """
+        Return an RGB(A) triplet encoded with 8bit values. [0-255]
+
+        Args:
+            alpha:
+                - If True, return the internal alpha value if not none at the end of the tuple. (len 4 or 3)
+                - If False, always return a tuple of len 3
+                - If a float, return a tuple with the value passed (len 4)
+
+        Returns:
+            (r,g,b) or (r,g,b,a)
+        """
+        as_srgb = self.asColorspace(sRGB_COLORSPACE)
+        as_bits = convertFloatTo8Bit(as_srgb.toArray(alpha=False))
+        red = as_bits[0].item()
+        green = as_bits[1].item()
+        blue = as_bits[2].item()
+
+        if alpha is False:
+            return red, green, blue
+
+        if alpha is True and self.alpha is not None:
+            return red, green, blue, self.alpha
+
+        return red, green, blue, alpha
+
+    def asColorspace(
+        self,
+        target_colorspace: RgbColorspace,
+        cat: Union[ChromaticAdaptationTransform, bool] = True,
+    ) -> RGBData:
+        """
+        Get a copy of this instance converted in the given colorspace.
+
+        Args:
+            target_colorspace: new colorspace to encode the color in
+            cat: chromatic adaptation transform to use. True to use default.
+
+        Returns:
+            new RGBColor instance encoded in the given colorspace
+        """
+        if cat is True:
+            cat = ChromaticAdaptationTransform.default
+        elif cat is False:
+            cat = None
+
+        new_array = colorspace_to_colorspace(
+            array=self.toArray(alpha=False),
+            source_colorspace=self.colorspace,
+            target_colorspace=target_colorspace,
+            chromatic_adaptation_transform=cat,
+        )
+
+        return self.__class__.fromArray(new_array, target_colorspace, self.alpha)
