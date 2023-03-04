@@ -48,19 +48,31 @@ class ColorDisplayFormatPickerWidget(QtWidgets.QWidget):
         super().__init__(parent)
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout()
+        self.tabbar = QtWidgets.QTabBar()
         # 2. Add
         self.setLayout(self.layout)
-        # 3. Modify
         self.layout.addStretch(0)
+        self.layout.addWidget(self.tabbar)
+        # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         # Procedural widget configuration
         for color_format in self.formats:
-            button = QtWidgets.QPushButton(color_format.value)
-            button.clicked.connect(
-                partial(self.format_changed_signal.emit, color_format.value)
-            )
-            self.layout.addWidget(button)
+            tab_index = self.tabbar.addTab(color_format.value)
+            self.tabbar.setTabData(tab_index, color_format)
+
+        # 4. Connections
+        self.tabbar.currentChanged.connect(self.on_tab_changed)
+
+    def on_tab_changed(self, new_index):
+        """
+        Callback called when the current format selected change.
+        """
+        current_tab_index = self.tabbar.currentIndex()
+        current_format = self.tabbar.tabData(current_tab_index)
+        if not current_format:
+            return
+        self.format_changed_signal.emit(current_format.value)
 
 
 class ColorValueLineEdit(QtWidgets.QLineEdit):
@@ -208,7 +220,6 @@ def _test_interface():
 
     widget = ColorDisplayAdvancedWidget()
     layout.addWidget(widget)
-    QtWidgets.QColorDialog()
 
     window.add_layout(layout)
     window.show()
