@@ -252,7 +252,7 @@ class RGBAData:
             new RGBColor instance encoded in the given colorspace
         """
         if self.colorspace is None or target_colorspace is None:
-            return self.copy()
+            return dataclasses.replace(self, colorspace=target_colorspace)
 
         if cat is True:
             cat = ChromaticAdaptationTransform.default
