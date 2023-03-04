@@ -95,6 +95,34 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self.returnPressed.connect(self.apply_validator_fix)
         self.on_format_changed()
 
+    @property
+    def format(self):
+        """
+        Retrieve in which format the color is displayed.
+        """
+        return self._format
+
+    @format.setter
+    def format(self, format_value: ColorDisplayFormat):
+        """
+        Change the format in which the color is displayed.
+        """
+        if self._format == format_value:
+            return
+
+        self._format = format_value
+        self.on_format_changed()
+
+    def apply_validator_fix(self):
+        """
+        Sanitize the user input by using the fix method of the current validator.
+        """
+        new_text = self.validator().fix(self.text())
+        new_color = self.validator().to_color(new_text)
+        self.setText(new_text)
+        self.color = new_color
+        return
+
     def on_format_changed(self):
         """
         Update the state of the interface.
@@ -117,40 +145,12 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self.setText(new_text)
         return
 
-    def apply_validator_fix(self):
-        """
-        Sanitize the user input by using the fix method of the current validator.
-        """
-        new_text = self.validator().fix(self.text())
-        new_color = self.validator().to_color(new_text)
-        self.setText(new_text)
-        self.color = new_color
-        return
-
     def get_color(self) -> RGBAData:
         return self.color
 
     def validator(self) -> BaseColorValidator:
         # override for typehints
         return super().validator()
-
-    @property
-    def format(self):
-        """
-        Retrieve in which format the color is displayed.
-        """
-        return self._format
-
-    @format.setter
-    def format(self, format_value: ColorDisplayFormat):
-        """
-        Change the format in which the color is displayed.
-        """
-        if self._format == format_value:
-            return
-
-        self._format = format_value
-        self.on_format_changed()
 
 
 class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
