@@ -122,7 +122,7 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         Sanitize the user input by using the fix method of the current validator.
         """
         new_text = self.validator().fix(self.text())
-        new_color = self.validator().as_color(new_text)
+        new_color = self.validator().to_color(new_text)
         self.setText(new_text)
         self.color = new_color
         return

@@ -26,7 +26,7 @@ class BaseColorValidator(QtGui.QValidator):
         pass
 
     @abc.abstractmethod
-    def as_color(self, user_input: str) -> RGBAData:
+    def to_color(self, user_input: str) -> RGBAData:
         pass
 
     @abc.abstractmethod
@@ -45,7 +45,7 @@ class ColorFloatValidator(BaseColorValidator):
     DEFAULT_VALUE = 0.0
     SEPARATOR = " "
 
-    def as_color(self, user_input: str) -> RGBAData:
+    def to_color(self, user_input: str) -> RGBAData:
         """
         Args:
             user_input: example: ``0.253 -0.1 0.005``
@@ -114,7 +114,7 @@ class ColorFloatValidator(BaseColorValidator):
             fixed_channels.append(fixed_channel)
 
         fixed_input = self.SEPARATOR.join(fixed_channels)
-        color = self.as_color(fixed_input)
+        color = self.to_color(fixed_input)
         return self.from_color(color)
 
 
@@ -129,7 +129,7 @@ class ColorFloatTupleValidator(ColorFloatValidator):
     DEFAULT_VALUE = 0.0
     SEPARATOR = ", "
 
-    def as_color(self, user_input: str) -> RGBAData:
+    def to_color(self, user_input: str) -> RGBAData:
         """
         Args:
             user_input: example: ``(0.253, -0.1, 0.005)``
@@ -172,7 +172,7 @@ class ColorFloatTupleValidator(ColorFloatValidator):
         fixed_str = fixed_str.replace(" ", "")
         channels = fixed_str.split(",")
         fixed_str = super().fix(" ".join(channels))
-        color = self.as_color(fixed_str)
+        color = self.to_color(fixed_str)
         return self.from_color(color)
 
 
@@ -192,7 +192,7 @@ class Color8BitValidator(BaseColorValidator):
 
         return self.Acceptable
 
-    def as_color(self, user_input: str) -> RGBAData:
+    def to_color(self, user_input: str) -> RGBAData:
         """
         Args:
             user_input: example: ``0.253 -0.1 0.005``
@@ -243,5 +243,5 @@ class Color8BitValidator(BaseColorValidator):
             fixed_channels.append(str(fixed_channel_value))
 
         fixed_input = self.SEPARATOR.join(fixed_channels)
-        color = self.as_color(fixed_input)
+        color = self.to_color(fixed_input)
         return self.from_color(color)
