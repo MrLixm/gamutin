@@ -311,4 +311,6 @@ def find_colorspace(file_path: Path) -> Optional[RgbColorspace]:
             )
             colorspace = colorspace[0]
 
+    # TODO #6 detect icc profiles
+
     return colorspace
