@@ -45,6 +45,12 @@ class RGBAData:
     colorspace: Optional[RgbColorspace] = None
     alpha: Optional[float] = None
 
+    def __str__(self) -> str:
+        return (
+            f"{self.__class__.__name__}<({self.r}, {self.g}, {self.b}, {self.a})"
+            f":{self.colorspace} at {hex(id(self))}>"
+        )
+
     @property
     def r(self) -> float:
         return self.red
