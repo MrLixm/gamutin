@@ -12,7 +12,9 @@ from Qt import QtCore
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
+from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
+from gamutin.editor.assets.widgets.colorpicker.validators import Color8BitValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import (
     ColorFloatTupleValidator,
 )
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 class ColorDisplayFormat(enum.Enum):
     float = "0.0"
     tuple = "(0.0,)"
-    integer = "255"
+    int8 = "255"
     hexadecimal = "#hex"
 
 
@@ -78,6 +80,10 @@ class ColorDisplayFormatPickerWidget(QtWidgets.QWidget):
 class ColorValueLineEdit(QtWidgets.QLineEdit):
     """
     A color tuple as a single row of values that can be displayed under different formats.
+
+    The color is always stored in the same floating point format which allow that simply
+     switching between formats doesn't change values. But from the moment the user
+     press enter the stored values are boudn to the current format displayed.
     """
 
     formats = ColorDisplayFormat
@@ -87,37 +93,46 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self._format = currentFormat or ColorDisplayFormat.float
         self.color = DEFAULT_COLOR
         self.returnPressed.connect(self.apply_validator_fix)
-        self.ui_bake()
+        self.on_format_changed()
 
-    def ui_bake(self):
+    def on_format_changed(self):
         """
         Update the state of the interface.
         """
-        # TODO handle value conversions between formats
+
         if self._format == self.formats.float:
             self.setValidator(ColorFloatValidator())
 
         elif self._format == self.formats.tuple:
             self.setValidator(ColorFloatTupleValidator())
 
+        elif self._format == self.formats.int8:
+            self.setValidator(Color8BitValidator())
+
         else:
             raise ValueError(f"Unsupported format {self._format}")
 
-        if not self.text():
-            self.apply_validator_fix()
-
+        # the color stored doesn't change, only the displayed one
+        new_text = self.validator().from_color(self.color)
+        self.setText(new_text)
         return
 
     def apply_validator_fix(self):
         """
         Sanitize the user input by using the fix method of the current validator.
         """
-        new_color = self.validator().fix(self.text())
-        self.setText(str(new_color))
+        new_text = self.validator().fix(self.text())
+        new_color = self.validator().as_color(new_text)
+        self.setText(new_text)
+        self.color = new_color
         return
 
     def get_color(self) -> RGBAData:
-        pass
+        return self.color
+
+    def validator(self) -> BaseColorValidator:
+        # override for typehints
+        return super().validator()
 
     @property
     def format(self):
@@ -135,7 +150,7 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
             return
 
         self._format = format_value
-        self.ui_bake()
+        self.on_format_changed()
 
 
 class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
