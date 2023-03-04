@@ -103,7 +103,7 @@ def test_RGBAData_classMethod_hex():
         color_floatFrom8 = color_dataset["floatFrom8"]
         color_hex = color_dataset["hex"]
 
-        color = RGBAData.fromHex(color_hex, alpha=0.33)
+        color = RGBAData.from_hex(color_hex, alpha=0.33)
         assert_allclose(color_floatFrom8[0], color.red, atol=tolerance)
         assert_allclose(color_floatFrom8[0], color.r, atol=tolerance)
         assert_allclose(color_floatFrom8[1], color.green, atol=tolerance)
@@ -116,7 +116,7 @@ def test_RGBAData_classMethod_hex():
 
 def test_RGBAData_classMethod_array():
     array = numpy.array(COLOR_DATASET[3]["float"])
-    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.from_array(array, sRGB_COLORSPACE)
     assert array[0] == color.red
     assert array[0] == color.r
     assert array[1] == color.green
@@ -128,7 +128,7 @@ def test_RGBAData_classMethod_array():
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     array = numpy.append(array, 0.2)
-    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.from_array(array, sRGB_COLORSPACE)
     assert array[0] == color.red
     assert array[0] == color.r
     assert array[1] == color.green
@@ -139,41 +139,41 @@ def test_RGBAData_classMethod_array():
     assert 0.2 == color.a
 
 
-def test_RGBAData_toArray():
+def test_RGBAData_to_array():
     array = numpy.array(COLOR_DATASET[3]["float"])
-    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
-    result = color.toArray(alpha=False)
+    color = RGBAData.from_array(array, sRGB_COLORSPACE)
+    result = color.to_array(alpha=False)
     assert_array_equal(result, array)
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     expected = numpy.append(array, 0.36)
-    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
-    result = color.toArray(alpha=0.36)
+    color = RGBAData.from_array(array, sRGB_COLORSPACE)
+    result = color.to_array(alpha=0.36)
     assert_array_equal(result, expected)
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     array = numpy.append(array, 0.2)
-    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
-    result = color.toArray()
+    color = RGBAData.from_array(array, sRGB_COLORSPACE)
+    result = color.to_array()
     assert_array_equal(result, array)
 
 
-def test_RGBAData_toTuple():
+def test_RGBAData_to_tuple():
     for color_dataset in COLOR_DATASET.values():
         color_float = color_dataset["float"]
         expected = (*color_float, 0.44)
 
         color = RGBAData(*color_float, sRGB_COLORSPACE, 0.44)
-        assert color.toTupleFloat() == expected
+        assert color.to_float() == expected
 
 
-def test_RGBAData_toHex():
+def test_RGBAData_to_hex():
     for index, dataset in COLOR_DATASET.items():
         source = dataset["float"]
         expected = dataset["hex"].lower()
 
         color = RGBAData(*source, sRGB_COLORSPACE, 0.44)
-        result = color.toHex()
+        result = color.to_hex()
         assert result == expected
 
 

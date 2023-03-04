@@ -280,7 +280,7 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
     def get_color(self) -> RGBAData:
         current_color = self.lineedit_color.color
         workspace_colorspace = sRGB_LINEAR_COLORSPACE
-        current_color = current_color.asColorspace(workspace_colorspace)
+        current_color = current_color.as_colorspace(workspace_colorspace)
         return current_color
 
     def on_color_format_changed(self, format_value: str):
@@ -300,7 +300,7 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
         new_color = self.get_color()
         display_colorspace = self.selector_colorspace_display.get_current_colorspace()
 
-        new_color = new_color.asColorspace(display_colorspace)
+        new_color = new_color.as_colorspace(display_colorspace)
         self.frame_preview_color.color = new_color
 
         logger.debug(
@@ -315,7 +315,7 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
         current_color = self.get_color()
         display_colorspace = self.selector_colorspace_display.get_current_colorspace()
 
-        new_color = current_color.asColorspace(display_colorspace)
+        new_color = current_color.as_colorspace(display_colorspace)
         self.frame_preview_color.color = new_color
 
         logger.debug(

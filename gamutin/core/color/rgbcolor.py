@@ -91,10 +91,10 @@ class RGBAData:
         new_array = convert8bitToFloat(
             numpy.array((red, green, blue), dtype=numpy.core.uint8)
         )
-        return cls.fromArray(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
+        return cls.from_array(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
 
     @classmethod
-    def fromHex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBAData:
+    def from_hex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBAData:
         """
         Get a RGBColor instance from a hexadecimal color encoding.
 
@@ -112,7 +112,7 @@ class RGBAData:
         return cls.from_int8(r, g, b, alpha)
 
     @classmethod
-    def fromArray(
+    def from_array(
         cls,
         array: numpy.ndarray,
         colorspace: RgbColorspace,
@@ -144,7 +144,7 @@ class RGBAData:
         """
         return dataclasses.replace(self)
 
-    def toArray(self, alpha: Union[bool, float] = True) -> numpy.ndarray:
+    def to_array(self, alpha: Union[bool, float] = True) -> numpy.ndarray:
         """
         Args:
             alpha:
@@ -155,24 +155,24 @@ class RGBAData:
         Returns:
             array(3,) == [r,g,b] or array(4,) == [r,g,b,a]
         """
-        return numpy.array(self.toTupleFloat(alpha=alpha))
+        return numpy.array(self.to_float(alpha=alpha))
 
     @overload
-    def toTupleFloat(self, alpha: float = ...) -> tuple[float, float, float, float]:
+    def to_float(self, alpha: float = ...) -> tuple[float, float, float, float]:
         ...
 
     @overload
-    def toTupleFloat(self, alpha: Literal[False] = ...) -> tuple[float, float, float]:
+    def to_float(self, alpha: Literal[False] = ...) -> tuple[float, float, float]:
         ...
 
     @overload
-    def toTupleFloat(
+    def to_float(
         self,
         alpha: Literal[True] = ...,
     ) -> Union[tuple[float, float, float], tuple[float, float, float, float]]:
         ...
 
-    def toTupleFloat(
+    def to_float(
         self,
         alpha: Union[bool, float] = True,
     ) -> Union[tuple[float, float, float], tuple[float, float, float, float]]:
@@ -194,7 +194,7 @@ class RGBAData:
 
         return self.red, self.green, self.blue, alpha
 
-    def toHex(self) -> str:
+    def to_hex(self) -> str:
         """
         Get a hexadecimal representation of the current color.
 
@@ -221,8 +221,8 @@ class RGBAData:
         Returns:
             (r,g,b) or (r,g,b,a)
         """
-        as_srgb = self.asColorspace(sRGB_COLORSPACE)
-        as_bits = convertFloatTo8Bit(as_srgb.toArray(alpha=False))
+        as_srgb = self.as_colorspace(sRGB_COLORSPACE)
+        as_bits = convertFloatTo8Bit(as_srgb.to_array(alpha=False))
         red = as_bits[0].item()
         green = as_bits[1].item()
         blue = as_bits[2].item()
@@ -235,7 +235,7 @@ class RGBAData:
 
         return red, green, blue, alpha
 
-    def asColorspace(
+    def as_colorspace(
         self,
         target_colorspace: Optional[RgbColorspace],
         cat: Union[ChromaticAdaptationTransform, bool] = True,
@@ -260,10 +260,10 @@ class RGBAData:
             cat = None
 
         new_array = colorspace_to_colorspace(
-            array=self.toArray(alpha=False),
+            array=self.to_array(alpha=False),
             source_colorspace=self.colorspace,
             target_colorspace=target_colorspace,
             chromatic_adaptation_transform=cat,
         )
 
-        return self.__class__.fromArray(new_array, target_colorspace, self.alpha)
+        return self.__class__.from_array(new_array, target_colorspace, self.alpha)
