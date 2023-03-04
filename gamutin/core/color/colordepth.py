@@ -1,6 +1,6 @@
 __all__ = (
-    "convert8bitToFloat",
-    "convertFloatTo8Bit",
+    "convert_int8_to_float",
+    "convert_float_to_int8",
 )
 
 import logging
@@ -10,7 +10,7 @@ import numpy
 logger = logging.getLogger(__name__)
 
 
-def convert8bitToFloat(source: numpy.ndarray):
+def convert_int8_to_float(source: numpy.ndarray):
     """
     Convert a 8bit RGB color to floating point encoding.
 
@@ -23,7 +23,7 @@ def convert8bitToFloat(source: numpy.ndarray):
     return numpy.asarray(source / 255, dtype=numpy.core.float64)
 
 
-def convertFloatTo8Bit(source: numpy.ndarray):
+def convert_float_to_int8(source: numpy.ndarray):
     """
     Convert a floating point array of color values to 8bit integer encoding.
 

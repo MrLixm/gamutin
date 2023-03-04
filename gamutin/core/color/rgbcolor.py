@@ -15,8 +15,8 @@ from gamutin.core.colorspaces import RgbColorspace
 from gamutin.core.colorspaces import sRGB_COLORSPACE
 from gamutin.core.colorspaces import colorspace_to_colorspace
 from gamutin.core.colorspaces import ChromaticAdaptationTransform
-from gamutin.core.color.colordepth import convert8bitToFloat
-from gamutin.core.color.colordepth import convertFloatTo8Bit
+from gamutin.core.color.colordepth import convert_int8_to_float
+from gamutin.core.color.colordepth import convert_float_to_int8
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ class RGBAData:
         Returns:
             RGBColor instance corresponding to the given parameters.
         """
-        new_array = convert8bitToFloat(
+        new_array = convert_int8_to_float(
             numpy.array((red, green, blue), dtype=numpy.core.uint8)
         )
         return cls.from_array(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
@@ -222,7 +222,7 @@ class RGBAData:
             (r,g,b) or (r,g,b,a)
         """
         as_srgb = self.as_colorspace(sRGB_COLORSPACE)
-        as_bits = convertFloatTo8Bit(as_srgb.to_array(alpha=False))
+        as_bits = convert_float_to_int8(as_srgb.to_array(alpha=False))
         red = as_bits[0].item()
         green = as_bits[1].item()
         blue = as_bits[2].item()
