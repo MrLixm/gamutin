@@ -6,11 +6,15 @@ from __future__ import annotations
 __all__ = (
     "DEFAULT_COLOR",
     "RGBAData",
+    "sRGB_COLORSPACE",
+    "sRGB_LINEAR_COLORSPACE",
 )
 
 import logging
 
 from gamutin.core.color import RGBAData
+from gamutin.core.colorspaces import sRGB_LINEAR_COLORSPACE
+from gamutin.core.colorspaces import sRGB_COLORSPACE
 
 logger = logging.getLogger(__name__)
 
