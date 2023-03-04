@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-__all__ = ("RGBData",)
+__all__ = ("RGBAData",)
 
+import dataclasses
 import logging
 from typing import Literal
 from typing import overload
@@ -20,7 +21,8 @@ from gamutin.core.color.colordepth import convertFloatTo8Bit
 logger = logging.getLogger(__name__)
 
 
-class RGBData:
+@dataclasses.dataclass(frozen=True)
+class RGBAData:
     """
     Dataclass to represent a color expressed under the R-G-B color model.
 
@@ -37,51 +39,27 @@ class RGBData:
         alpha: optional alpha values associated with the RGB triplet. [0-1] range.
     """
 
-    def __init__(
-        self,
-        red: float,
-        green: float,
-        blue: float,
-        colorspace: RgbColorspace,
-        alpha: Optional[float] = None,
-    ):
-        self._r = red
-        self._g = green
-        self._b = blue
-        self._a = alpha
-        self.colorspace: RgbColorspace = colorspace
+    red: float
+    green: float
+    blue: float
+    colorspace: Optional[RgbColorspace] = None
+    alpha: Optional[float] = None
 
     @property
     def r(self) -> float:
-        return self._r
+        return self.red
 
     @property
     def g(self) -> float:
-        return self._g
+        return self.green
 
     @property
     def b(self) -> float:
-        return self._b
+        return self.blue
 
     @property
     def a(self) -> Optional[float]:
-        return self._a
-
-    @property
-    def red(self) -> float:
-        return self.r
-
-    @property
-    def green(self) -> float:
-        return self.g
-
-    @property
-    def blue(self) -> float:
-        return self.b
-
-    @property
-    def alpha(self) -> Optional[float]:
-        return self.a
+        return self.alpha
 
     @classmethod
     def from8Bit(
@@ -90,7 +68,7 @@ class RGBData:
         green: int,
         blue: int,
         alpha: Optional[float] = None,
-    ) -> RGBData:
+    ) -> RGBAData:
         """
         Get a RGBColor instance from a 8bit RGB triplet. The triplet is assumed to
         always be encoded in sRGB(EOTF) colorspace.
@@ -110,7 +88,7 @@ class RGBData:
         return cls.fromArray(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
 
     @classmethod
-    def fromHex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBData:
+    def fromHex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBAData:
         """
         Get a RGBColor instance from a hexadecimal color encoding.
 
@@ -133,7 +111,7 @@ class RGBData:
         array: numpy.ndarray,
         colorspace: RgbColorspace,
         alpha: Optional[float] = None,
-    ) -> RGBData:
+    ) -> RGBAData:
         """
 
         Args:
@@ -153,19 +131,12 @@ class RGBData:
 
         return cls(array[0], array[1], array[2], colorspace=colorspace, alpha=alpha)
 
-    def copy(self) -> RGBData:
+    def copy(self) -> RGBAData:
         """
         Returns:
             return a new instance copy of this one
         """
-        copy = self.__class__(
-            self.red,
-            self.green,
-            self.blue,
-            colorspace=self.colorspace,
-            alpha=self.alpha,
-        )
-        return copy
+        return dataclasses.replace(self)
 
     def toArray(self, alpha: Union[bool, float] = True) -> numpy.ndarray:
         """
@@ -262,7 +233,7 @@ class RGBData:
         self,
         target_colorspace: RgbColorspace,
         cat: Union[ChromaticAdaptationTransform, bool] = True,
-    ) -> RGBData:
+    ) -> RGBAData:
         """
         Get a copy of this instance converted in the given colorspace.
 

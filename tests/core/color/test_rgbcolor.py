@@ -3,7 +3,7 @@ from numpy.testing import assert_allclose
 from numpy.testing import assert_array_equal
 
 from gamutin.core.colorspaces import sRGB_COLORSPACE
-from gamutin.core.color import RGBData
+from gamutin.core.color import RGBAData
 
 
 COLOR_DATASET = {
@@ -40,19 +40,20 @@ COLOR_DATASET = {
 }
 
 
-def test_RGBData_init():
+def test_RGBAData_init():
     # none should raise error
-    color = RGBData(0.1, 0.5, 0.2, sRGB_COLORSPACE, 0.6)
-    color = RGBData(-0.1, 0.5, 1.2, sRGB_COLORSPACE, -0.5)
-    color = RGBData(-0.1, 0.5, 1.2, sRGB_COLORSPACE, None)
-    color = RGBData(*(-0.1, 0.5, 1.2), sRGB_COLORSPACE, None)
-    color = RGBData(-0.1, 0.5, 1.2, "this is possible")
+    color = RGBAData(0.1, 0.5, 0.2, sRGB_COLORSPACE, 0.6)
+    color = RGBAData(-0.1, 0.5, 1.2, sRGB_COLORSPACE, -0.5)
+    color = RGBAData(-0.1, 0.5, 1.2, sRGB_COLORSPACE, None)
+    color = RGBAData(*(-0.1, 0.5, 1.2), sRGB_COLORSPACE, None)
+    color = RGBAData(-0.1, 0.5, 1.2, "this is possible")
+    color = RGBAData(-0.1, 0.5, 1.2, None, None)
 
 
-def test_RGBData_prop():
+def test_RGBAData_prop():
     colorValue = (0.12, 1.896, 0.3)
 
-    color = RGBData(*colorValue, sRGB_COLORSPACE)
+    color = RGBAData(*colorValue, sRGB_COLORSPACE)
 
     assert colorValue[0] == color.red
     assert colorValue[0] == color.r
@@ -65,7 +66,7 @@ def test_RGBData_prop():
 
     colorValue = COLOR_DATASET[3]["float"]
 
-    color = RGBData(*colorValue, sRGB_COLORSPACE, 0.33)
+    color = RGBAData(*colorValue, sRGB_COLORSPACE, 0.33)
 
     assert colorValue[0] == color.red
     assert colorValue[0] == color.r
@@ -77,14 +78,14 @@ def test_RGBData_prop():
     assert 0.33 == color.a
 
 
-def test_RGBData_classMethod_8bit():
+def test_RGBAData_classMethod_8bit():
     tolerance = 0.002
 
     for color_dataset in COLOR_DATASET.values():
         color_8bit = color_dataset["8bit"]
         expected = color_dataset["floatFrom8"]
 
-        color = RGBData.from8Bit(*color_8bit, alpha=None)
+        color = RGBAData.from8Bit(*color_8bit, alpha=None)
         assert_allclose(expected[0], color.red, atol=tolerance)
         assert_allclose(expected[0], color.r, atol=tolerance)
         assert_allclose(expected[1], color.green, atol=tolerance)
@@ -95,14 +96,14 @@ def test_RGBData_classMethod_8bit():
         assert None is color.a
 
 
-def test_RGBData_classMethod_hex():
+def test_RGBAData_classMethod_hex():
     tolerance = 0.002
 
     for color_dataset in COLOR_DATASET.values():
         color_floatFrom8 = color_dataset["floatFrom8"]
         color_hex = color_dataset["hex"]
 
-        color = RGBData.fromHex(color_hex, alpha=0.33)
+        color = RGBAData.fromHex(color_hex, alpha=0.33)
         assert_allclose(color_floatFrom8[0], color.red, atol=tolerance)
         assert_allclose(color_floatFrom8[0], color.r, atol=tolerance)
         assert_allclose(color_floatFrom8[1], color.green, atol=tolerance)
@@ -113,9 +114,9 @@ def test_RGBData_classMethod_hex():
         assert 0.33 is color.a
 
 
-def test_RGBData_classMethod_array():
+def test_RGBAData_classMethod_array():
     array = numpy.array(COLOR_DATASET[3]["float"])
-    color = RGBData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
     assert array[0] == color.red
     assert array[0] == color.r
     assert array[1] == color.green
@@ -127,7 +128,7 @@ def test_RGBData_classMethod_array():
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     array = numpy.append(array, 0.2)
-    color = RGBData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
     assert array[0] == color.red
     assert array[0] == color.r
     assert array[1] == color.green
@@ -138,52 +139,75 @@ def test_RGBData_classMethod_array():
     assert 0.2 == color.a
 
 
-def test_RGBData_toArray():
+def test_RGBAData_toArray():
     array = numpy.array(COLOR_DATASET[3]["float"])
-    color = RGBData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
     result = color.toArray(alpha=False)
     assert_array_equal(result, array)
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     expected = numpy.append(array, 0.36)
-    color = RGBData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
     result = color.toArray(alpha=0.36)
     assert_array_equal(result, expected)
 
     array = numpy.array(COLOR_DATASET[3]["float"])
     array = numpy.append(array, 0.2)
-    color = RGBData.fromArray(array, sRGB_COLORSPACE)
+    color = RGBAData.fromArray(array, sRGB_COLORSPACE)
     result = color.toArray()
     assert_array_equal(result, array)
 
 
-def test_RGBData_toTuple():
+def test_RGBAData_toTuple():
     for color_dataset in COLOR_DATASET.values():
         color_float = color_dataset["float"]
         expected = (*color_float, 0.44)
 
-        color = RGBData(*color_float, sRGB_COLORSPACE, 0.44)
+        color = RGBAData(*color_float, sRGB_COLORSPACE, 0.44)
         assert color.toTupleFloat() == expected
 
 
-def test_RGBData_toHex():
+def test_RGBAData_toHex():
     for index, dataset in COLOR_DATASET.items():
         source = dataset["float"]
         expected = dataset["hex"].lower()
 
-        color = RGBData(*source, sRGB_COLORSPACE, 0.44)
+        color = RGBAData(*source, sRGB_COLORSPACE, 0.44)
         result = color.toHex()
         assert result == expected
 
 
-def test_RGBData_to8Bit():
+def test_RGBAData_to8Bit():
     for index, dataset in COLOR_DATASET.items():
         source = dataset["float"]
         expected = dataset["8bit"]
 
-        color = RGBData(*source, sRGB_COLORSPACE, 0.44)
+        color = RGBAData(*source, sRGB_COLORSPACE, 0.44)
         result = color.to8Bit(alpha=False)
         assert result == expected
         expected = (*expected, 0.44)
         result = color.to8Bit(alpha=True)
         assert result == expected
+
+
+def test_RGBAData_eq():
+    colorA = RGBAData(0.356, 0.12, -0.1, sRGB_COLORSPACE, 0.33)
+    colorB = RGBAData(0.356, 0.12, -0.1, sRGB_COLORSPACE, None)
+    colorC = RGBAData(0.356, 0.12, -0.1, sRGB_COLORSPACE, 0.33)
+    colorD = RGBAData(0.356, 0.12, -0.1, None, 0.33)
+    colorE = RGBAData(0.356001, 0.12, -0.1, sRGB_COLORSPACE, 0.33)
+
+    assert colorA == colorC
+    assert colorA != colorE
+    assert colorA != colorB
+    assert colorA != colorD
+    assert colorB != colorD
+
+
+def test_RGBAData_copy():
+    for index, dataset in COLOR_DATASET.items():
+        source = dataset["float"]
+        color = RGBAData(*source, sRGB_COLORSPACE, 0.44)
+        color_copy = color.copy()
+        assert color == color_copy
+        assert color is not color_copy
