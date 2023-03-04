@@ -231,19 +231,23 @@ class RGBAData:
 
     def asColorspace(
         self,
-        target_colorspace: RgbColorspace,
+        target_colorspace: Optional[RgbColorspace],
         cat: Union[ChromaticAdaptationTransform, bool] = True,
     ) -> RGBAData:
         """
         Get a copy of this instance converted in the given colorspace.
 
         Args:
-            target_colorspace: new colorspace to encode the color in
+            target_colorspace:
+                new colorspace to encode the color in. If None no transformation is performed.
             cat: chromatic adaptation transform to use. True to use default.
 
         Returns:
             new RGBColor instance encoded in the given colorspace
         """
+        if self.colorspace is None or target_colorspace is None:
+            return self.copy()
+
         if cat is True:
             cat = ChromaticAdaptationTransform.default
         elif cat is False:
