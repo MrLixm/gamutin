@@ -4,7 +4,7 @@ __all__ = (
     "BaseColorValidator",
     "ColorFloatValidator",
     "ColorFloatTupleValidator",
-    "Color8BitValidator",
+    "ColorInt8Validator",
 )
 
 import abc
@@ -176,7 +176,7 @@ class ColorFloatTupleValidator(ColorFloatValidator):
         return self.from_color(color)
 
 
-class Color8BitValidator(BaseColorValidator):
+class ColorInt8Validator(BaseColorValidator):
     """
     Validator for a 8bit integers RGB colors.
 
@@ -202,10 +202,10 @@ class Color8BitValidator(BaseColorValidator):
 
         channels = user_input.split(self.SEPARATOR)
         channels = [int(channel) for channel in channels]
-        return RGBAData.from8Bit(*channels)
+        return RGBAData.from_int8(*channels)
 
     def from_color(self, color: RGBAData) -> str:
-        color_tuple = color.to8Bit(alpha=False)
+        color_tuple = color.to_int8(alpha=False)
         return (
             f"{color_tuple[0]}{self.SEPARATOR}"
             f"{color_tuple[1]}{self.SEPARATOR}"

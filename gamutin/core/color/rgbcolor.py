@@ -68,7 +68,7 @@ class RGBAData:
         return self.alpha
 
     @classmethod
-    def from8Bit(
+    def from_int8(
         cls,
         red: int,
         green: int,
@@ -109,7 +109,7 @@ class RGBAData:
         hexadecimal = hexadecimal.lstrip("#")
         # SRC: https://stackoverflow.com/a/29643643/13806195
         r, g, b = tuple(int(hexadecimal[i : i + 2], 16) for i in (0, 2, 4))
-        return cls.from8Bit(r, g, b, alpha)
+        return cls.from_int8(r, g, b, alpha)
 
     @classmethod
     def fromArray(
@@ -201,11 +201,11 @@ class RGBAData:
         Returns:
             hexadecimal color with the "#". Letters in lowercase.
         """
-        r, g, b = self.to8Bit(alpha=False)
+        r, g, b = self.to_int8(alpha=False)
         # SRC: https://stackoverflow.com/a/3380754/13806195
         return "#{0:02x}{1:02x}{2:02x}".format(r, g, b)
 
-    def to8Bit(
+    def to_int8(
         self,
         alpha: Union[bool, float] = True,
     ) -> Union[tuple[int, int, int], tuple[int, int, int, float]]:

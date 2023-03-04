@@ -85,7 +85,7 @@ def test_RGBAData_classMethod_8bit():
         color_8bit = color_dataset["8bit"]
         expected = color_dataset["floatFrom8"]
 
-        color = RGBAData.from8Bit(*color_8bit, alpha=None)
+        color = RGBAData.from_int8(*color_8bit, alpha=None)
         assert_allclose(expected[0], color.red, atol=tolerance)
         assert_allclose(expected[0], color.r, atol=tolerance)
         assert_allclose(expected[1], color.green, atol=tolerance)
@@ -177,16 +177,16 @@ def test_RGBAData_toHex():
         assert result == expected
 
 
-def test_RGBAData_to8Bit():
+def test_RGBAData_to_int8():
     for index, dataset in COLOR_DATASET.items():
         source = dataset["float"]
         expected = dataset["8bit"]
 
         color = RGBAData(*source, sRGB_COLORSPACE, 0.44)
-        result = color.to8Bit(alpha=False)
+        result = color.to_int8(alpha=False)
         assert result == expected
         expected = (*expected, 0.44)
-        result = color.to8Bit(alpha=True)
+        result = color.to_int8(alpha=True)
         assert result == expected
 
 

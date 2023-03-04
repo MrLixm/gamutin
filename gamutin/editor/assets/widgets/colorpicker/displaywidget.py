@@ -16,7 +16,7 @@ from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
 from gamutin.editor.assets.widgets.colorpicker.datamodel import sRGB_LINEAR_COLORSPACE
 from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
-from gamutin.editor.assets.widgets.colorpicker.validators import Color8BitValidator
+from gamutin.editor.assets.widgets.colorpicker.validators import ColorInt8Validator
 from gamutin.editor.assets.widgets.colorpicker.validators import (
     ColorFloatTupleValidator,
 )
@@ -154,7 +154,7 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
             self.setValidator(ColorFloatTupleValidator())
 
         elif self._format == self.formats.int8:
-            self.setValidator(Color8BitValidator())
+            self.setValidator(ColorInt8Validator())
 
         else:
             raise ValueError(f"Unsupported format {self._format}")
@@ -201,7 +201,7 @@ class ColorPreviewFrame(QtWidgets.QFrame):
 
     def _get_qcolor(self) -> QtGui.QColor:
         # TODO to8bit convert to sRGB auto, remove it !
-        color_int8 = self.color.to8Bit(alpha=False)
+        color_int8 = self.color.to_int8(alpha=False)
         return QtGui.QColor(*color_int8)
 
 
