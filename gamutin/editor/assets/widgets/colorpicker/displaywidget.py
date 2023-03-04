@@ -7,11 +7,13 @@ import logging
 from functools import partial
 
 from Qt import QtWidgets
+from Qt import QtGui
 from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
+from gamutin.editor.assets.widgets.colorpicker.datamodel import sRGB_LINEAR_COLORSPACE
 from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import Color8BitValidator
@@ -87,12 +89,23 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
     """
 
     formats = ColorDisplayFormat
+    color_changed_signal = QtCore.Signal()
 
     def __init__(self, currentFormat: ColorDisplayFormat = None):
         super().__init__()
+
         self._format = currentFormat or ColorDisplayFormat.float
         self.color = DEFAULT_COLOR
-        self.returnPressed.connect(self.apply_validator_fix)
+
+        self.setToolTip(
+            "When you start editing values, until you press Enter or leave the widget, "
+            "the value will NOT be considered edited."
+        )
+        self.setAlignment(QtCore.Qt.AlignRight)
+
+        self.returnPressed.connect(self.update_values)
+        self.editingFinished.connect(self.update_values)
+
         self.on_format_changed()
 
     @property
@@ -113,14 +126,20 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self._format = format_value
         self.on_format_changed()
 
-    def apply_validator_fix(self):
+    def update_values(self):
         """
         Sanitize the user input by using the fix method of the current validator.
         """
+        previous_color = self.color
         new_text = self.validator().fix(self.text())
         new_color = self.validator().to_color(new_text)
         self.setText(new_text)
         self.color = new_color
+        self.color_changed_signal.emit()
+        logger.debug(
+            f"[{self.__class__.__name__}][update_values] "
+            f"from {previous_color} to {new_color}"
+        )
         return
 
     def on_format_changed(self):
@@ -153,6 +172,39 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         return super().validator()
 
 
+class ColorPreviewFrame(QtWidgets.QFrame):
+    """
+    A frame filled with a uniform constant color.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._color = DEFAULT_COLOR
+        self.color = DEFAULT_COLOR
+
+    @property
+    def color(self) -> RGBAData:
+        return self._color
+
+    @color.setter
+    def color(self, color_value: RGBAData):
+        self._color = color_value
+        self.setToolTip(str(color_value))
+        self.repaint()
+
+    def paintEvent(self, event: QtGui.QPaintEvent):
+        qpainter = QtGui.QPainter()
+        qpainter.setRenderHint(qpainter.Antialiasing)
+        qpainter.begin(self)
+        qpainter.fillRect(self.rect(), self._get_qcolor())
+        qpainter.end()
+
+    def _get_qcolor(self) -> QtGui.QColor:
+        # TODO to8bit convert to sRGB auto, remove it !
+        color_int8 = self.color.to8Bit(alpha=False)
+        return QtGui.QColor(*color_int8)
+
+
 class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
     """
     A widget aiming at displaying a color with its value under different represenations.
@@ -177,50 +229,99 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
 
         # 1. Create
         self.layout = QtWidgets.QVBoxLayout()
-        self.colorspace_display_widget = ColorspaceSelector()
-        self.color_preview_frame = QtWidgets.QFrame()
-        self.color_lineedit = ColorValueLineEdit()
-        self.color_format_picker = ColorDisplayFormatPickerWidget()
+        self.layout_bottom = QtWidgets.QVBoxLayout()
+        self.widget_bottom = QtWidgets.QWidget()
+
+        self.selector_colorspace_display = ColorspaceSelector()
+        self.frame_preview_color = ColorPreviewFrame()
+        self.lineedit_color = ColorValueLineEdit()
+        self.widget_format_pickers = ColorDisplayFormatPickerWidget()
+        self.splitter_preview = QtWidgets.QSplitter()
 
         # 2. Add
         self.setLayout(self.layout)
-        self.layout.addWidget(self.colorspace_display_widget)
-        self.layout.addWidget(self.color_preview_frame)
-        self.layout.addWidget(self.color_lineedit)
-        self.layout.addWidget(self.color_format_picker)
+        self.widget_bottom.setLayout(self.layout_bottom)
+        self.layout.addWidget(self.selector_colorspace_display)
+        self.layout.addWidget(self.splitter_preview)
+        self.splitter_preview.addWidget(self.frame_preview_color)
+        self.splitter_preview.addWidget(self.widget_bottom)
+        self.layout_bottom.addWidget(self.lineedit_color)
+        self.layout_bottom.addWidget(self.widget_format_pickers)
+        self.layout_bottom.addStretch(0)
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.color_preview_frame.setMinimumHeight(15)
-        self.colorspace_display_widget.set_label_visible(False)
+        self.layout_bottom.setContentsMargins(0, 0, 0, 0)
+        self.splitter_preview.setOrientation(QtCore.Qt.Orientation.Vertical)
+        self.splitter_preview.setChildrenCollapsible(False)
+        self.splitter_preview.setHandleWidth(15)
+        self.frame_preview_color.setMinimumHeight(15)
+        self.selector_colorspace_display.set_label_visible(False)
+        self.selector_colorspace_display.button_colorspace.align_text_right(25)
         # TODO see if re-enable needed
-        self.colorspace_display_widget.set_force_linear_visible(False)
+        self.selector_colorspace_display.set_force_linear_visible(False)
         # 4. Connections
-        self.color_format_picker.format_changed_signal.connect(
+        self.widget_format_pickers.format_changed_signal.connect(
             self.on_color_format_changed
         )
-
+        self.lineedit_color.color_changed_signal.connect(self.on_lineedit_color_changed)
+        self.selector_colorspace_display.colorspace_changed_signal.connect(
+            self.on_display_colorspace_changed
+        )
         self.ui_bake()
         return
 
     def ui_bake(self):
         pass
 
-    def set_color(self, color):
+    def set_color(self, color: RGBAData):
         pass
 
-    def get_color(self, color):
-        pass
+    def get_color(self) -> RGBAData:
+        current_color = self.lineedit_color.color
+        workspace_colorspace = sRGB_LINEAR_COLORSPACE
+        current_color = current_color.asColorspace(workspace_colorspace)
+        return current_color
 
     def on_color_format_changed(self, format_value: str):
         """
         Callback called when the user ask to display the color in another format.
         """
-        color_format = self.color_format_picker.formats(format_value)
-        self.color_lineedit.format = color_format
+        color_format = self.widget_format_pickers.formats(format_value)
+        self.lineedit_color.format = color_format
         logger.debug(
             f"[{self.__class__.__name__}][on_color_format_changed] changed to {color_format}"
         )
+
+    def on_lineedit_color_changed(self):
+        """
+        Callback when the lineedit widget change value.
+        """
+        new_color = self.get_color()
+        display_colorspace = self.selector_colorspace_display.get_current_colorspace()
+
+        new_color = new_color.asColorspace(display_colorspace)
+        self.frame_preview_color.color = new_color
+
+        logger.debug(
+            f"[{self.__class__.__name__}][on_lineedit_color_changed]newcolor={new_color}"
+        )
+        return
+
+    def on_display_colorspace_changed(self):
+        """
+        Callback when the display colorspace change.
+        """
+        current_color = self.get_color()
+        display_colorspace = self.selector_colorspace_display.get_current_colorspace()
+
+        new_color = current_color.asColorspace(display_colorspace)
+        self.frame_preview_color.color = new_color
+
+        logger.debug(
+            f"[{self.__class__.__name__}][on_display_colorspace_changed]newcolor={new_color}"
+        )
+        return
 
 
 def _test_interface():
