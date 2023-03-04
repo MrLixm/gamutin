@@ -257,7 +257,7 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
         self.splitter_preview.setHandleWidth(15)
         self.frame_preview_color.setMinimumHeight(15)
         self.selector_colorspace_display.set_label_visible(False)
-        self.selector_colorspace_display.button_colorspace.align_text_right(25)
+        self.selector_colorspace_display.align_text_right(25)
         # TODO see if re-enable needed
         self.selector_colorspace_display.set_force_linear_visible(False)
         # 4. Connections

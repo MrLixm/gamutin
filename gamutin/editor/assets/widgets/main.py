@@ -114,7 +114,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
             self.combobox_colorspace_reference,
             self.combobox_colorspace_target,
         ]:
-            combobox.bakeUI()
+            combobox.update_colorspaces()
 
         for composite_blend_mode in CompositeBlendModes:
             self.combobox_blend_mode.addItem(

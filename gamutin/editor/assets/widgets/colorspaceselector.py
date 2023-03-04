@@ -33,12 +33,6 @@ class ColorspaceSelector(QtWidgets.QWidget):
             gamutin.core.colorspaces.get_colorspace("sRGB")
         )
 
-        self.cookUI()
-        self.bakeUI()
-
-        self.set_current_colorspace(self._current_colorspace)
-
-    def cookUI(self):
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout()
         self.label_legend = QtWidgets.QLabel("ColorSpace")
@@ -55,7 +49,7 @@ class ColorspaceSelector(QtWidgets.QWidget):
         self.layout.addWidget(self.checkbox_force_linear_target)
 
         # 3. Modify
-        self.layout.setContentsMargins(*(0,) * 4)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.button_colorspace.setMenu(self.menu_colorspace)
         self.button_colorspace.align_text_left()
         self.label_legend.setSizePolicy(
@@ -68,9 +62,22 @@ class ColorspaceSelector(QtWidgets.QWidget):
             self.on_colorspace_changed
         )
 
-        return
+        self.update_colorspaces()
+        self.set_current_colorspace(self._current_colorspace)
 
-    def bakeUI(self):
+    def align_text_right(self, margin: int = None):
+        self.button_colorspace.align_text_right(margin)
+
+    def align_text_left(self, margin: int = None):
+        self.button_colorspace.align_text_left(margin)
+
+    def align_text_center(self):
+        self.button_colorspace.align_text_center()
+
+    def update_colorspaces(self):
+        """
+        Add all the currently availabel colorspaces to the menu widget.
+        """
         self.menu_colorspace.clear()
         menu_categories = {}
         for colorspace in gamutin.core.colorspaces.get_available_colorspaces():
