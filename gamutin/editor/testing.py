@@ -37,8 +37,11 @@ class BlankTestWindow(QtWidgets.QWidget):
     A basic window for testing purposes.
     """
 
+    themes = TestStyleThemes
+
     def __init__(self):
         super().__init__()
+        self.setObjectName("testWindow")
 
         self.layout = QtWidgets.QVBoxLayout()
         self.layout_header = QtWidgets.QHBoxLayout()
@@ -76,13 +79,18 @@ class BlankTestWindow(QtWidgets.QWidget):
     def add_layout(self, layout: QtWidgets.QLayout):
         self.layout_user.addLayout(layout)
 
+    def set_active_theme(self, theme: TestStyleThemes):
+        index = self.combobox_theme.findData(theme)
+        if index == -1:
+            raise ValueError(f"Unsupported theme {theme}")
+        self.combobox_theme.setCurrentIndex(index)
+
     def show_message(self, message: str, timeout: int = 2000):
         self.status_bar.showMessage(message, timeout)
 
     def _on_theme_change(self, index=None):
-
         theme_asked: TestStyleThemes = self.combobox_theme.currentData()
-
+        self.ensurePolished()
         if theme_asked == TestStyleThemes.dark:
             stylesheet = resources.style_test.copy()
             stylesheet.resolve(resources.theme_default)
@@ -93,13 +101,14 @@ class BlankTestWindow(QtWidgets.QWidget):
             stylesheet.apply_to(self)
         else:
             self.setStyleSheet("/*blank*/")
+
         return
 
     def _on_layout_disabled(self):
         disable_layout_content(self.layout_user, self.checkbox_disabled.isChecked())
 
 
-def get_testing_window() -> BlankTestWindow:
+def get_testing_window(size_x=1000, size_y=800) -> BlankTestWindow:
     window = BlankTestWindow()
-    window.resize(1000, 800)
+    window.resize(size_x, size_y)
     return window

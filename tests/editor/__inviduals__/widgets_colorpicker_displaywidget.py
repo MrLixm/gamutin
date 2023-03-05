@@ -16,8 +16,8 @@ def show():
     _configureLogging(force_debug=True)
     app = getQApp()
 
-    window = get_testing_window()
-    window.resize(350, 200)
+    window = get_testing_window(350, 200)
+    window.set_active_theme(window.themes.default)
     window.layout.setContentsMargins(0, 0, 0, 0)
     window.layout_user.setContentsMargins(0, 0, 0, 0)
 
