@@ -150,6 +150,8 @@ def colorspace_to_colorspace(
     """
     if source_colorspace.is_no_op or target_colorspace.is_no_op:
         return array.copy()
+    if source_colorspace == target_colorspace:
+        return array.copy()
 
     RGB = colour.utilities.to_domain_1(array)
 
