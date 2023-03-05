@@ -10,9 +10,9 @@ from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.color_preview import ColorPreviewFrame
-from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
-from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
-from gamutin.editor.assets.widgets.colorpicker.datamodel import sRGB_LINEAR_COLORSPACE
+from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
+from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
+from gamutin.editor.assets.widgets.colorpicker.model import sRGB_LINEAR_COLORSPACE
 from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
 from gamutin.editor.assets.widgets.colorpicker.validators import ColorInt8Validator

@@ -13,8 +13,8 @@ import re
 
 from Qt import QtGui
 
-from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
-from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
+from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
+from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
 
 
 class BaseColorValidator(QtGui.QValidator):
