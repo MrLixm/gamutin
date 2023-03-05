@@ -88,6 +88,9 @@ class ColorFloatValidator(BaseColorValidator):
             # strip out additional channels
             channels = channels[:3]
 
+        elif channel_number == 1:
+            channels *= 3
+
         elif channel_number < 3:
             # add missing channels with default value
             channels += [f"{self.DEFAULT_VALUE:.{self.DECIMALS}f}"] * (
@@ -229,6 +232,9 @@ class ColorInt8Validator(BaseColorValidator):
         if channel_number > 3:
             # strip out additional channels
             channels = channels[:3]
+
+        elif channel_number == 1:
+            channels *= 3
 
         elif channel_number < 3:
             # add missing channels with default value
