@@ -9,6 +9,7 @@ from gamutin.core.colorspaces.datasets import get_colorspace
 from gamutin.core.colorspaces.datasets import get_available_colorspaces_names_aliases
 from gamutin.core.colorspaces.datasets import get_available_colorspaces_names
 from gamutin.core.colorspaces.datasets import get_available_colorspaces
+from gamutin.core.colorspaces.datasets import PASSTHROUGH_COLORSPACE
 from gamutin.core.colorspaces.datasets import POINTER_GAMUT_COLORSPACE
 from gamutin.core.colorspaces.datasets import sRGB_COLORSPACE
 from gamutin.core.colorspaces.datasets import sRGB_LINEAR_COLORSPACE

@@ -4,6 +4,7 @@ __all__ = (
     "get_available_colorspaces_names",
     "get_available_colorspaces_names_aliases",
     "get_colorspace",
+    "PASSTHROUGH_COLORSPACE",
     "POINTER_GAMUT_COLORSPACE",
     "sRGB_COLORSPACE",
     "sRGB_LINEAR_COLORSPACE",
@@ -418,3 +419,9 @@ sRGB_COLORSPACE = get_colorspace("sRGB")
 assert sRGB_COLORSPACE
 sRGB_LINEAR_COLORSPACE = get_colorspace("sRGB:linear")
 assert sRGB_LINEAR_COLORSPACE
+
+PASSTHROUGH_COLORSPACE = get_colorspace("Passthrough")
+"""
+A 'null' colorspace that does nothing.
+"""
+assert PASSTHROUGH_COLORSPACE
