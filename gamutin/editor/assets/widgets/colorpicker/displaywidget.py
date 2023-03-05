@@ -12,7 +12,7 @@ from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.color_preview import ColorPreviewFrame
 from gamutin.editor.assets.widgets.colorpicker.color_values import ColorValueLineEdit
 from gamutin.editor.assets.widgets.colorpicker.color_values import (
-    ColorDisplayFormatPickerWidget,
+    ColorFormatPickerWidget,
 )
 from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.model import sRGB_LINEAR_COLORSPACE
@@ -51,7 +51,7 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
         self.selector_colorspace_display = ColorspaceSelector()
         self.frame_preview_color = ColorPreviewFrame()
         self.lineedit_color = ColorValueLineEdit()
-        self.widget_format_pickers = ColorDisplayFormatPickerWidget()
+        self.widget_format_pickers = ColorFormatPickerWidget()
         self.splitter_preview = QtWidgets.QSplitter()
 
         # 2. Add

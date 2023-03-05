@@ -2,7 +2,7 @@ from __future__ import annotations
 
 __all__ = (
     "ColorValueLineEdit",
-    "ColorDisplayFormatPickerWidget",
+    "ColorFormatPickerWidget",
 )
 
 import enum
@@ -31,7 +31,7 @@ class ColorDisplayFormat(enum.Enum):
     hexadecimal = "#hex"
 
 
-class ColorDisplayFormatPickerWidget(QtWidgets.QWidget):
+class ColorFormatPickerWidget(QtWidgets.QWidget):
     """
     A row of buttons that allow to change in which format a color is displayed.
 
