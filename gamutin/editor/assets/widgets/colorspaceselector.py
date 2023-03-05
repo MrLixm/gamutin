@@ -12,11 +12,14 @@ from gamutin.editor.assets.widgets import PushButtonAligned
 logger = logging.getLogger(__name__)
 
 
-class ColorspaceSelector(QtWidgets.QWidget):
+class ColorspaceSelector(PushButtonAligned):
     """
-    A widget to select a colorspace using a QComboBox
+    A widget to select a colorspace using a nested menu.
 
-    It's possibel to override its default transfer functions using a QCheckBox.
+    Colorspace are ordered in different categories, each represented by a menu.
+
+    It's possibel to override the colorspace default transfer functions using
+    the "Force Linear Transfer-Function" action.
     """
 
     colorspace_changed_signal = QtCore.Signal(object)
@@ -32,54 +35,28 @@ class ColorspaceSelector(QtWidgets.QWidget):
         self._current_colorspace: gamutin.core.colorspaces.RgbColorspace = (
             gamutin.core.colorspaces.get_colorspace("sRGB")
         )
-
         # 1. Create
-        self.layout = QtWidgets.QHBoxLayout()
-        self.label_legend = QtWidgets.QLabel("ColorSpace")
-        self.button_colorspace = PushButtonAligned()
-        self.menu_colorspace = QtWidgets.QMenu()
-        self.checkbox_force_linear_target = QtWidgets.QCheckBox(
-            "Force Linear Transfer-Function"
-        )
-
-        # 2. Add
-        self.setLayout(self.layout)
-        self.layout.addWidget(self.label_legend)
-        self.layout.addWidget(self.button_colorspace)
-        self.layout.addWidget(self.checkbox_force_linear_target)
-
-        # 3. Modify
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.button_colorspace.setMenu(self.menu_colorspace)
-        self.button_colorspace.align_text_left()
-        self.label_legend.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed,
-        )
-
-        # 4. Connections
-        self.checkbox_force_linear_target.stateChanged.connect(
-            self.on_colorspace_changed
-        )
+        self.menu = QtWidgets.QMenu()
+        self.action_force_linear = QtWidgets.QAction("Force Linear Transfer-Function")
+        # 2. Modify
+        self.setMenu(self.menu)
+        self.align_text_left()
+        self.action_force_linear.setCheckable(True)
+        self.action_force_linear.setChecked(False)
+        # 3. Connections
+        self.action_force_linear.triggered.connect(self.on_colorspace_changed)
 
         self.update_colorspaces()
         self.set_current_colorspace(self._current_colorspace)
 
-    def align_text_right(self, margin: int = None):
-        self.button_colorspace.align_text_right(margin)
-
-    def align_text_left(self, margin: int = None):
-        self.button_colorspace.align_text_left(margin)
-
-    def align_text_center(self):
-        self.button_colorspace.align_text_center()
-
     def update_colorspaces(self):
         """
-        Add all the currently availabel colorspaces to the menu widget.
+        Add all the currently available colorspaces to the menu widget.
         """
-        self.menu_colorspace.clear()
+
+        # build a dict with all the action to add
         menu_categories = {}
+
         for colorspace in gamutin.core.colorspaces.get_available_colorspaces():
             colorspace_categories: list[str] = [
                 str(colorspace_category.value)
@@ -100,36 +77,28 @@ class ColorspaceSelector(QtWidgets.QWidget):
                 )
                 menu.addAction(action)
 
+        # actually build the visible menu
+        self.menu.clear()
+        self.menu.addAction(self.action_force_linear)
+
         for menu_category in menu_categories.values():
-            self.menu_colorspace.addMenu(menu_category)
+            self.menu.addMenu(menu_category)
+
+        return
 
     def set_force_linear_visible(self, visible: bool):
         """
         Args:
             visible: True to set visible, False to hide.
         """
-        self.checkbox_force_linear_target.setVisible(visible)
+        self.action_force_linear.setVisible(visible)
 
     def set_force_linear_enable(self, enable: bool):
         """
         Args:
             enable: True to set enable, False to disable.
         """
-        self.checkbox_force_linear_target.setChecked(enable)
-
-    def set_label_visible(self, visible: bool):
-        """
-        Args:
-            visible: True to set visible, False to hide.
-        """
-        self.label_legend.setVisible(visible)
-
-    def set_label_text(self, text: str):
-        """
-        Args:
-            text: any text to use, keep it short.
-        """
-        self.label_legend.setText(text)
+        self.action_force_linear.setChecked(enable)
 
     def set_current_colorspace(
         self,
@@ -142,11 +111,7 @@ class ColorspaceSelector(QtWidgets.QWidget):
         if colorspace.is_linear_copy:
             self.set_force_linear_enable(True)
             colorspace = colorspace.retrieve_linear_source()
-        else:
-            self.set_force_linear_enable(False)
 
-        self.button_colorspace.setText(colorspace.name)
-        self.button_colorspace.setToolTip(colorspace.description)
         self._current_colorspace = colorspace
 
         self.on_colorspace_changed()
@@ -157,11 +122,12 @@ class ColorspaceSelector(QtWidgets.QWidget):
         As a linear variant if asked as such.
         """
         colorspace_name = self._current_colorspace.name
-        force_linear = self.checkbox_force_linear_target.isChecked()
-        if force_linear:
-            colorspace_name = f"{colorspace_name}:linear"
-
         colorspace = gamutin.core.colorspaces.get_colorspace(colorspace_name)
+
+        force_linear = self.action_force_linear.isChecked()
+        if force_linear:
+            colorspace = colorspace.as_linear_copy()
+
         if not colorspace:
             raise ValueError(
                 f"Cannot retrieve RgbColorspace from widget with value "
@@ -174,6 +140,10 @@ class ColorspaceSelector(QtWidgets.QWidget):
         Called when the colorspace selected has changed.
         """
         new_colorspace = self.get_current_colorspace()
+
+        self.setText(new_colorspace.name)
+        self.setToolTip(new_colorspace.description)
+
         self.colorspace_changed_signal.emit(new_colorspace)
         logger.debug(
             f"[{self.__class__.__name__}][on_colorspace_changed] {new_colorspace}"

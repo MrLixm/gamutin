@@ -40,6 +40,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.label_tolerance = QtWidgets.QLabel("Tolerance")
         self.label_invalid = QtWidgets.QLabel("Invalid Color")
         self.label_valid = QtWidgets.QLabel("Valid Color")
+        self.label_colorspace_target = QtWidgets.QLabel("Target Colorspace")
         self.combobox_colorspace_reference = ColorspaceSelector()
         self.combobox_blend_mode = QtWidgets.QComboBox()
         self.slider_tolerance = QtWidgets.QSlider(QtCore.Qt.Horizontal)
@@ -69,7 +70,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
 
         self.layout_target.addWidget(self.checkbox_preview_only, 0, 0)
         self.layout_target.addWidget(self.widget_path_target, 1, 0, 1, -1)
-        self.layout_target.addWidget(self.combobox_colorspace_target, 2, 0)
+        self.layout_target.addWidget(self.label_colorspace_target, 2, 0)
+        self.layout_target.addWidget(self.combobox_colorspace_target, 2, 1)
 
         self.layout_options.addWidget(self.label_colorspace_reference, 0, 0)
         self.layout_options.addWidget(self.label_blend_mode, 1, 0)
@@ -102,7 +104,6 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.layout_target.setContentsMargins(*(25,) * 4)
         self.combobox_colorspace_reference.set_force_linear_visible(False)
         self.combobox_colorspace_reference.set_force_linear_enable(False)
-        self.combobox_colorspace_target.set_label_text("Target Colorspace")
         # 4. Connections
         self.button_launch.clicked.connect(self.start_processing)
         self.combobox_mask_source.currentIndexChanged.connect(self.on_mask_changed)
