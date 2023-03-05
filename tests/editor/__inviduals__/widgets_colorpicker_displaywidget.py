@@ -13,7 +13,7 @@ from gamutin.editor.assets.widgets.colorpicker.displaywidget import (
 
 
 def show():
-    _configureLogging()
+    _configureLogging(force_debug=True)
     app = getQApp()
 
     window = get_testing_window()

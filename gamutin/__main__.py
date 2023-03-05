@@ -11,7 +11,7 @@ __all__ = ("start",)
 logger = logging.getLogger(f"{gamutin.__name__}.__main__")
 
 
-def _configureLogging():
+def _configureLogging(force_debug: bool = False):
     """
     Configure the python logging module
     """
@@ -36,7 +36,7 @@ def _configureLogging():
         "loggers": {
             f"{gamutin.__name__}": {
                 "handlers": ["hl_console"],
-                "level": cfg.logs_level,
+                "level": logging.DEBUG if force_debug else cfg.logs_level,
                 "propagate": False,
             },
             "__main__": {
@@ -46,7 +46,7 @@ def _configureLogging():
             },
             f"{gamutin.__name__}.editor.assets": {
                 "handlers": ["hl_console"],
-                "level": logging.INFO,
+                "level": logging.DEBUG if force_debug else logging.INFO,
                 "propagate": False,
             },
         },
@@ -69,6 +69,5 @@ def start():
 
 
 if __name__ == "__main__":
-
     _configureLogging()
     start()
