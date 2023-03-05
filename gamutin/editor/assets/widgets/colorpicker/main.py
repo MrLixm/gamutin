@@ -18,6 +18,7 @@ class ColorPickerWidget(QtWidgets.QWidget):
     """
 
     color_changed_signal = QtCore.Signal()
+    display_colorspace_changed_signal = QtCore.Signal()
 
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
@@ -36,7 +37,9 @@ class ColorPickerWidget(QtWidgets.QWidget):
 
         # 4. Connections
         self.compound_display.color_changed_signal.connect(self.on_color_changed)
-
+        self.compound_display.display_colorspace_changed_signal.connect(
+            self.on_display_colorspace_changed
+        )
         return
 
     def get_color(self):
@@ -53,3 +56,6 @@ class ColorPickerWidget(QtWidgets.QWidget):
 
     def on_color_changed(self):
         self.color_changed_signal.emit()
+
+    def on_display_colorspace_changed(self):
+        self.display_colorspace_changed_signal.emit()

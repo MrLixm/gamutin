@@ -43,6 +43,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
     """
 
     color_changed_signal = QtCore.Signal()
+    display_colorspace_changed_signal = QtCore.Signal()
 
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
@@ -176,6 +177,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         Callback when the display colorspace change.
         """
         self.update_color_preview()
+        self.display_colorspace_changed_signal.emit()
         logger.debug(
             f"[{self.__class__.__name__}][on_display_colorspace_changed] finished."
         )
