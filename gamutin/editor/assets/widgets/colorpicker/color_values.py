@@ -85,6 +85,8 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
     The color is always stored in the same floating point format which allow that simply
      switching between formats doesn't change values. But from the moment the user
      press enter the stored values are boudn to the current format displayed.
+
+    Colorspace information is totally discarded and data is always manipulated "as it is".
     """
 
     formats = ColorDisplayFormat
@@ -94,7 +96,7 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         super().__init__()
 
         self._format = currentFormat or ColorDisplayFormat.float
-        self.color = DEFAULT_COLOR
+        self._color = DEFAULT_COLOR
 
         self.setToolTip(
             "When you start editing values, until you press Enter or leave the widget, "
@@ -106,6 +108,23 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self.editingFinished.connect(self.update_values)
 
         self.on_format_changed()
+
+    @property
+    def color(self) -> RGBAData:
+        """
+        Currently stored and displayed color.
+
+        With no colorspace encoding.
+        """
+        return self._color
+
+    @color.setter
+    def color(self, color_value: RGBAData):
+        raw_color = color_value.as_colorspace(target_colorspace=None)
+        self._color = raw_color
+        new_text = self.validator().from_color(self.color)
+        self.setText(new_text)
+        self.color_changed_signal.emit()
 
     @property
     def format(self):
@@ -167,7 +186,16 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         return
 
     def get_color(self) -> RGBAData:
+        """
+        Get the current color. Does the same as getting the ``color`` attribute.
+        """
         return self.color
+
+    def set_color(self, color: RGBAData):
+        """
+        Set the current color. Does the same as setting the ``color`` attribute.
+        """
+        self.color = color
 
     def validator(self) -> BaseColorValidator:
         # override for typehints

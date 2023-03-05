@@ -5,7 +5,9 @@ from __future__ import annotations
 
 __all__ = (
     "DEFAULT_COLOR",
+    "PASSTHROUGH_COLORSPACE",
     "RGBAData",
+    "RgbColorspace",
     "sRGB_COLORSPACE",
     "sRGB_LINEAR_COLORSPACE",
 )
@@ -13,6 +15,8 @@ __all__ = (
 import logging
 
 from gamutin.core.color import RGBAData
+from gamutin.core.colorspaces import PASSTHROUGH_COLORSPACE
+from gamutin.core.colorspaces import RgbColorspace
 from gamutin.core.colorspaces import sRGB_LINEAR_COLORSPACE
 from gamutin.core.colorspaces import sRGB_COLORSPACE
 
