@@ -166,7 +166,7 @@ class RGBAData:
         Returns:
             array(3,) == [r,g,b] or array(4,) == [r,g,b,a]
         """
-        return numpy.array(self.to_float(alpha=alpha))
+        return numpy.array(self.to_float(alpha=alpha), dtype=numpy.core.float32)
 
     @overload
     def to_float(self, alpha: float = ...) -> tuple[float, float, float, float]:
