@@ -140,19 +140,19 @@ def test_RGBAData_classMethod_array():
 
 
 def test_RGBAData_to_array():
-    array = numpy.array(COLOR_DATASET[3]["float"])
+    array = numpy.array(COLOR_DATASET[3]["float"], dtype=numpy.float32)
     color = RGBAData.from_array(array, sRGB_COLORSPACE)
     result = color.to_array(alpha=False)
     assert_array_equal(result, array)
 
     array = numpy.array(COLOR_DATASET[3]["float"])
-    expected = numpy.append(array, 0.36)
+    expected = numpy.append(array, 0.36).astype(numpy.float32)
     color = RGBAData.from_array(array, sRGB_COLORSPACE)
     result = color.to_array(alpha=0.36)
     assert_array_equal(result, expected)
 
-    array = numpy.array(COLOR_DATASET[3]["float"])
-    array = numpy.append(array, 0.2)
+    array = numpy.array(COLOR_DATASET[3]["float"], dtype=numpy.float32)
+    array = numpy.append(array, 0.2).astype(numpy.float32)
     color = RGBAData.from_array(array, sRGB_COLORSPACE)
     result = color.to_array()
     assert_array_equal(result, array)
