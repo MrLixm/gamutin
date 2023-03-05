@@ -155,9 +155,6 @@ class ColorFloatTupleValidator(ColorFloatValidator):
         )
 
     def validate(self, user_input: str, cursor_pos: int) -> QtGui.QValidator.State:
-        if not user_input.startswith("(") or not user_input.endswith(")"):
-            return self.Invalid
-
         simplified_input = user_input.lstrip("(").rstrip(")")
 
         if re.search("[^\d.\s\-,]", simplified_input):
