@@ -3,6 +3,7 @@ __all__ = ("ColorPickerWidget",)
 import logging
 
 from Qt import QtWidgets
+from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorpicker.compound_display import (
     ColorDisplayWidget,
@@ -15,6 +16,8 @@ class ColorPickerWidget(QtWidgets.QWidget):
     """
     A widget aimed at selecting a single color value.
     """
+
+    color_changed_signal = QtCore.Signal()
 
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
@@ -32,5 +35,12 @@ class ColorPickerWidget(QtWidgets.QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         # 4. Connections
+        self.compound_display.color_changed_signal.connect(self.on_color_changed)
 
         return
+
+    def get_color(self):
+        return self.compound_display.get_color()
+
+    def on_color_changed(self):
+        self.color_changed_signal.emit()

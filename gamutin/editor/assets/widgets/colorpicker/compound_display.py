@@ -42,6 +42,8 @@ class ColorDisplayWidget(QtWidgets.QWidget):
 
     """
 
+    color_changed_signal = QtCore.Signal()
+
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
@@ -114,7 +116,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         Set the color to display, encoded in the given colorspace (might be None).
         """
         self._color = color
-        # note: will emit signal
+        # /!\ note: will emit signals propagated here
         self.lineedit_color.color = color
         colorspace = color.colorspace or PASSTHROUGH_COLORSPACE
         self.selector_colorspace_workspace.set_current_colorspace(colorspace)
@@ -155,7 +157,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         workspace_colorspace = self.get_workspace_colorspace()
         new_color = new_color.as_colorspace(workspace_colorspace)
         self._color = new_color
-
+        self.color_changed_signal.emit()
         self.update_color_preview()
         logger.debug(
             f"[{self.__class__.__name__}][on_lineedit_color_changed]newcolor={new_color}"
