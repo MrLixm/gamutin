@@ -267,7 +267,7 @@ class RgbColorspace(BaseColorspaceComponent):
         """
         colorspace = self.copy()
 
-        if self.transfer_functions.are_linear:
+        if not self.transfer_functions or self.transfer_functions.are_linear:
             return colorspace
 
         colorspace._linear_source = self
