@@ -17,11 +17,9 @@ from typing import Optional
 
 import colour
 
+import gamutin.core.cfg
 from gamutin.core.colorspaces.base import RgbColorspace
-from gamutin.core.colorspaces.base import ColorspaceGamut
 from gamutin.core.colorspaces.base import Whitepoint
-from gamutin.core.colorspaces.base import TransferFunctions
-from gamutin.core.colorspaces.base import TRANSFER_FUNCTIONS_LINEAR
 from gamutin.core.colorspaces.categories import ColorspaceCategory
 
 logger = logging.getLogger(__name__)
@@ -62,7 +60,32 @@ def _add_colorspace(colorspace: RgbColorspace, additional_aliases: list[str] = N
     return
 
 
+def _patch_colour_colorspace(
+    colorspace: colour.RGB_Colourspace,
+) -> colour.RGB_Colourspace:
+    """
+    Override attributes on some specific colour colorspaces.
+
+    Args:
+        colorspace: colour colorspace to patch.
+
+    Returns:
+        patched colorspace instance or original if no patch applied.
+    """
+    if gamutin.core.cfg.colorspaces_use_derived_transformation_matrices:
+        colorspace.use_derived_transformation_matrices(True)
+
+    if colorspace.name == "sRGB":
+        colorspace.name = "sRGB Piecewise"
+
+    return colorspace
+
+
 def _load_colour_colorspaces():
+    """
+    Use the colour library as the main dataset for colorspaces and load them in this
+    library.
+    """
     colour_colorspace_config = {
         "RGB_COLOURSPACE_ACES2065_1": {
             "category": [ColorspaceCategory.aces],
@@ -238,6 +261,7 @@ def _load_colour_colorspaces():
         },
         "RGB_COLOURSPACE_sRGB": {
             "category": [ColorspaceCategory.working_space, ColorspaceCategory.common],
+            "aliases": ["srgb", "sRGB"],
         },
         "RGB_COLOURSPACE_V_GAMUT": {
             "category": [ColorspaceCategory.camera],
@@ -263,8 +287,10 @@ def _load_colour_colorspaces():
             )
             continue
 
+        colour_colorspace_patched = _patch_colour_colorspace(colour_colorspace)
+
         colorspace = RgbColorspace.from_colour_colorspace(
-            colour_colorspace,
+            colour_colorspace_patched,
             categories=tuple(colorspace_data.get("category", [])),
         )
 
@@ -400,7 +426,7 @@ def get_colorspace(name: Optional[str]) -> Optional[RgbColorspace]:
         return None
 
     linear_asked = name.endswith(":linear")
-    name = name.rstrip(":linear")
+    name = name.removesuffix(":linear")
 
     colorspace = _COLORSPACES.get(name)
     if not colorspace:
