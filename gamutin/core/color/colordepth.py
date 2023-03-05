@@ -14,18 +14,23 @@ def convert_int8_to_float(source: numpy.ndarray):
     """
     Convert a 8bit RGB color to floating point encoding.
 
+    Result is clamped in the [0-1] range.
+
     Args:
         source: arbitrary length array of integers
 
     Returns:
         new array of the same length as float encoding
     """
-    return numpy.asarray(source / 255, dtype=numpy.core.float64)
+    intermediate = numpy.clip(source, 0, 255)
+    return intermediate.astype(numpy.core.float32) / 255
 
 
 def convert_float_to_int8(source: numpy.ndarray):
     """
     Convert a floating point array of color values to 8bit integer encoding.
+
+    Result is clamped in the [0-255] range.
 
     Args:
         source: arbitrary length array of floats
@@ -33,7 +38,7 @@ def convert_float_to_int8(source: numpy.ndarray):
     Returns:
        new  array of the same length as 8bit encoding
     """
-    return numpy.asarray(
-        numpy.around(numpy.clip(source, 0, 1) * 255),
-        dtype=numpy.core.uint8,
-    )
+    intermediate = numpy.clip(source, 0, 1)
+    intermediate *= 255
+    intermediate += 0.5
+    return intermediate.astype(numpy.uint8)

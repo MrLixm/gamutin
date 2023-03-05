@@ -9,15 +9,15 @@ from gamutin.core.color import RGBAData
 COLOR_DATASET = {
     0: {
         "float": (0.5, 0.2, 0.3),
-        "8bit": (128, 51, 76),
+        "8bit": (128, 51, 77),
         "floatFrom8": (0.5, 0.2, 0.3),
-        "hex": "#80334C",
+        "hex": "#80334D",
     },
     1: {
         "float": (1, 0.3, 0.3),
-        "8bit": (255, 76, 76),
+        "8bit": (255, 77, 77),
         "floatFrom8": (1, 0.3, 0.3),
-        "hex": "#ff4c4c",
+        "hex": "#FF4D4D",
     },
     2: {
         "float": (0.766, -0.1, 0.15),
