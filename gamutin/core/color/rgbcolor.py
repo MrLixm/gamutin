@@ -73,6 +73,7 @@ class RGBAData:
         red: int,
         green: int,
         blue: int,
+        colorspace: Optional[RgbColorspace] = None,
         alpha: Optional[float] = None,
     ) -> RGBAData:
         """
@@ -83,33 +84,43 @@ class RGBAData:
             red: 0-255 range
             green: 0-255 range
             blue: 0-255 range
+            colorspace: colorspace the tuple is encoded in. Usually sRGB.
             alpha: optional alpha values associated with the RGB triplet. [0-1] range.
 
         Returns:
             RGBColor instance corresponding to the given parameters.
         """
-        new_array = convert_int8_to_float(
-            numpy.array((red, green, blue), dtype=numpy.core.uint8)
-        )
-        return cls.from_array(new_array, colorspace=sRGB_COLORSPACE, alpha=alpha)
+        source_array = numpy.array((red, green, blue), dtype=numpy.core.uint8)
+        converted_array = convert_int8_to_float(source_array)
+        return cls.from_array(converted_array, colorspace=colorspace, alpha=alpha)
 
     @classmethod
-    def from_hex(cls, hexadecimal: str, alpha: Optional[float] = None) -> RGBAData:
+    def from_hex(
+        cls,
+        hexadecimal: str,
+        assume_srgb: bool = True,
+        alpha: Optional[float] = None,
+    ) -> RGBAData:
         """
         Get a RGBColor instance from a hexadecimal color encoding.
 
+        References:
+            -[1] https://stackoverflow.com/a/29643643/13806195
+
         Args:
             hexadecimal: with or without the "#"
+            assume_srgb:
+                if True the color is assumed to be encoded as sRGB (EOTF).
+                Usually always True for all hexadecimal colors.
             alpha: optional alpha values associated with the RGB triplet. [0-1] range.
 
         Returns:
             RGBColor instance corresponding to the given parameters.
         """
-
         hexadecimal = hexadecimal.lstrip("#")
-        # SRC: https://stackoverflow.com/a/29643643/13806195
         r, g, b = tuple(int(hexadecimal[i : i + 2], 16) for i in (0, 2, 4))
-        return cls.from_int8(r, g, b, alpha)
+        colorspace = sRGB_COLORSPACE if assume_srgb else None
+        return cls.from_int8(r, g, b, colorspace=colorspace, alpha=alpha)
 
     @classmethod
     def from_array(
@@ -194,15 +205,26 @@ class RGBAData:
 
         return self.red, self.green, self.blue, alpha
 
-    def to_hex(self) -> str:
+    def to_hex(self, force_srgb: bool = True) -> str:
         """
         Get a hexadecimal representation of the current color.
+
+        References:
+            - [1] https://stackoverflow.com/a/3380754/13806195
+
+        Args:
+            force_srgb:
+                if True perform a colorspace conversion to sRGB (with EOTF).
+                hexadecimal colors are usually always sRGB encoded.
 
         Returns:
             hexadecimal color with the "#". Letters in lowercase.
         """
-        r, g, b = self.to_int8(alpha=False)
-        # SRC: https://stackoverflow.com/a/3380754/13806195
+        intermediate = self
+        if force_srgb:
+            intermediate = self.as_colorspace(sRGB_COLORSPACE)
+
+        r, g, b = intermediate.to_int8(alpha=False)
         return "#{0:02x}{1:02x}{2:02x}".format(r, g, b)
 
     def to_int8(
@@ -211,6 +233,13 @@ class RGBAData:
     ) -> Union[tuple[int, int, int], tuple[int, int, int, float]]:
         """
         Return an RGB(A) triplet encoded with 8bit values. [0-255]
+
+        Usually it is desired to perform a sRGB colorspace conversion before calling
+        this::
+
+            color = RGBData(...)
+            color_converted = color.as_colorspace(get_colorspace("sRGB"))
+            color_converted = color_converted.to_int8()
 
         Args:
             alpha:
@@ -221,8 +250,7 @@ class RGBAData:
         Returns:
             (r,g,b) or (r,g,b,a)
         """
-        as_srgb = self.as_colorspace(sRGB_COLORSPACE)
-        as_bits = convert_float_to_int8(as_srgb.to_array(alpha=False))
+        as_bits = convert_float_to_int8(self.to_array(alpha=False))
         red = as_bits[0].item()
         green = as_bits[1].item()
         blue = as_bits[2].item()
@@ -253,6 +281,9 @@ class RGBAData:
         """
         if self.colorspace is None or target_colorspace is None:
             return dataclasses.replace(self, colorspace=target_colorspace)
+
+        if self.colorspace == target_colorspace:
+            return self.copy()
 
         if cat is True:
             cat = ChromaticAdaptationTransform.default
