@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("ColorDisplayAdvancedWidget",)
+__all__ = ("ColorDisplayWidget",)
 
 import enum
 import logging
@@ -23,7 +23,7 @@ from gamutin.editor.assets.widgets.colorpicker.model import RgbColorspace
 logger = logging.getLogger(__name__)
 
 
-class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
+class ColorDisplayWidget(QtWidgets.QWidget):
     """
     A widget aiming at displaying a color with its value under different represenations.
 

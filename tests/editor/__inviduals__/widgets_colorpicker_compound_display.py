@@ -8,7 +8,7 @@ from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
 from gamutin.editor.assets.widgets.colorpicker.compound_display import (
-    ColorDisplayAdvancedWidget,
+    ColorDisplayWidget,
 )
 
 
@@ -60,7 +60,7 @@ def show():
     layout = QtWidgets.QVBoxLayout()
     layout.setContentsMargins(0, 0, 0, 0)
 
-    widget = ColorDisplayAdvancedWidget()
+    widget = ColorDisplayWidget()
     layout.addWidget(widget)
 
     window.add_layout(layout)
