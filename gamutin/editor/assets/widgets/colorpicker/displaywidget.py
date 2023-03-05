@@ -4,13 +4,12 @@ __all__ = ("ColorDisplayAdvancedWidget",)
 
 import enum
 import logging
-from functools import partial
 
 from Qt import QtWidgets
-from Qt import QtGui
 from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
+from gamutin.editor.assets.widgets.colorpicker.color_preview import ColorPreviewFrame
 from gamutin.editor.assets.widgets.colorpicker.datamodel import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.datamodel import DEFAULT_COLOR
 from gamutin.editor.assets.widgets.colorpicker.datamodel import sRGB_LINEAR_COLORSPACE
@@ -174,39 +173,6 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
     def validator(self) -> BaseColorValidator:
         # override for typehints
         return super().validator()
-
-
-class ColorPreviewFrame(QtWidgets.QFrame):
-    """
-    A frame filled with a uniform constant color.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self._color = DEFAULT_COLOR
-        self.color = DEFAULT_COLOR
-
-    @property
-    def color(self) -> RGBAData:
-        return self._color
-
-    @color.setter
-    def color(self, color_value: RGBAData):
-        self._color = color_value
-        self.setToolTip(str(color_value))
-        self.repaint()
-
-    def paintEvent(self, event: QtGui.QPaintEvent):
-        qpainter = QtGui.QPainter()
-        qpainter.setRenderHint(qpainter.Antialiasing)
-        qpainter.begin(self)
-        qpainter.fillRect(self.rect(), self._get_qcolor())
-        qpainter.end()
-
-    def _get_qcolor(self) -> QtGui.QColor:
-        # TODO to8bit convert to sRGB auto, remove it !
-        color_int8 = self.color.to_int8(alpha=False)
-        return QtGui.QColor(*color_int8)
 
 
 class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
