@@ -53,7 +53,6 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         self.bakeUI()
 
     def cookUI(self):
-
         # 1. Create
         self.layout = QtWidgets.QVBoxLayout()
         self.layout_colorspace = QtWidgets.QHBoxLayout()
@@ -128,14 +127,11 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         return
 
     def bakeUI(self):
-
         with block_signals(self):
-
             current_image = self.current_image
             new_image_spec = None
 
             if current_image:
-
                 self.spinbox_subimage.setMaximum(current_image.subimage_number - 1)
                 self.spinbox_miplevel.setMaximum(
                     current_image.miplevel_number_at(self.subimage) - 1
@@ -151,7 +147,6 @@ class ImageSelectorWidget(QtWidgets.QFrame):
             self.combobox_channel.clear()
 
             if new_image_spec:
-
                 self.combobox_channel.addItem(repr(new_image_spec.channelnames))
 
                 if not self.combobox_channel.currentText():
@@ -193,7 +188,6 @@ class ImageSelectorWidget(QtWidgets.QFrame):
 
     @property
     def channels(self) -> Optional[tuple[str]]:
-
         if (
             not self.combobox_channel.currentText()
             or not self.combobox_channel.isVisible()
@@ -204,7 +198,6 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         return channels
 
     def detect_image_colorspace(self):
-
         if not self.current_image:
             return
 
@@ -239,7 +232,6 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         self.widget_path.set_expected_file_extensions(file_extensions)
 
     def show_image_repr(self):
-
         window = QtWidgets.QMainWindow(self)
         window.setWindowTitle("Image Info")
         image_repr_widget = ImageReprWidget(QtWidgets.QApplication.activeWindow())
@@ -260,41 +252,3 @@ class ImageSelectorWidget(QtWidgets.QFrame):
         self.combobox_channel.setVisible(enable)
         if not enable:
             self.combobox_channel.setEditText("")
-
-
-def _test_interface():
-
-    import sys
-    from gamutin.__main__ import _configureLogging
-    from gamutin.editor.main import getQApp
-    from gamutin.editor.testing import get_testing_window
-
-    _configureLogging()
-    app = getQApp()
-
-    window = get_testing_window()
-
-    layout = QtWidgets.QVBoxLayout()
-    layout.setSpacing(25)
-
-    window.add_layout(layout)
-
-    widget = ImageSelectorWidget()
-    layout.addWidget(widget)
-    widget = ImageSelectorWidget()
-    widget.toggle_channel_selection(False)
-    layout.addWidget(widget)
-    widget = ImageSelectorWidget()
-    widget.toggle_channel_selection(False)
-    widget.set_expected_file_extensions([".jpg", ".exr"])
-    layout.addWidget(widget)
-
-    layout.addStretch(1)
-
-    window.show()
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    _test_interface()

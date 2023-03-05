@@ -165,7 +165,6 @@ class PathSelector(QtWidgets.QFrame):
         self.lineedit_path.setText(str(new_path))
 
     def bakeUI(self):
-
         if self._error and self._error.is_deleted:
             self._error = None
 
@@ -247,7 +246,6 @@ class PathSelector(QtWidgets.QFrame):
         """
 
         try:
-
             self.process_drop_event(event=event)
             self.set_drop_style(True)
             event.setDropAction(QtCore.Qt.LinkAction)
@@ -400,12 +398,10 @@ class PathSelector(QtWidgets.QFrame):
             self._error.delete()
 
         if error:
-
             self.error_signal.emit(error)
             self._error = error
 
         else:
-
             self.error_signal.emit(None)
             self._error = None
 
@@ -486,68 +482,3 @@ class PathInfoIcon(BaseDisplayIcon):
         tooltip += "<p>Relative path supported (relative to the latest set working directory).</p>"
         self.setToolTip(tooltip)
         self.setIcon(QtGui.QIcon(str(file_path)))
-
-
-def _test_interface():
-    from gamutin.__main__ import _configureLogging
-    from gamutin.editor.main import getQApp
-    from gamutin.editor.testing import get_testing_window
-
-    _configureLogging()
-    app = getQApp()
-
-    window = get_testing_window()
-
-    layout = QtWidgets.QVBoxLayout()
-    layout.setSpacing(25)
-
-    window.add_layout(layout)
-    lineedit_demo = QtWidgets.QLineEdit()
-
-    def setup_PathSelector(path_selector):
-        path_selector.error_signal.connect(
-            lambda message: window.show_message(str(message), 3000)
-        )
-        path_selector.path_changed_signal.connect(
-            lambda message: window.show_message(str(message), 3000)
-        )
-
-    for path_type in PathType.__all__():
-
-        row_layout = QtWidgets.QHBoxLayout()
-        layout.addLayout(row_layout)
-
-        for is_enabled in [True, False]:
-
-            widget = PathSelector()
-            widget.set_path_type(path_type)
-            widget.setEnabled(is_enabled)
-            setup_PathSelector(widget)
-            row_layout.addWidget(widget)
-
-            if path_type == PathType.error:
-                widget.set_error(WidgetUserError(TypeError, window, "test error"))
-
-    widget = PathSelector()
-    widget.set_path_type(PathType.file_exist)
-    widget.set_expected_file_extensions([".jpg", ".py"])
-    setup_PathSelector(widget)
-    layout.addWidget(widget)
-
-    widget = PathSelector()
-    widget.set_path_type(PathType.file_exist)
-    widget.set_expected_file_extensions([".jpg", ".py"])
-    widget.toggle_display_error_message(False)
-    setup_PathSelector(widget)
-    layout.addWidget(widget)
-
-    layout.addStretch(1)
-    layout.addWidget(lineedit_demo)
-
-    window.show()
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    _test_interface()

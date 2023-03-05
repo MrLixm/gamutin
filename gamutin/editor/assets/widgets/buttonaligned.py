@@ -119,7 +119,6 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.setIcon(self._icon)
 
     def sizeHint(self):
-
         base_hint = super().sizeHint()
         target_hint = self.layout.sizeHint()
         return QtCore.QSize(
@@ -160,7 +159,6 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self.label_text.setAlignment(self.text_h_alignment | text_v_alignment)
 
         if self.icon_h_alignment == QtCore.Qt.AlignLeft:
-
             if self.is_icon_pinned:
                 self.layout.insertWidget(0, self.label_icon)
             else:
@@ -168,7 +166,6 @@ class PushButtonAligned(QtWidgets.QPushButton):
                 self.layout.insertWidget(text_index, self.label_icon)
 
         elif self.icon_h_alignment == QtCore.Qt.AlignRight:
-
             if self.is_icon_pinned:
                 self.layout.insertWidget(-1, self.label_icon)
             else:
@@ -213,21 +210,18 @@ class PushButtonAligned(QtWidgets.QPushButton):
         self._update_layout()
 
     def align_text_left(self, margin=None):
-
         self.text_h_alignment = QtCore.Qt.AlignLeft
         self._update_layout(QtCore.Qt.AlignVCenter)
 
         self.setContentsMargins(margin, None, None, None)
 
     def align_text_right(self, margin=None):
-
         self.text_h_alignment = QtCore.Qt.AlignRight
         self._update_layout(QtCore.Qt.AlignVCenter)
 
         self.setContentsMargins(None, None, margin, None)
 
     def align_text_center(self):
-
         self.text_h_alignment = QtCore.Qt.AlignCenter
         self._update_layout(QtCore.Qt.AlignVCenter)
 
@@ -260,245 +254,3 @@ class PushButtonAligned(QtWidgets.QPushButton):
     def unpin_icon(self):
         self.is_icon_pinned = False
         self._update_layout()
-
-
-def _test_interface():
-    import sys
-    from abc import abstractmethod
-    from gamutin.__main__ import _configureLogging
-    from gamutin.editor.main import getQApp
-    from gamutin.editor.testing import get_testing_window
-
-    _configureLogging()
-    app = getQApp()
-
-    window = get_testing_window()
-
-    class TestPushButtonAligned:
-
-        test_name = ""
-        expected = ""
-        button_text = "This is a test button"
-
-        def __init__(self):
-            logger.debug(
-                f"[{self.__class__.__name__}][{self.test_name}] expected {self.expected}"
-            )
-            self.widget = PushButtonAligned(self.get_icon(), self.button_text)
-            self.setup()
-            logger.debug(f"[{self.__class__.__name__}] Finished.\n")
-
-        @staticmethod
-        def get_icon() -> QtGui.QIcon:
-            return QtWidgets.QApplication.style().standardIcon(
-                QtWidgets.QStyle.SP_ArrowRight
-            )
-
-        @abstractmethod
-        def setup(self):
-            pass
-
-    # PushButtonAligned:basic
-
-    class Test1(TestPushButtonAligned):
-        test_name = "default"
-        expected = "|    [i]t    |"
-
-        def setup(self):
-            pass
-
-    class Test2(TestPushButtonAligned):
-        test_name = "pin_icon_left"
-        expected = "|[i]    t    |"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-
-    class Test3(TestPushButtonAligned):
-        test_name = "pin_icon_right"
-        expected = "|    t    [i]|"
-
-        def setup(self):
-            self.widget.pin_icon_right()
-
-    class Test4(TestPushButtonAligned):
-        test_name = "align_text_left"
-        expected = "|[i]t        |"
-
-        def setup(self):
-            self.widget.align_text_left()
-
-    class Test5(TestPushButtonAligned):
-        test_name = "align_text_right"
-        expected = "|        [i]t|"
-
-        def setup(self):
-            self.widget.align_text_right()
-
-    class Test6(TestPushButtonAligned):
-        test_name = "align_icon_left"
-        expected = "|    [i]t    |"
-
-        def setup(self):
-            self.widget.align_icon_left()
-
-    class Test7(TestPushButtonAligned):
-        test_name = "align_icon_right"
-        expected = "|    t[i]    |"
-
-        def setup(self):
-            self.widget.align_icon_right()
-
-    # PushButtonAligned:advanced
-
-    class Test8(TestPushButtonAligned):
-        test_name = "pin_icon_right(15)"
-        expected = "|    t    [i] |"
-
-        def setup(self):
-            self.widget.pin_icon_right(15)
-
-    class Test9(TestPushButtonAligned):
-        test_name = "pin_icon_left(15)"
-        expected = "| [i]    t    |"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-
-    class Test10(TestPushButtonAligned):
-        test_name = "pin_icon_right(15), align_text_left"
-        expected = "|t       [i] |"
-
-        def setup(self):
-            self.widget.pin_icon_right(15)
-            self.widget.align_text_left()
-
-    class Test11(TestPushButtonAligned):
-        test_name = "pin_icon_right(15), align_text_right"
-        expected = "|       t[i] |"
-
-        def setup(self):
-            self.widget.pin_icon_right(15)
-            self.widget.align_text_right()
-
-    class Test12(TestPushButtonAligned):
-        test_name = "pin_icon_left, align_text_left"
-        expected = "|[i]t        |"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-            self.widget.align_text_left()
-
-    class Test13(TestPushButtonAligned):
-        test_name = "pin_icon_left, align_text_right"
-        expected = "|[i]        t|"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-            self.widget.align_text_right()
-
-    class Test14(TestPushButtonAligned):
-        test_name = "pin_icon_left, text AlignRight|AlignVCenter"
-        expected = "|[i]        t|"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-            self.widget.set_text_alignment(QtCore.Qt.AlignRight, QtCore.Qt.AlignVCenter)
-
-    class Test15(TestPushButtonAligned):
-        test_name = "pin_icon_left, align_text_center"
-        expected = "|[i]    t    |"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-            self.widget.align_text_center()
-
-    class Test16(TestPushButtonAligned):
-        test_name = "pin_icon_left, align_text_right(15)"
-        expected = "|[i]       t |"
-
-        def setup(self):
-            self.widget.pin_icon_left()
-            self.widget.align_text_right(15)
-
-    class Test17(TestPushButtonAligned):
-        test_name = "pin_icon_left(15), align_text_right(15)"
-        expected = "| [i]      t |"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-            self.widget.align_text_right(15)
-
-    class Test18(TestPushButtonAligned):
-        test_name = "pin_icon_left(15), align_icon_right()"
-        expected = "|    t    [i]|"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-            self.widget.align_icon_right()
-
-    class Test19(TestPushButtonAligned):
-        test_name = "pin_icon_left(15), pin_icon_right()"
-        expected = "|    t    [i]|"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-            self.widget.pin_icon_right()
-
-    class Test20(TestPushButtonAligned):
-        test_name = "pin_icon_left(15), unpin_icon(), align_icon_right()"
-        expected = "|    t[i]    |"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-            self.widget.unpin_icon()
-            self.widget.align_icon_right()
-
-    class Test21(TestPushButtonAligned):
-        test_name = (
-            "pin_icon_left(15), pin_icon_right(), align_text_left(), unpin_icon()"
-        )
-        expected = "|t[i]        |"
-
-        def setup(self):
-            self.widget.pin_icon_left(15)
-            self.widget.pin_icon_right()
-            self.widget.align_text_left()
-            self.widget.unpin_icon()
-
-    class Test22(TestPushButtonAligned):
-        test_name = "align_text_left, pin_icon_right(15)"
-        expected = "|t       [i] |"
-
-        def setup(self):
-            self.widget.align_text_left()
-            self.widget.pin_icon_right(15)
-
-    def to_qt_html(source_str: str) -> str:
-        source_str = source_str.replace(" ", "&nbsp;")
-        source_str = "<code>" + source_str + "</code>"
-        return source_str
-
-    layout = QtWidgets.QGridLayout()
-
-    for class_index, test_class in enumerate(TestPushButtonAligned.__subclasses__()):
-        test_class_instance = test_class()
-        label_id = QtWidgets.QLabel(f"<b>{test_class.__name__}</b>")
-        label_title = QtWidgets.QLabel(f"{test_class.test_name}")
-        label_expected = QtWidgets.QLabel(to_qt_html(test_class.expected))
-        layout.addWidget(label_id, class_index, 0)
-        layout.addWidget(label_title, class_index, 1)
-        layout.addWidget(test_class_instance.widget, class_index, 2)
-        layout.addWidget(label_expected, class_index, 3)
-
-    layout.setSpacing(25)
-    layout.setColumnStretch(2, 3)
-
-    window.add_layout(layout)
-    window.show()
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    _test_interface()
