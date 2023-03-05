@@ -7,7 +7,7 @@ from Qt import QtWidgets
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.assets.widgets.colorpicker.displaywidget import (
+from gamutin.editor.assets.widgets.colorpicker.compound_display import (
     ColorDisplayAdvancedWidget,
 )
 
