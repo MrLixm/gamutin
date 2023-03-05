@@ -40,7 +40,16 @@ class ColorPickerWidget(QtWidgets.QWidget):
         return
 
     def get_color(self):
+        """
+        Get the color currently displayed, encoded in the workspace colorspace.
+        """
         return self.compound_display.get_color()
+
+    def get_display_color(self):
+        """
+        Get the color currently displayed, encoded in the selected display colorspace.
+        """
+        return self.compound_display.get_display_color()
 
     def on_color_changed(self):
         self.color_changed_signal.emit()

@@ -123,9 +123,16 @@ class ColorDisplayWidget(QtWidgets.QWidget):
 
     def get_color(self) -> RGBAData:
         """
-        Get the color currently displayed, encoded in the selected colorspace.
+        Get the color currently displayed, encoded in the workspace colorspace.
         """
         return self._color
+
+    def get_display_color(self) -> RGBAData:
+        """
+        Get the color currently displayed, encoded in the selected display colorspace.
+        """
+        display_colorspace = self.get_display_colorspace()
+        return self._color.as_colorspace(display_colorspace)
 
     def get_workspace_colorspace(self) -> RgbColorspace:
         return self.selector_colorspace_workspace.get_current_colorspace()
@@ -193,8 +200,6 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         """
         Update the color displayed in the preview frame with the current color.
         """
-        current_color = self.get_color()
-        display_colorspace = self.selector_colorspace_display.get_current_colorspace()
-        new_color = current_color.as_colorspace(display_colorspace)
+        new_color = self.get_display_color()
         self.frame_preview_color.color = new_color
         return
