@@ -19,13 +19,29 @@ logger = logging.getLogger(__name__)
 
 class ColorPreviewFrame(QtWidgets.QFrame):
     """
-    A frame filled with a uniform constant color.
+    A rectangular frame filled with a uniform constant color.
+
+    You can set rounded corner by setting ``border_radius`` attribute.
     """
 
     def __init__(self):
         super().__init__()
         self._color = DEFAULT_COLOR
         self.color = DEFAULT_COLOR
+        self._border_radius = 0
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
+
+    @property
+    def border_radius(self):
+        return self._border_radius
+
+    @border_radius.setter
+    def border_radius(self, border_radius_value: int):
+        self._border_radius = border_radius_value
+        self.repaint()
 
     @property
     def color(self) -> RGBAData:
@@ -39,9 +55,15 @@ class ColorPreviewFrame(QtWidgets.QFrame):
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         qpainter = QtGui.QPainter()
-        qpainter.setRenderHint(qpainter.Antialiasing)
         qpainter.begin(self)
-        qpainter.fillRect(self.rect(), self._get_qcolor())
+        qpainter.setRenderHint(qpainter.Antialiasing, True)
+
+        qpainter_path = QtGui.QPainterPath()
+        qpainter_path.addRoundRect(self.rect().translated(0.5, 0.5), self.border_radius)
+
+        qpainter.setClipPath(qpainter_path)
+        qpainter.fillPath(qpainter_path, QtGui.QBrush(self._get_qcolor()))
+        qpainter.drawPath(qpainter_path)
         qpainter.end()
 
     def _get_qcolor(self) -> QtGui.QColor:
