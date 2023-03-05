@@ -326,30 +326,3 @@ class ColorDisplayAdvancedWidget(QtWidgets.QWidget):
             f"[{self.__class__.__name__}][on_display_colorspace_changed]newcolor={new_color}"
         )
         return
-
-
-def _test_interface():
-    import sys
-    from gamutin.__main__ import _configureLogging
-    from gamutin.editor.main import getQApp
-    from gamutin.editor.testing import get_testing_window
-
-    _configureLogging()
-    app = getQApp()
-
-    window = get_testing_window()
-
-    layout = QtWidgets.QVBoxLayout()
-    layout.setContentsMargins(0, 0, 0, 0)
-
-    widget = ColorDisplayAdvancedWidget()
-    layout.addWidget(widget)
-
-    window.add_layout(layout)
-    window.show()
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    _test_interface()
