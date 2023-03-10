@@ -9,6 +9,7 @@ from gamutin.editor.options import CompositeBlendModes
 from gamutin.editor.assets.widgets import pathselector
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.imageselector import ImageSelectorWidget
+from gamutin.editor.assets.widgets.colorpicker import ColorThumbnailWidget
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +45,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.combobox_colorspace_reference = ColorspaceSelector()
         self.combobox_blend_mode = QtWidgets.QComboBox()
         self.slider_tolerance = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.color_invalid = QtWidgets.QPushButton()
-        self.color_valid = QtWidgets.QPushButton()
+        self.color_invalid = ColorThumbnailWidget()
+        self.color_valid = ColorThumbnailWidget()
 
         self.layout_target = QtWidgets.QGridLayout()
         self.checkbox_preview_only = QtWidgets.QCheckBox("Preview Only")
