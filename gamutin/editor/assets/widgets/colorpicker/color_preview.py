@@ -8,6 +8,7 @@ import logging
 
 from Qt import QtWidgets
 from Qt import QtGui
+from Qt import QtCore
 
 
 from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
@@ -21,7 +22,8 @@ class ColorPreviewFrame(QtWidgets.QFrame):
     """
     A rectangular frame filled with a uniform constant color.
 
-    You can set rounded corner by setting ``border_radius`` attribute.
+    - You can set rounded corner by setting ``border_radius`` attribute.
+    - You can set how much the widget is rescaled when overed with the ``hover_scale`` attribute.
     """
 
     def __init__(self):
@@ -29,10 +31,14 @@ class ColorPreviewFrame(QtWidgets.QFrame):
         self._color = DEFAULT_COLOR
         self.color = DEFAULT_COLOR
         self._border_radius = 0
+        self.hover_scale = 1
         self.setSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
+        self.animation = QtCore.QPropertyAnimation(self, b"geometry")
+        self.animation.setEasingCurve(QtCore.QEasingCurve.InOutQuad)
+        self.animation.setDuration(100)
 
     @property
     def border_radius(self):
@@ -68,6 +74,27 @@ class ColorPreviewFrame(QtWidgets.QFrame):
         qpainter.fillPath(qpainter_path, QtGui.QBrush(self._get_qcolor()))
         qpainter.drawPath(qpainter_path)
         qpainter.end()
+
+    def enterEvent(self, event: QtCore.QEvent) -> None:
+        initial_rect = self.geometry()
+        target_rect = QtCore.QRect(
+            0,
+            0,
+            int(initial_rect.width() * self.hover_scale),
+            int(initial_rect.height() * self.hover_scale),
+        )
+        target_rect.moveCenter(initial_rect.center())
+
+        self.animation.setStartValue(initial_rect)
+        self.animation.setEndValue(target_rect)
+        self.animation.setDirection(QtCore.QAbstractAnimation.Forward)
+        self.animation.start()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event: QtCore.QEvent) -> None:
+        self.animation.setDirection(QtCore.QAbstractAnimation.Backward)
+        self.animation.start()
+        super().leaveEvent(event)
 
     def _get_qcolor(self) -> QtGui.QColor:
         color_int8 = self.color.to_int8(alpha=False)
