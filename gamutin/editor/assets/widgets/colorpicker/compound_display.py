@@ -13,7 +13,7 @@ from gamutin.editor.assets.widgets.colorpicker.color_preview import (
     ColorPreviewFullFrame,
 )
 from gamutin.editor.assets.widgets.colorpicker.color_values import ColorValueLineEdit
-from gamutin.editor.assets.widgets.colorpicker.color_values import (
+from gamutin.editor.assets.widgets.colorpicker.colorformat import (
     ColorFormatPickerWidget,
 )
 from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
