@@ -7,10 +7,13 @@ __all__ = (
 
 import enum
 import logging
+from functools import partial
 
 from Qt import QtWidgets
 from Qt import QtCore
+from Qt import QtGui
 
+from gamutin.editor.utils import copy_to_clipboard
 from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
 from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
@@ -97,15 +100,25 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
 
         self._format = currentFormat or ColorDisplayFormat.float
         self._color = DEFAULT_COLOR
+        self._validator_by_format = {
+            self.formats.float: ColorFloatValidator(),
+            self.formats.tuple: ColorFloatTupleValidator(),
+            self.formats.int8: ColorInt8Validator(),
+            self.formats.hexadecimal: ColorHexValidator(),
+        }
 
         self.setToolTip(
             "When you start editing values, until you press Enter or leave the widget, "
             "the value will NOT be considered edited."
         )
         self.setAlignment(QtCore.Qt.AlignRight)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         self.returnPressed.connect(self.update_values)
         self.editingFinished.connect(self.update_values)
+        self.customContextMenuRequested[QtCore.QPoint].connect(
+            self.on_context_menu_requested
+        )
 
         self.on_format_changed()
 
@@ -165,24 +178,38 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         Update the state of the interface.
         """
 
-        if self._format == self.formats.float:
-            self.setValidator(ColorFloatValidator())
-
-        elif self._format == self.formats.tuple:
-            self.setValidator(ColorFloatTupleValidator())
-
-        elif self._format == self.formats.int8:
-            self.setValidator(ColorInt8Validator())
-
-        elif self._format == self.formats.hexadecimal:
-            self.setValidator(ColorHexValidator())
-
-        else:
+        validator = self._validator_by_format.get(self._format)
+        if not validator:
             raise ValueError(f"Unsupported format {self._format}")
+
+        self.setValidator(validator)
 
         # the color stored doesn't change, only the displayed one
         new_text = self.validator().from_color(self.color)
         self.setText(new_text)
+        return
+
+    def on_context_menu_requested(self, pointer: QtCore.QPoint):
+        """
+        Extend the defautl context menu with additional actions, and display it.
+        """
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+
+        for color_format in self.formats:
+            validator = self._validator_by_format.get(color_format)
+            if not validator:
+                continue
+
+            formatted_color = validator.from_color(self._color)
+
+            action = QtWidgets.QAction(
+                f"Copy to Clipboard as {color_format.value}", self
+            )
+            action.triggered.connect(partial(copy_to_clipboard, formatted_color))
+            menu.addAction(action)
+
+        menu.exec_(QtGui.QCursor.pos())
         return
 
     def get_color(self) -> RGBAData:
