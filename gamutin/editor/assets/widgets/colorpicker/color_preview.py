@@ -59,9 +59,12 @@ class ColorPreviewFrame(QtWidgets.QFrame):
         qpainter.setRenderHint(qpainter.Antialiasing, True)
 
         qpainter_path = QtGui.QPainterPath()
-        qpainter_path.addRoundRect(self.rect().translated(0.5, 0.5), self.border_radius)
+        qpainter_path.addRoundedRect(
+            self.rect(), self.border_radius, self.border_radius
+        )
 
         qpainter.setClipPath(qpainter_path)
+        qpainter.setPen(QtCore.Qt.NoPen)
         qpainter.fillPath(qpainter_path, QtGui.QBrush(self._get_qcolor()))
         qpainter.drawPath(qpainter_path)
         qpainter.end()
