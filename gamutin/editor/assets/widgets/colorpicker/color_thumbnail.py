@@ -13,7 +13,7 @@ from gamutin.editor.assets.widgets.colorpicker.main import ColorPickerWidget
 from gamutin.editor.assets.widgets.colorpicker.color_preview import (
     ColorPreviewLightFrame,
 )
-from gamutin.editor.assets.widgets.colorpicker.color_values import ColorValueLineEdit
+from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
 
 
 logger = logging.getLogger(__name__)

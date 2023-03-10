@@ -12,7 +12,7 @@ from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.color_preview import (
     ColorPreviewFullFrame,
 )
-from gamutin.editor.assets.widgets.colorpicker.color_values import ColorValueLineEdit
+from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
 from gamutin.editor.assets.widgets.colorpicker.colorformat import (
     ColorFormatPickerWidget,
 )
