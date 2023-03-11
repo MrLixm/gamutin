@@ -136,13 +136,19 @@ class GamutinMainWidget(QtWidgets.QWidget):
     def on_mask_changed(self, *args):
         mask_value: MaskOptions = self.combobox_mask_source.currentData()
         self.widget_path_mask_source.setVisible(True)
+        self.widget_path_mask_source.setEnabled(True)
 
         if mask_value == MaskOptions.from_alpha:
             self.widget_path_mask_source.setEnabled(False)
-        elif mask_value == MaskOptions.none:
             self.widget_path_mask_source.setVisible(False)
+
+        elif mask_value == MaskOptions.none:
+            self.widget_path_mask_source.setEnabled(True)
+            self.widget_path_mask_source.setVisible(False)
+
         else:
             self.widget_path_mask_source.setEnabled(True)
+            self.widget_path_mask_source.setVisible(True)
 
     def on_preview_only_toggled(self, *args):
         preview_only: bool = self.checkbox_preview_only.isChecked()
