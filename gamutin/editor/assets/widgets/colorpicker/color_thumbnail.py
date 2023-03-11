@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("ColorThumbnailWidget",)
+__all__ = ("ColorPickerPreviewWidget",)
 
 import logging
 
@@ -19,13 +19,17 @@ from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEd
 logger = logging.getLogger(__name__)
 
 
-class ColorThumbnailWidget(QtWidgets.QWidget):
+class ColorPickerPreviewWidget(QtWidgets.QWidget):
     """
-    Widget that represent the currently selected color in a simplified way.
+    Top level widget for color picking.
 
-    When clicking on it, you can open the color picker to edit the color.
+    The currently selected color is displayed in a minimal way. An advanced color-picker
+    can be opened by clicking on the color preview.
 
-    A rounded rectangular frame filled with a uniform constant color.
+    Diagram::
+
+        (color preview) [color values]
+
     """
 
     def __init__(self):
@@ -46,6 +50,7 @@ class ColorThumbnailWidget(QtWidgets.QWidget):
         self.color_preview.border_radius = 4
         self.color_preview.hover_scale = 1.2
         self.color_preview.setMinimumSize(50, 15)
+        # TODO looks here if mouse event break
         self.color_preview.mousePressEvent = self.onMousePressEventColorPicker
         self.color_preview.setSizePolicy(
             QtWidgets.QSizePolicy.Minimum,
