@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("ColorPreviewFullFrame",)
+__all__ = ("ColorDisplayInteractive",)
 
 
 import logging
@@ -16,7 +16,7 @@ from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
 logger = logging.getLogger(__name__)
 
 
-class ColorPreviewFullFrame(ColoredRectangle):
+class ColorDisplayInteractive(ColoredRectangle):
     """
     A rectangular frame filled with a uniform constant color.
 

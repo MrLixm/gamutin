@@ -10,7 +10,7 @@ from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
-    ColorPreviewFullFrame,
+    ColorDisplayInteractive,
 )
 from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
 from gamutin.editor.assets.widgets.colorpicker.colorformat import (
@@ -63,7 +63,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
 
         self.selector_colorspace_display = ColorspaceSelector()
         self.selector_colorspace_workspace = ColorspaceSelector()
-        self.frame_preview_color = ColorPreviewFullFrame()
+        self.frame_preview_color = ColorDisplayInteractive()
         self.lineedit_color = ColorValueLineEdit()
         self.widget_format_pickers = ColorFormatPickerWidget()
         self.splitter_preview = QtWidgets.QSplitter()

@@ -8,13 +8,15 @@ import logging
 
 from Qt import QtCore
 
-from gamutin.editor.assets.widgets.colorpicker.colordisplay import ColorPreviewFullFrame
+from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
+    ColorDisplayInteractive,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
-class ColorPreviewLightFrame(ColorPreviewFullFrame):
+class ColorPreviewLightFrame(ColorDisplayInteractive):
     """
     A rectangular frame filled with a uniform constant color.
 
