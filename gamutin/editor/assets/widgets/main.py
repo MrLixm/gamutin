@@ -18,10 +18,7 @@ class GamutinMainWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         # type: (QtWidgets.QWidget) -> None
         super().__init__(parent)
-        self.cookUI()
-        self.bakeUI()
 
-    def cookUI(self):
         # 1. Create
         self.layout = QtWidgets.QVBoxLayout()
         self.label_source = QtWidgets.QLabel("Source")
@@ -109,9 +106,15 @@ class GamutinMainWidget(QtWidgets.QWidget):
         self.button_launch.clicked.connect(self.start_processing)
         self.combobox_mask_source.currentIndexChanged.connect(self.on_mask_changed)
         self.checkbox_preview_only.stateChanged.connect(self.on_preview_only_toggled)
+
+        self.ui_bake()
         return
 
-    def bakeUI(self):
+    def ui_bake(self):
+        """
+        Update the state of the interface.
+        """
+
         for combobox in [
             self.combobox_colorspace_reference,
             self.combobox_colorspace_target,
@@ -127,6 +130,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
         for mask_option in MaskOptions:
             self.combobox_mask_source.addItem(str(mask_option.value), mask_option)
 
+        return
+
     def start_processing(self):
         """
         Called by the user to start processing the options to produce the result.
@@ -134,6 +139,9 @@ class GamutinMainWidget(QtWidgets.QWidget):
         pass
 
     def on_mask_changed(self, *args):
+        """
+        Callback whenever the mask option is changed.
+        """
         mask_value: MaskOptions = self.combobox_mask_source.currentData()
         self.widget_path_mask_source.setVisible(True)
         self.widget_path_mask_source.setEnabled(True)
@@ -151,5 +159,8 @@ class GamutinMainWidget(QtWidgets.QWidget):
             self.widget_path_mask_source.setVisible(True)
 
     def on_preview_only_toggled(self, *args):
+        """
+        Callback whenever the preview only checkbox is toggled.
+        """
         preview_only: bool = self.checkbox_preview_only.isChecked()
         self.widget_path_target.setEnabled(not preview_only)
