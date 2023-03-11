@@ -1,12 +1,15 @@
 __all__ = ("ColorspaceSelector",)
 
+import json
 import logging
 from functools import partial
 
 from Qt import QtCore
 from Qt import QtWidgets
+from Qt import QtGui
 
 import gamutin.core.colorspaces
+from gamutin.editor.utils import copy_to_clipboard
 from gamutin.editor.widgets import PushButtonAligned
 
 logger = logging.getLogger(__name__)
@@ -45,6 +48,10 @@ class ColorspaceSelector(PushButtonAligned):
         self.action_force_linear.setChecked(False)
         # 3. Connections
         self.action_force_linear.triggered.connect(self.on_colorspace_changed)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested[QtCore.QPoint].connect(
+            self.on_context_menu_requested
+        )
 
         self.update_colorspaces()
         self.set_current_colorspace(self._current_colorspace)
@@ -148,3 +155,19 @@ class ColorspaceSelector(PushButtonAligned):
         logger.debug(
             f"[{self.__class__.__name__}][on_colorspace_changed] {new_colorspace}"
         )
+
+    def on_context_menu_requested(self, pointer: QtCore.QPoint):
+        """
+        Create a context menu and display it.
+        """
+        menu = QtWidgets.QMenu()
+
+        colorspace_repr = json.dumps(self.get_current_colorspace().to_dict(), indent=4)
+
+        action = QtWidgets.QAction("Copy Current Colorspace as Json", self)
+        action.triggered.connect(partial(copy_to_clipboard, colorspace_repr))
+
+        menu.addAction(action)
+
+        menu.exec_(QtGui.QCursor.pos())
+        return
