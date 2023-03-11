@@ -175,7 +175,7 @@ class RgbColorspace(BaseColorspaceComponent):
     whitepoint: Optional[Whitepoint]
     transfer_functions: Optional[TransferFunctions]
 
-    categories: tuple[ColorspaceCategory]
+    categories: list[ColorspaceCategory]
     """
     To help sort the colorspace in an interface.
     """
@@ -195,6 +195,8 @@ class RgbColorspace(BaseColorspaceComponent):
 
     def __post_init__(self):
         super().__post_init__()
+        # need a tuple to be hashable
+        self.categories: tuple[ColorspaceCategory] = tuple(self.categories)
 
         if (
             self.matrix_to_XYZ is None

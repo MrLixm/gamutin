@@ -309,7 +309,7 @@ def _load_colorspaces():
         whitepoint=None,
         transfer_functions=None,
         description="A 'null' colorspace that does nothing.",
-        categories=(ColorspaceCategory.common,),
+        categories=[ColorspaceCategory.common, ColorspaceCategory.special],
     )
     _add_colorspace(colorspace, additional_aliases=["raw", "null"])
 
@@ -332,7 +332,7 @@ def _load_colorspaces():
             "Specular reflection objects can reflect colors that are outside the Pointer’s gamut. \n"
             "Also not technically a colorspace."
         ),
-        categories=tuple(),
+        categories=[ColorspaceCategory.special],
     )
     _add_colorspace(colorspace)
 

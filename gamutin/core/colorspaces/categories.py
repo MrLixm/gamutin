@@ -14,3 +14,4 @@ class ColorspaceCategory(enum.Enum):
     p3 = "P3 Family"
     common = "Common"
     working_space = "Working Space"
+    special = "Special"
