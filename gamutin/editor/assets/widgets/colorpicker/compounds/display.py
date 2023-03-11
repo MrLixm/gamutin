@@ -9,7 +9,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.editor.assets.widgets.colorpicker.color_preview import (
+from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
     ColorPreviewFullFrame,
 )
 from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
