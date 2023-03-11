@@ -10,9 +10,7 @@ from Qt import QtCore
 
 
 from gamutin.editor.widgets.colorpicker.main import ColorPickerWidget
-from gamutin.editor.widgets.colorpicker.colordisplay import (
-    ColorDisplayPreview,
-)
+from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayPreview
 from gamutin.editor.widgets.colorpicker.valueline import ColorValueLineEdit
 
 

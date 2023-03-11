@@ -8,9 +8,7 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
-from gamutin.editor.widgets.colorpicker.colorformat.formats import (
-    ColorDisplayFormat,
-)
+from gamutin.editor.widgets.colorpicker.colorformat.formats import ColorDisplayFormat
 
 
 logger = logging.getLogger(__name__)

@@ -2,6 +2,4 @@ from gamutin.editor.widgets.colorpicker.colordisplay.base import ColoredRectangl
 from gamutin.editor.widgets.colorpicker.colordisplay.interactive import (
     ColorDisplayInteractive,
 )
-from gamutin.editor.widgets.colorpicker.colordisplay.preview import (
-    ColorDisplayPreview,
-)
+from gamutin.editor.widgets.colorpicker.colordisplay.preview import ColorDisplayPreview

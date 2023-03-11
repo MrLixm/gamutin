@@ -5,9 +5,7 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
-from gamutin.editor.widgets.colorpicker.compounds import (
-    ColorDisplayWidget,
-)
+from gamutin.editor.widgets.colorpicker.compounds import ColorDisplayWidget
 
 logger = logging.getLogger(__name__)
 
