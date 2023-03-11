@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("ColorPreviewLightFrame",)
+__all__ = ("ColorDisplayPreview",)
 
 
 import logging
@@ -16,7 +16,7 @@ from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
 logger = logging.getLogger(__name__)
 
 
-class ColorPreviewLightFrame(ColorDisplayInteractive):
+class ColorDisplayPreview(ColorDisplayInteractive):
     """
     A rectangular frame filled with a uniform constant color.
 

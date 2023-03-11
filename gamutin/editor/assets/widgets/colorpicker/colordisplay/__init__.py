@@ -3,5 +3,5 @@ from gamutin.editor.assets.widgets.colorpicker.colordisplay.interactive import (
     ColorDisplayInteractive,
 )
 from gamutin.editor.assets.widgets.colorpicker.colordisplay.preview import (
-    ColorPreviewLightFrame,
+    ColorDisplayPreview,
 )
