@@ -19,6 +19,7 @@ import numpy
 import colour
 
 from gamutin.core.utils import simplify
+from gamutin.core.utils import numpy_array2string_oneline
 from gamutin.core.colorspaces.categories import ColorspaceCategory
 
 
@@ -41,6 +42,13 @@ class BaseColorspaceComponent:
     def _tuplerepr(self) -> tuple:
         """
         The class represented as a tuple object. Used for hashing.
+        """
+        pass
+
+    @abstractmethod
+    def to_dict(self) -> dict:
+        """
+        Subjective dict representation of the class.
         """
         pass
 
@@ -70,6 +78,12 @@ class Whitepoint(BaseColorspaceComponent):
             repr(self.coordinates),
         )
 
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "coordinates": numpy_array2string_oneline(self.coordinates),
+        }
+
     @classmethod
     def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
         return cls(
@@ -92,6 +106,12 @@ class ColorspaceGamut(BaseColorspaceComponent):
             self.name,
             repr(self.primaries),
         )
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "primaries": numpy_array2string_oneline(self.primaries),
+        }
 
     @classmethod
     def from_colour_colorspace(cls, colour_colorspace: colour.RGB_Colourspace):
@@ -132,6 +152,13 @@ class TransferFunctions(BaseColorspaceComponent):
             self.is_encoding_linear = True
         if self.decoding is None:
             self.is_decoding_linear = True
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "is_encoding_linear": self.is_encoding_linear,
+            "is_decoding_linear": self.is_decoding_linear,
+        }
 
     @property
     def are_linear(self) -> bool:
@@ -283,6 +310,18 @@ class RgbColorspace(BaseColorspaceComponent):
         if :meth:`is_linear_copy` is False.
         """
         return self._linear_source
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "gamut": self.gamut.to_dict(),
+            "whitepoint": self.whitepoint.to_dict(),
+            "transfer_functions": self.transfer_functions.to_dict(),
+            "matrices": {
+                "toXYZ": numpy_array2string_oneline(self.matrix_to_XYZ),
+                "fromXYZ": numpy_array2string_oneline(self.matrix_from_XYZ),
+            },
+        }
 
     @classmethod
     def from_colour_colorspace(
