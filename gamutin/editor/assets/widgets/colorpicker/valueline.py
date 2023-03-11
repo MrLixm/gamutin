@@ -13,13 +13,8 @@ from gamutin.editor.utils import copy_to_clipboard
 from gamutin.editor.assets.widgets.colorpicker.colorformat import ColorDisplayFormat
 from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
-from gamutin.editor.assets.widgets.colorpicker.validators import BaseColorValidator
-from gamutin.editor.assets.widgets.colorpicker.validators import ColorFloatValidator
-from gamutin.editor.assets.widgets.colorpicker.validators import ColorInt8Validator
-from gamutin.editor.assets.widgets.colorpicker.validators import ColorHexValidator
-from gamutin.editor.assets.widgets.colorpicker.validators import (
-    ColorFloatTupleValidator,
-)
+from gamutin.editor.assets.widgets.colorpicker.colorformat import BaseColorValidator
+from gamutin.editor.assets.widgets.colorpicker.colorformat import VALIDATOR_BY_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +39,8 @@ class ColorValueLineEdit(QtWidgets.QLineEdit):
         self._format = currentFormat or ColorDisplayFormat.float
         self._color = DEFAULT_COLOR
         self._validator_by_format = {
-            self.formats.float: ColorFloatValidator(),
-            self.formats.tuple: ColorFloatTupleValidator(),
-            self.formats.int8: ColorInt8Validator(),
-            self.formats.hexadecimal: ColorHexValidator(),
+            color_format: validator()
+            for color_format, validator in VALIDATOR_BY_FORMAT.items()
         }
 
         self.setToolTip(

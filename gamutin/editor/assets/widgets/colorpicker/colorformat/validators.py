@@ -6,6 +6,7 @@ __all__ = (
     "ColorFloatTupleValidator",
     "ColorHexValidator",
     "ColorInt8Validator",
+    "VALIDATOR_BY_FORMAT",
 )
 
 import abc
@@ -15,6 +16,7 @@ from Qt import QtGui
 
 from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
 from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
+from gamutin.editor.assets.widgets.colorpicker.colorformat import ColorDisplayFormat
 
 
 class BaseColorValidator(QtGui.QValidator):
@@ -298,3 +300,14 @@ class ColorHexValidator(BaseColorValidator):
             fixed_input = sanitized_user_input.ljust(6, "0")
 
         return f"#{fixed_input}"
+
+
+VALIDATOR_BY_FORMAT = {
+    ColorDisplayFormat.float: ColorFloatValidator,
+    ColorDisplayFormat.tuple: ColorFloatTupleValidator,
+    ColorDisplayFormat.int8: ColorInt8Validator,
+    ColorDisplayFormat.hexadecimal: ColorHexValidator,
+}
+"""
+Mapping of a validator **classes** to its corresponding color format.
+"""
