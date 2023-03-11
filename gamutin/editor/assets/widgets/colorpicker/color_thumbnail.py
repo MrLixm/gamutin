@@ -41,6 +41,7 @@ class ColorThumbnailWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.color_values)
         self.layout.addStretch(0)
 
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.color_preview.setObjectName("colorPreview")
         self.color_preview.border_radius = 4
         self.color_preview.hover_scale = 1.2

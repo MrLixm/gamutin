@@ -96,8 +96,8 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         self.layout_bottom.setSpacing(0)
         self.splitter_preview.setOrientation(QtCore.Qt.Orientation.Vertical)
         self.splitter_preview.setChildrenCollapsible(False)
-        self.splitter_preview.setHandleWidth(15)
-        self.frame_preview_color.setMinimumHeight(15)
+        self.splitter_preview.setHandleWidth(5)
+        self.frame_preview_color.setMinimumHeight(25)
         self.selector_colorspace_display.align_text_right(25)
         # TODO see if re-enable needed
         self.selector_colorspace_display.set_force_linear_visible(False)
