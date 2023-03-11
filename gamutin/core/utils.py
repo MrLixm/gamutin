@@ -1,6 +1,7 @@
 __all__ = (
     "getCurrentDependencies",
     "getSysContext",
+    "numpy_array2string_oneline",
     "simplify",
     "split_at_words",
 )
@@ -12,6 +13,8 @@ import re
 import unicodedata
 from typing import Any, Optional, Literal
 from typing import Sequence
+
+import numpy
 
 import gamutin
 
@@ -234,3 +237,10 @@ def split_at_words(source_str: str, split_camel_case: bool = False) -> list[str]
         splitted = re.sub(r"[._-]", r" ", source_str).split()
 
     return splitted
+
+
+def numpy_array2string_oneline(array: numpy.ndarray) -> str:
+    """
+    Convert the given numpy array to a one line readable string.
+    """
+    return numpy.array2string(array, separator=",").replace("\n", "")
