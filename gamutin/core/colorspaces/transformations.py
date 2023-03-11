@@ -168,7 +168,7 @@ def colorspace_to_colorspace(
         chromatic_adaptation_transform,
     )
 
-    RGB = colour.utilities.vector_dot(matrix, RGB)
+    RGB = colour.algebra.vector_dot(matrix, RGB)
 
     if (
         target_colorspace.transfer_functions is not None
