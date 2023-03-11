@@ -12,8 +12,9 @@ from Qt import QtGui
 
 import gamutin
 from gamutin.editor import cfg
-from gamutin.editor import assets
-from gamutin.editor.assets.widgets.main import GamutinMainWidget
+from gamutin.editor.dialogs.about import AboutDialog
+from gamutin.editor.dialogs.issue import IssueDialog
+from gamutin.editor.widgets.main import GamutinMainWidget
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,6 @@ def getQApp() -> QtWidgets.QApplication | None:
     app = QtWidgets.QApplication.instance()
 
     if not app:
-
         app = QtWidgets.QApplication(sys.argv)
         app.setOrganizationName(gamutin.c.org)
         app.setApplicationName(gamutin.c.name)
@@ -52,15 +52,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.settings = cfg.getAppQSettings()
         self.loadSettings()
 
-        self.dialog_about = assets.dialogs.AboutDialog(self)
-        self.dialog_issue = assets.dialogs.IssueDialog(self)
+        self.dialog_about = AboutDialog(self)
+        self.dialog_issue = IssueDialog(self)
 
         self.cookUI()
         return
 
     # noinspection PyTypeChecker
     def loadSettings(self):
-
         # if debug mode is on we avoid loading settings
         if gamutin.cfg.debug:
             return
@@ -79,7 +78,6 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def saveSettings(self):
-
         self.settings.beginGroup("MainWindow")
         self.settings.setValue("size", self.size())
         self.settings.setValue("position", self.pos())
@@ -88,7 +86,6 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def cookUI(self):
-
         self.widget_main = GamutinMainWidget()
         self.status_bar = QtWidgets.QStatusBar()
 
@@ -112,7 +109,6 @@ class MainMenuBar(QtWidgets.QMenuBar):
         return
 
     def cookUI(self):
-
         # 1. Create
         self.menu_file = self.addMenu("File")
         self.menu_help = self.addMenu("Help")

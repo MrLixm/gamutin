@@ -8,18 +8,18 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
-from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
+from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
+from gamutin.editor.widgets.colorpicker.colordisplay import (
     ColorDisplayInteractive,
 )
-from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
-from gamutin.editor.assets.widgets.colorpicker.colorformat import (
+from gamutin.editor.widgets.colorpicker.valueline import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.colorformat import (
     ColorFormatPickerWidget,
 )
-from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
-from gamutin.editor.assets.widgets.colorpicker.model import PASSTHROUGH_COLORSPACE
-from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
-from gamutin.editor.assets.widgets.colorpicker.model import RgbColorspace
+from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
+from gamutin.editor.widgets.colorpicker.model import PASSTHROUGH_COLORSPACE
+from gamutin.editor.widgets.colorpicker.model import RGBAData
+from gamutin.editor.widgets.colorpicker.model import RgbColorspace
 
 
 logger = logging.getLogger(__name__)

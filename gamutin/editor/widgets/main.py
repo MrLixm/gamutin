@@ -6,10 +6,10 @@ from Qt import QtCore
 from gamutin.editor.options import SUPPORTED_FILE_EXTENSIONS
 from gamutin.editor.options import MaskOptions
 from gamutin.editor.options import CompositeBlendModes
-from gamutin.editor.assets.widgets import pathselector
-from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.editor.assets.widgets.imageselector import ImageSelectorWidget
-from gamutin.editor.assets.widgets.colorpicker import ColorPickerPreviewWidget
+from gamutin.editor.widgets import pathselector
+from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
+from gamutin.editor.widgets.imageselector import ImageSelectorWidget
+from gamutin.editor.widgets.colorpicker import ColorPickerPreviewWidget
 
 logger = logging.getLogger(__name__)
 

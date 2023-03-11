@@ -8,7 +8,7 @@ from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
 from gamutin.editor.cfg import resources
-from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
+from gamutin.editor.widgets.icons import BaseDisplayIcon
 
 
 def show():

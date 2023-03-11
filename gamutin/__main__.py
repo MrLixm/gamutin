@@ -44,7 +44,7 @@ def _configureLogging(force_debug: bool = False):
                 "level": logging.DEBUG,
                 "propagate": False,
             },
-            f"{gamutin.__name__}.editor.assets": {
+            f"{gamutin.__name__}.editor": {
                 "handlers": ["hl_console"],
                 "level": logging.DEBUG if force_debug else logging.INFO,
                 "propagate": False,

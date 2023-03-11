@@ -8,7 +8,7 @@ import logging
 
 from Qt import QtCore
 
-from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
+from gamutin.editor.widgets.colorpicker.colordisplay import (
     ColorDisplayInteractive,
 )
 

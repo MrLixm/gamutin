@@ -8,9 +8,9 @@ import logging
 
 from Qt import QtGui
 
-from gamutin.editor.assets.widgets.colorpicker.colordisplay import ColoredRectangle
-from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
-from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
+from gamutin.editor.widgets.colorpicker.colordisplay import ColoredRectangle
+from gamutin.editor.widgets.colorpicker.model import RGBAData
+from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
 
 
 logger = logging.getLogger(__name__)

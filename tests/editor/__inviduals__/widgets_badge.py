@@ -7,7 +7,7 @@ from Qt import QtGui
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.assets.widgets.badge import BadgeOverlayWidget
+from gamutin.editor.widgets.badge import BadgeOverlayWidget
 
 logger = logging.getLogger(__name__)
 

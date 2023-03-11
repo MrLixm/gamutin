@@ -7,7 +7,7 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 from gamutin.core.io import ImageRead
-from gamutin.editor.assets.widgets.dicttreeview import DictTreeModel
+from gamutin.editor.widgets.dicttreeview import DictTreeModel
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,6 @@ class ImageReprWidget(QtWidgets.QWidget):
         return
 
     def bakeUI(self):
-
         if not self._image:
             return
 

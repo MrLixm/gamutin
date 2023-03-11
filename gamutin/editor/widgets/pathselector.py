@@ -15,8 +15,8 @@ from Qt import QtCore
 from gamutin.core.io import is_path_exists_or_creatable
 from gamutin.editor.cfg import resources
 from gamutin.editor.exceptions import WidgetUserError
-from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
-from gamutin.editor.assets.widgets.errorhandler import ErrorHandlerWidget
+from gamutin.editor.widgets.icons import BaseDisplayIcon
+from gamutin.editor.widgets.errorhandler import ErrorHandlerWidget
 
 
 logger = logging.getLogger(__name__)

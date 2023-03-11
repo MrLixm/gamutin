@@ -18,9 +18,9 @@ from Qt import QtWidgets
 from gamutin.editor.cfg import resources
 from gamutin.editor.utils import copy_to_clipboard
 from gamutin.editor.exceptions import WidgetUserError
-from gamutin.editor.assets.widgets.icons import BaseDisplayIcon
-from gamutin.editor.assets.widgets.badge import BadgeOverlayWidget
-from gamutin.editor.assets.widgets.labelelided import ElidingLabel
+from gamutin.editor.widgets.icons import BaseDisplayIcon
+from gamutin.editor.widgets.badge import BadgeOverlayWidget
+from gamutin.editor.widgets.labelelided import ElidingLabel
 
 logger = logging.getLogger(__name__)
 

@@ -6,8 +6,8 @@ from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
 from gamutin.editor.exceptions import WidgetUserError
-from gamutin.editor.assets.widgets.pathselector import PathSelector
-from gamutin.editor.assets.widgets.pathselector import PathType
+from gamutin.editor.widgets.pathselector import PathSelector
+from gamutin.editor.widgets.pathselector import PathType
 
 
 def show():

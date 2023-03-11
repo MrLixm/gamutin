@@ -5,7 +5,7 @@ import logging
 from Qt import QtWidgets
 from Qt import QtCore
 
-from gamutin.editor.assets.widgets.colorpicker.compounds import (
+from gamutin.editor.widgets.colorpicker.compounds import (
     ColorDisplayWidget,
 )
 

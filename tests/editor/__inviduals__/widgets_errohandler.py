@@ -8,8 +8,8 @@ from Qt import QtWidgets
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.assets.widgets.errorhandler import ErrorHandlerWidget
-from gamutin.editor.assets.widgets.errorhandler import ErrorHandlerTreeWidget
+from gamutin.editor.widgets.errorhandler import ErrorHandlerWidget
+from gamutin.editor.widgets.errorhandler import ErrorHandlerTreeWidget
 from gamutin.editor.exceptions import WidgetUserError
 
 

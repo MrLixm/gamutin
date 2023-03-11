@@ -10,11 +10,11 @@ from Qt import QtCore
 from Qt import QtGui
 
 from gamutin.editor.utils import copy_to_clipboard
-from gamutin.editor.assets.widgets.colorpicker.colorformat import ColorDisplayFormat
-from gamutin.editor.assets.widgets.colorpicker.model import RGBAData
-from gamutin.editor.assets.widgets.colorpicker.model import DEFAULT_COLOR
-from gamutin.editor.assets.widgets.colorpicker.colorformat import BaseColorValidator
-from gamutin.editor.assets.widgets.colorpicker.colorformat import VALIDATOR_BY_FORMAT
+from gamutin.editor.widgets.colorpicker.colorformat import ColorDisplayFormat
+from gamutin.editor.widgets.colorpicker.model import RGBAData
+from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
+from gamutin.editor.widgets.colorpicker.colorformat import BaseColorValidator
+from gamutin.editor.widgets.colorpicker.colorformat import VALIDATOR_BY_FORMAT
 
 logger = logging.getLogger(__name__)
 

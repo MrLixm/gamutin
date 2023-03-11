@@ -4,8 +4,8 @@ from Qt import QtWidgets
 from Qt import QtCore
 
 import gamutin
-from gamutin.editor.assets.widgets import ContextWidget
-from gamutin.editor.assets.widgets import DependencyViewerTreeWidget
+from gamutin.editor.widgets import ContextWidget
+from gamutin.editor.widgets import DependencyViewerTreeWidget
 
 __all__ = ("AboutDialog",)
 
@@ -29,7 +29,6 @@ class AboutDialog(QtWidgets.QDialog):
         return
 
     def cookUI(self):
-
         # Create
         self.lyt = QtWidgets.QVBoxLayout()
         self.lbl_app = QtWidgets.QLabel(

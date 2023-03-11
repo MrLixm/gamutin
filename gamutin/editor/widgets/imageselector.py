@@ -10,10 +10,10 @@ from Qt import QtCore
 from gamutin.core.io import ImageRead
 from gamutin.core.io import guess_colorspace
 from gamutin.editor.utils import block_signals
-from gamutin.editor.assets.widgets import pathselector
-from gamutin.editor.assets.widgets.colorspaceselector import ColorspaceSelector
-from gamutin.editor.assets.widgets.imagerepr import ImageReprWidget
-from gamutin.editor.assets.widgets.errorhandler import ErrorHandlerWidget
+from gamutin.editor.widgets import pathselector
+from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
+from gamutin.editor.widgets.imagerepr import ImageReprWidget
+from gamutin.editor.widgets.errorhandler import ErrorHandlerWidget
 
 
 logger = logging.getLogger(__name__)

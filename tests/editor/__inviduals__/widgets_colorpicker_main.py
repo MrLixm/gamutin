@@ -6,7 +6,7 @@ from Qt import QtWidgets
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.assets.widgets.colorpicker.main import ColorPickerWidget
+from gamutin.editor.widgets.colorpicker.main import ColorPickerWidget
 
 logger = logging.getLogger(__name__)
 

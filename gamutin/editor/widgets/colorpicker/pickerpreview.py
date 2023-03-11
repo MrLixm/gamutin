@@ -9,11 +9,11 @@ from Qt import QtGui
 from Qt import QtCore
 
 
-from gamutin.editor.assets.widgets.colorpicker.main import ColorPickerWidget
-from gamutin.editor.assets.widgets.colorpicker.colordisplay import (
+from gamutin.editor.widgets.colorpicker.main import ColorPickerWidget
+from gamutin.editor.widgets.colorpicker.colordisplay import (
     ColorDisplayPreview,
 )
-from gamutin.editor.assets.widgets.colorpicker.valueline import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.valueline import ColorValueLineEdit
 
 
 logger = logging.getLogger(__name__)

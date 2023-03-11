@@ -7,7 +7,7 @@ from Qt import QtCore
 from Qt import QtWidgets
 
 import gamutin.core.colorspaces
-from gamutin.editor.assets.widgets import PushButtonAligned
+from gamutin.editor.widgets import PushButtonAligned
 
 logger = logging.getLogger(__name__)
 
