@@ -13,6 +13,14 @@ class BaseDisplayIcon(QtWidgets.QLabel):
 
     - You can add an optional tooltip as usual.
     - When setting the QIcon, its ``Active`` mode will be used if set.
+    - When clicked, the icon will emit the ``clicked_signal``
+    """
+
+    clicked_signal = QtCore.Signal(object)
+    """
+    Emitted when the user click on the icon. 
+    
+    Object emitted is the mouse button a :class:`QtCore.Qt.MouseButton` enum.
     """
 
     def __init__(self, min_width=20, min_height=20):
@@ -75,6 +83,10 @@ class BaseDisplayIcon(QtWidgets.QLabel):
         self.is_active = False
         super().enterEvent(event)
         self.update()
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        self.clicked_signal.emit(event.buttons())
+        super().mousePressEvent(event)
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         qpainter = QtGui.QPainter()

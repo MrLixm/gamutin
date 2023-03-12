@@ -119,6 +119,7 @@ def show():
         widget.setFixedSize(size, size)
         widget.setIcon(icon)
         widget.enable_scaling_on_active(True, 0.1)
+        widget.clicked_signal.connect(print)
         layout.addWidget(widget, row + 3, size_index)
 
     window.add_layout(layout)
