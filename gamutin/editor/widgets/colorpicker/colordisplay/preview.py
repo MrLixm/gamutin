@@ -7,14 +7,17 @@ import logging
 
 
 from Qt import QtCore
+from Qt import QtGui
 
-from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayInteractive
+from gamutin.editor.widgets.colorpicker.colordisplay import ColoredRectangle
+from gamutin.editor.widgets.colorpicker.model import RGBAData
+from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
 
 
 logger = logging.getLogger(__name__)
 
 
-class ColorDisplayPreview(ColorDisplayInteractive):
+class ColorDisplayPreview(ColoredRectangle):
     """
     A rectangular frame filled with a uniform constant color.
 
@@ -27,10 +30,23 @@ class ColorDisplayPreview(ColorDisplayInteractive):
     def __init__(self):
         super().__init__()
 
+        self._rgbdata: RGBAData = DEFAULT_COLOR
         self.hover_scale = 1
         self.animation = QtCore.QPropertyAnimation(self, b"geometry")
         self.animation.setEasingCurve(QtCore.QEasingCurve.InOutQuad)
         self.animation.setDuration(100)
+
+    @property
+    def color(self) -> RGBAData:
+        return self._rgbdata
+
+    @color.setter
+    def color(self, color_value: RGBAData):
+        color_int8 = color_value.to_int8(alpha=False)
+        self._color = QtGui.QColor(*color_int8)
+        self._rgbdata = color_value
+        self.setToolTip(str(color_value))
+        self.repaint()
 
     def enterEvent(self, event: QtCore.QEvent) -> None:
         initial_rect = self.geometry()
