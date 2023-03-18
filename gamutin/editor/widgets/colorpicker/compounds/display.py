@@ -108,6 +108,9 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         self.selector_colorspace_workspace.colorspace_changed_signal.connect(
             self.on_workspace_colorspace_changed
         )
+        self.frame_preview_color.color_edited_signal.connect(
+            self.on_frame_preview_color_changed
+        )
         return
 
     def set_color(self, color: RGBAData):
@@ -195,6 +198,13 @@ class ColorDisplayWidget(QtWidgets.QWidget):
             f"[{self.__class__.__name__}][on_workspace_colorspace_changed]newcolor={new_color}"
         )
         return
+
+    def on_frame_preview_color_changed(self):
+        """
+        Callback when the user edit the color from the color preview.
+        """
+        new_color = self.frame_preview_color.color
+        self.set_color(new_color)
 
     def update_color_preview(self):
         """

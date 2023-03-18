@@ -7,7 +7,7 @@ from Qt import QtWidgets
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.widgets.colorpicker.compound_display import (
+from gamutin.editor.widgets.colorpicker.compounds import (
     ColorDisplayWidget,
 )
 
@@ -43,6 +43,26 @@ QWidget#colorspaceDisplay{
 QWidget#colorspaceDisplay::menu-indicator{
     subcontrol-origin: padding;
     subcontrol-position: right center;
+}
+QWidget#exposureLabel{
+    padding: 5px;
+    background-color: rgba(0,0,0,0.5);
+    font-size: 15px;
+    font-weight: bold;
+    font-family: monospace;
+}
+QWidget#effectExposure,
+QPushButton#effectApply {
+    color: white;
+    background-color: rgba(0,0,0,127);
+    border-radius: 4px;
+    padding: 2px 6px 2px 6px;
+    min-height: 18px;
+    font-size: 10px;
+}
+QWidget#effectExposure QLabel,
+QPushButton#effectApply{
+    font-size: 10px;
 }
 """
 
