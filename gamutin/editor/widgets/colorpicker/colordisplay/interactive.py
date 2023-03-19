@@ -37,7 +37,8 @@ class ColorDisplayInteractive(ColoredRectangle):
         super().__init__()
         self._rgbdata: RGBAData = DEFAULT_COLOR
         self._exposure_grading: Optional[ColorExposureGrading] = None
-        self._exposure_grading_active: bool = False
+        self._exposure_grading_interactive: bool = False
+        self._exposure_grading_edited: bool = False
         self._previous_mouse_pos: Optional[QtCore.QPoint] = None
 
         self.layout = QtWidgets.QVBoxLayout()
@@ -59,8 +60,9 @@ class ColorDisplayInteractive(ColoredRectangle):
 
         self.widget_exposure.reset_exposure_signal.connect(self.cancel_exposure_grading)
         self.widget_apply.clicked.connect(self.apply_exposure_grading)
-        self.update_exposure()
-        self.cancel_exposure_grading()
+
+        self.update_interactive_exposure()
+        self.update_widget_effect()
 
     @property
     def color(self) -> RGBAData:
@@ -77,7 +79,7 @@ class ColorDisplayInteractive(ColoredRectangle):
         self._set_color(color_value)
         if self.exposure_grading:
             self.exposure_grading.initial_color = color_value
-            self.update_exposure()
+            self.update_interactive_exposure()
         self.repaint()
 
     @property
@@ -93,68 +95,88 @@ class ColorDisplayInteractive(ColoredRectangle):
         Set or clear the active exposure grading effect
         """
         self._exposure_grading = exposure_grading_value
-        self.widget_exposure.exposure = exposure_grading_value.exposure
+        if exposure_grading_value:
+            self.widget_exposure.exposure = exposure_grading_value.exposure
+        self.update_widget_effect()
 
     def apply_exposure_grading(self):
         """
         Get out of exposure edit but bake it into the active color.
         """
-        if self._exposure_grading:
-            self._set_color(self._exposure_grading.current_color)
-            self._exposure_grading = None
-
-        self.widget_exposure.setVisible(False)
-        self.widget_apply.setVisible(False)
+        if not self.exposure_grading:
+            return
+        self._set_color(self.exposure_grading.current_color)
+        self.exposure_grading = None
         self.color_edited_signal.emit()
 
-    def start_exposure_grading(self):
+    def start_interactive_exposure_grading(self):
         """
         Called when the user start to edit the exposure value.
         """
-        if not self._exposure_grading:
-            self._exposure_grading = ColorExposureGrading(self._rgbdata)
+        self._exposure_grading_interactive = True
+        if not self.exposure_grading:
+            self.exposure_grading = ColorExposureGrading(self._rgbdata)
+            self._exposure_grading_edited = False
 
-        self._exposure_grading.save_exposure()
-        self.widget_exposure.exposure = self._exposure_grading.exposure
-        self.widget_exposure.setVisible(True)
-        self.widget_apply.setVisible(True)
+        self.exposure_grading.save_exposure()
+        self.update_interactive_exposure()
+        self.update_widget_effect()
 
     def set_exposure(self, exposure: float):
         """
         Set the exposure value currently displayed in the UI.
         """
+        self._exposure_grading.exposure = exposure
+        self.widget_exposure.exposure = exposure
+        self._exposure_grading_edited = True
+        self.update_interactive_exposure()
+        self._set_color(self._exposure_grading.current_color)
+
+    def add_exposure(self, exposure: float):
+        """
+        Combine the given exposure value to the currently set one.
+        """
         new_exposure = self._exposure_grading.exposure + exposure
-        self._exposure_grading.exposure = new_exposure
-        self.widget_exposure.exposure = new_exposure
-        self.update_exposure()
-        self.repaint()
+        self.set_exposure(new_exposure)
 
-    def restore_exposure_grading(self):
+    def stop_interactive_exposure_grading(self):
         """
-        Called when the user cancel the current interactive edit of the exposure but
-        we stay with an active exposure edit.
+        Called when we leave the current interactive edit of the exposure.
         """
-        if self._exposure_grading:
-            self._exposure_grading.restore_saved_exposure()
+        self._exposure_grading_interactive = False
+        self._previous_mouse_pos = None
+        self.update_interactive_exposure()
 
-        self.widget_exposure.update_exposure()
+        if not self._exposure_grading_edited:
+            self.cancel_exposure_grading()
+
+    def cancel_interactive_exposure_grading(self):
+        """
+        Called when the user cancel the current interactive edit of the exposure.
+
+        But we preserve eeh value that has been potentially set before.
+        """
+        self._previous_mouse_pos = None
+        self._exposure_grading_interactive = False
+        self.update_interactive_exposure()
+
+        if self.exposure_grading:
+            saved_exposure = self.exposure_grading.restore_saved_exposure()
+            self.set_exposure(saved_exposure)
 
     def cancel_exposure_grading(self):
         """
         Remove any exposure edit and roll back to the initial color before it was started.
         """
-        if self._exposure_grading:
-            self._set_color(self._exposure_grading.initial_color)
-            self._exposure_grading = None
+        if self.exposure_grading:
+            self._set_color(self.exposure_grading.initial_color)
+            self.exposure_grading = None
 
-        self.widget_exposure.setVisible(False)
-        self.widget_apply.setVisible(False)
-
-    def update_exposure(self):
+    def update_interactive_exposure(self):
         """
-        Update all the interface elelemt susing the exposure effect.
+        Update all the label_exposure_interactive widget using the exposure effect.
         """
-        if not self._exposure_grading_active:
+        if not self._exposure_grading_interactive:
             self.label_exposure_interactive.setVisible(False)
             return
 
@@ -173,6 +195,17 @@ class ColorDisplayInteractive(ColoredRectangle):
             height,
         )
 
+    def update_widget_effect(self):
+        """
+        Update the top left widgets shwocasing the current exposure effect.
+        """
+        if self._exposure_grading:
+            self.widget_exposure.setVisible(True)
+            self.widget_apply.setVisible(True)
+        else:
+            self.widget_exposure.setVisible(False)
+            self.widget_apply.setVisible(False)
+
     def _set_color(self, color_value: RGBAData):
         """
         Set the currently displayed color.
@@ -181,27 +214,15 @@ class ColorDisplayInteractive(ColoredRectangle):
         color_int8 = color_value.to_int8(alpha=False)
         self._color = QtGui.QColor(*color_int8)
         self.setToolTip(str(color_value))
-
-    def paintEvent(self, event: QtGui.QPaintEvent):
-        """
-        Request to repaint all or part of a widget.
-        """
-        if not self._exposure_grading:
-            return super().paintEvent(event)
-
-        self._set_color(self._exposure_grading.current_color)
-        super().paintEvent(event)
+        self.repaint()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         """
         A key was pressed while the widget was in focus.
         """
         if event.key() == QtCore.Qt.Key_Escape:
-            self._exposure_grading_active = False
-            self._previous_mouse_pos = None
-            self.restore_exposure_grading()
-            self.update_exposure()
-            self.repaint()
+            self.cancel_interactive_exposure_grading()
+            self.clearFocus()
 
         return super().keyPressEvent(event)
 
@@ -218,9 +239,8 @@ class ColorDisplayInteractive(ColoredRectangle):
         ):
             return super().mousePressEvent(event)
 
-        self._exposure_grading_active = True
         self.setFocus()
-        self.start_exposure_grading()
+        self.start_interactive_exposure_grading()
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         """
@@ -248,7 +268,7 @@ class ColorDisplayInteractive(ColoredRectangle):
         amount_horizontal = xpos - self._previous_mouse_pos.x()
 
         exposure: float = float(amount_horizontal * 0.01)
-        self.set_exposure(exposure)
+        self.add_exposure(exposure)
         self._previous_mouse_pos = event.pos()
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
@@ -258,15 +278,12 @@ class ColorDisplayInteractive(ColoredRectangle):
         if not event.button() == QtCore.Qt.LeftButton:
             return
 
-        self._exposure_grading_active = False
-        self._previous_mouse_pos = None
+        self.stop_interactive_exposure_grading()
         self.clearFocus()
-        self.update_exposure()
-        self.repaint()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """
         Widget is changing dimensiions.
         """
         super().resizeEvent(event)
-        self.update_exposure()
+        self.update_interactive_exposure()
