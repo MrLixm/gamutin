@@ -248,7 +248,7 @@ class ColorDisplayInteractive(ColoredRectangle):
         """
         Mouse started moving.
         """
-        if not self._exposure_grading:
+        if not self._exposure_grading or not self._exposure_grading_interactive:
             return
 
         if not self._previous_mouse_pos:
