@@ -55,9 +55,10 @@ class ColorExposureGrading:
         """
         self._exposure_saved = self.exposure
 
-    def restore_saved_exposure(self):
+    def restore_saved_exposure(self) -> float:
         """
         Restore the exposure value saved previously.
         """
         if self._exposure_saved is not None:
             self.exposure = self._exposure_saved
+        return self._exposure_saved
