@@ -99,6 +99,23 @@ class ColorDisplayInteractive(ColoredRectangle):
             self.widget_exposure.exposure = exposure_grading_value.exposure
         self.update_widget_effect()
 
+    def _set_color(self, color_value: RGBAData):
+        """
+        Set the currently displayed color.
+        """
+        self._rgbdata = color_value
+        color_int8 = color_value.to_int8(alpha=False)
+        self._color = QtGui.QColor(*color_int8)
+        self.setToolTip(str(color_value))
+        self.repaint()
+
+    def add_exposure(self, exposure: float):
+        """
+        Combine the given exposure value to the currently set one.
+        """
+        new_exposure = self._exposure_grading.exposure + exposure
+        self.set_exposure(new_exposure)
+
     def apply_exposure_grading(self):
         """
         Get out of exposure edit but bake it into the active color.
@@ -109,46 +126,13 @@ class ColorDisplayInteractive(ColoredRectangle):
         self.exposure_grading = None
         self.color_edited_signal.emit()
 
-    def start_interactive_exposure_grading(self):
+    def cancel_exposure_grading(self):
         """
-        Called when the user start to edit the exposure value.
+        Remove any exposure edit and roll back to the initial color before it was started.
         """
-        self._exposure_grading_interactive = True
-        if not self.exposure_grading:
-            self.exposure_grading = ColorExposureGrading(self._rgbdata)
-            self._exposure_grading_edited = False
-
-        self.exposure_grading.save_exposure()
-        self.update_interactive_exposure()
-        self.update_widget_effect()
-
-    def set_exposure(self, exposure: float):
-        """
-        Set the exposure value currently displayed in the UI.
-        """
-        self._exposure_grading.exposure = exposure
-        self.widget_exposure.exposure = exposure
-        self._exposure_grading_edited = True
-        self.update_interactive_exposure()
-        self._set_color(self._exposure_grading.current_color)
-
-    def add_exposure(self, exposure: float):
-        """
-        Combine the given exposure value to the currently set one.
-        """
-        new_exposure = self._exposure_grading.exposure + exposure
-        self.set_exposure(new_exposure)
-
-    def stop_interactive_exposure_grading(self):
-        """
-        Called when we leave the current interactive edit of the exposure.
-        """
-        self._exposure_grading_interactive = False
-        self._previous_mouse_pos = None
-        self.update_interactive_exposure()
-
-        if not self._exposure_grading_edited:
-            self.cancel_exposure_grading()
+        if self.exposure_grading:
+            self._set_color(self.exposure_grading.initial_color)
+            self.exposure_grading = None
 
     def cancel_interactive_exposure_grading(self):
         """
@@ -164,13 +148,39 @@ class ColorDisplayInteractive(ColoredRectangle):
             saved_exposure = self.exposure_grading.restore_saved_exposure()
             self.set_exposure(saved_exposure)
 
-    def cancel_exposure_grading(self):
+    def set_exposure(self, exposure: float):
         """
-        Remove any exposure edit and roll back to the initial color before it was started.
+        Set the exposure value currently displayed in the UI.
         """
-        if self.exposure_grading:
-            self._set_color(self.exposure_grading.initial_color)
-            self.exposure_grading = None
+        self._exposure_grading.exposure = exposure
+        self.widget_exposure.exposure = exposure
+        self._exposure_grading_edited = True
+        self.update_interactive_exposure()
+        self._set_color(self._exposure_grading.current_color)
+
+    def start_interactive_exposure_grading(self):
+        """
+        Called when the user start to edit the exposure value.
+        """
+        self._exposure_grading_interactive = True
+        if not self.exposure_grading:
+            self.exposure_grading = ColorExposureGrading(self._rgbdata)
+            self._exposure_grading_edited = False
+
+        self.exposure_grading.save_exposure()
+        self.update_interactive_exposure()
+        self.update_widget_effect()
+
+    def stop_interactive_exposure_grading(self):
+        """
+        Called when we leave the current interactive edit of the exposure.
+        """
+        self._exposure_grading_interactive = False
+        self._previous_mouse_pos = None
+        self.update_interactive_exposure()
+
+        if not self._exposure_grading_edited:
+            self.cancel_exposure_grading()
 
     def update_interactive_exposure(self):
         """
@@ -206,15 +216,7 @@ class ColorDisplayInteractive(ColoredRectangle):
             self.widget_exposure.setVisible(False)
             self.widget_apply.setVisible(False)
 
-    def _set_color(self, color_value: RGBAData):
-        """
-        Set the currently displayed color.
-        """
-        self._rgbdata = color_value
-        color_int8 = color_value.to_int8(alpha=False)
-        self._color = QtGui.QColor(*color_int8)
-        self.setToolTip(str(color_value))
-        self.repaint()
+    # Overrides
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         """
