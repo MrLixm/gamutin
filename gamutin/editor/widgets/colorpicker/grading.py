@@ -46,9 +46,9 @@ class ExposureGradingInfoWidget(QtWidgets.QFrame):
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.icon.icon = QtGui.QIcon(str(self.icon_path))
-        self.icon.enable_scaling_on_active(True, 0.1)
+        self.icon.enable_scaling_on_active(True, 0.2)
         self.icon.setToolTip("Reset Exposure")
-        self.icon.setFixedSize(15, 15)
+        self.icon.setFixedSize(17, 17)
 
         # 4. Connections
         self.icon.clicked_signal.connect(self.on_exposure_reset)
