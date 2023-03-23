@@ -8,6 +8,8 @@ from Qt import QtCore
 from gamutin.editor.widgets.colorpicker.model import RGBAData
 from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
 from gamutin.editor.widgets.colorpicker.model import PASSTHROUGH_COLORSPACE
+from gamutin.editor.widgets.colorpicker.colormodel import ColorEditRgbModelWidget
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +24,17 @@ class ColorEditWidget(QtWidgets.QWidget):
 
         # 1. Create
         self.layout = QtWidgets.QVBoxLayout()
+        self.tabwidget = QtWidgets.QTabWidget()
+        self.tab_rgb = ColorEditRgbModelWidget()
 
         # 2. Add
         self.setLayout(self.layout)
+        self.layout.addWidget(self.tabwidget)
+        self.tabwidget.addTab(self.tab_rgb, "RGB")
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.tabwidget.setTabPosition(self.tabwidget.South)
 
         # 4. Connections
 
