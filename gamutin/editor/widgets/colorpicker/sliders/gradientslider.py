@@ -37,7 +37,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
         # left, top, right, bottom
-        self.slider_margins = (-20, -15, -20, -15)
+        self._slider_margins = (-20, -15, -20, -15)
         self.cursor_widget = ColorCursorWidget(self)
         self.cursor_widget.setObjectName("FloatValueSliderPosition")
 
@@ -83,6 +83,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         """
         self._current_value = value
         self.cursor_widget.color = self.current_color
+        self.setToolTip(str(value))
 
     @property
     def current_color(self) -> QtGui.QColor:
@@ -116,10 +117,10 @@ class FloatGradientSlider(QtWidgets.QFrame):
         Actual area to paint the horizontal slider on (smaller than the whole widget rect)
         """
         margins = QtCore.QMargins(
-            int(self.slider_margins[0] - (self.cursor_widget.width() / 2)),
-            self.slider_margins[1],
-            int(self.slider_margins[2] - (self.cursor_widget.width() / 2)),
-            self.slider_margins[3],
+            int(self._slider_margins[0] - (self.cursor_widget.width() / 2)),
+            self._slider_margins[1],
+            int(self._slider_margins[2] - (self.cursor_widget.width() / 2)),
+            self._slider_margins[3],
         )
         return self.rect().marginsAdded(margins)
 
@@ -138,6 +139,15 @@ class FloatGradientSlider(QtWidgets.QFrame):
             self.rect().right(),
         )
         return QtCore.QPointF(xpos, self.rect().center().y())
+
+    def set_cursor_overflow(self, size: int):
+        """
+        Set teh amount of pixel the cursor overflow from the slider.
+
+        Args:
+            size: amount of pixel to overflow
+        """
+        self._slider_margins = (-size,) * 4
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """

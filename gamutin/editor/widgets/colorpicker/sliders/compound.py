@@ -28,6 +28,9 @@ class FloatSliderWidget(QtWidgets.QWidget):
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.slider.setMaximumHeight(25)
+        self.slider.set_cursor_overflow(5)
+
         self.field_value.setSizePolicy(
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed,

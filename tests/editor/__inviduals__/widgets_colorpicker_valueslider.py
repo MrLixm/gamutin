@@ -19,13 +19,17 @@ STYLESHEET = (
     "QFrame{"
     "background-color: red;"
     "border-radius: 15px;"
-    "border: 2px solid blue;"
+    "border: 2px solid orange;"
     "} "
     "QFrame#FloatValueSliderPosition{"
-    "border: 2px solid white;"
+    "border: 2px solid blue;"
     "background-color: blue;"
     "border-radius: 3px;"
     "} "
+    "QLabel{"
+    "background-color: transparent;"
+    "border: unset;"
+    "}"
 )
 
 
@@ -47,10 +51,31 @@ def show():
             (1, QtGui.QColor(0, 255, 0)),
         ]
     )
-    # widget.setStyleSheet(STYLESHEET)
+    layout.addWidget(widget)
+
+    for margins in [
+        (-5, -50, -5, -50),
+        (-50, -5, -50, -5),
+        (-5, -5, -5, -5),
+    ]:
+        widget = QtWidgets.QLabel(str(margins))
+        layout.addWidget(widget)
+        widget = FloatGradientSlider()
+        widget.set_display_color_range(
+            color_range=[
+                (0, QtGui.QColor(70, 240, 90)),
+                (0.5, QtGui.QColor(230, 100, 150)),
+                (1, QtGui.QColor(50, 80, 220)),
+            ]
+        )
+        widget._slider_margins = margins
+        layout.addWidget(widget)
+
+    widget = FloatSliderWidget()
     layout.addWidget(widget)
 
     widget = FloatSliderWidget()
+    widget.setStyleSheet("QFrame{border: unset;}")
     layout.addWidget(widget)
 
     window.add_layout(layout)
