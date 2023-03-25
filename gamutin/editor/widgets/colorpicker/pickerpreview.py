@@ -11,7 +11,7 @@ from Qt import QtCore
 
 from gamutin.editor.widgets.colorpicker.main import ColorPickerWidget
 from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayPreview
-from gamutin.editor.widgets.colorpicker.colorlineedit import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.fields import ColorValueLineEdit
 
 
 logger = logging.getLogger(__name__)
