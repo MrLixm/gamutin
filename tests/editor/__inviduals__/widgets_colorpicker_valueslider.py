@@ -2,6 +2,7 @@ import logging
 import sys
 
 from Qt import QtWidgets
+from Qt import QtGui
 
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
@@ -15,7 +16,7 @@ STYLESHEET = (
     "QFrame{"
     "background-color: red;"
     "border-radius: 15px;"
-    "border: 2px solid black;"
+    "border: 2px solid blue;"
     "} "
     "QFrame#FloatValueSliderPosition{"
     "border: 2px solid white;"
@@ -36,6 +37,13 @@ def show():
     layout = QtWidgets.QVBoxLayout()
 
     widget = FloatValueSlider()
+    widget.set_display_color_range(
+        color_range=[
+            (0, QtGui.QColor(0, 0, 150)),
+            (0.5, QtGui.QColor(255, 0, 0)),
+            (1, QtGui.QColor(0, 255, 0)),
+        ]
+    )
     # widget.setStyleSheet(STYLESHEET)
     layout.addWidget(widget)
 

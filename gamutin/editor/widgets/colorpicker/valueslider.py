@@ -6,27 +6,10 @@ from Qt import QtWidgets
 from Qt import QtGui
 from Qt import QtCore
 
+from gamutin.core.mathing import remap
+from gamutin.editor.utils import color_interpolate
+
 logger = logging.getLogger(__name__)
-
-
-def color_interpolate(color_start: QtGui.QColor, color_end: QtGui.QColor, ratio: float):
-    """
-    Return the interpolated color between start and end for the given ratio.
-
-    All of this because QGradient does not have a ``colorAt(pos)`` method ...
-
-    Args:
-        color_start: any color
-        color_end: any color
-        ratio: strict 0-1 range
-
-    Returns:
-        QColor instance
-    """
-    r = int(ratio * color_start.red() + (1 - ratio) * color_end.red())
-    g = int(ratio * color_start.green() + (1 - ratio) * color_end.green())
-    b = int(ratio * color_start.blue() + (1 - ratio) * color_end.blue())
-    return QtGui.QColor(r, g, b)
 
 
 class ColorCursorWidget(QtWidgets.QFrame):
@@ -95,9 +78,9 @@ class FloatValueSlider(QtWidgets.QFrame):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
         self._current_value = 0.0
-        self._color_range: list[tuple[int, list[int]]] = [
-            (0, [0, 0, 0]),
-            (1, [255, 255, 255]),
+        self._color_range: list[tuple[int, QtGui.QColor]] = [
+            (0, QtGui.QColor.fromRgbF(0.0, 0.0, 0.0)),
+            (1, QtGui.QColor.fromRgbF(1.0, 1.0, 1.0)),
         ]
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
@@ -108,6 +91,8 @@ class FloatValueSlider(QtWidgets.QFrame):
 
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
 
+        self.current_value = 0.0
+
     @property
     def _gradient_qss(self) -> str:
         """
@@ -115,7 +100,7 @@ class FloatValueSlider(QtWidgets.QFrame):
         """
         gradient = "qlineargradient( x1:0 y1:0, x2:1 y2:0, "
         for position, color in self._color_range:
-            gradient += f"stop:{position} rgb({str(color)[1:][:-1]}) "
+            gradient += f"stop:{position} rgba{color.toTuple()} "
         gradient += ")"
         return gradient
 
@@ -126,15 +111,24 @@ class FloatValueSlider(QtWidgets.QFrame):
         """
         gradient = QtGui.QLinearGradient()
         for position, color in self._color_range:
-            gradient.setColorAt(position, QtGui.QColor(*color))
+            gradient.setColorAt(position, color)
         return gradient
 
     @property
     def current_value(self) -> float:
+        """
+        Current value the slider is set to.
+
+        Strict [0.0-1.0] range.
+        """
         return self._current_value
 
     @current_value.setter
     def current_value(self, value: float):
+        """
+        Args:
+            value: value to set the slider to. Strict [0.0-1.0] range.
+        """
         self._current_value = value
         self.cursor_widget.color = self.current_color
 
@@ -151,12 +145,11 @@ class FloatValueSlider(QtWidgets.QFrame):
             current_stop = stops[stop_index]
             next_stop = stops[stop_index + 1]
 
-            if current_stop[0] <= self.current_value <= next_stop[0]:
-                color = color_interpolate(
-                    next_stop[1],
-                    current_stop[1],
-                    self.current_value,
+            if self.current_value <= next_stop[0]:
+                ratio = remap(
+                    self.current_value, current_stop[0], next_stop[0], 0.0, 1.0
                 )
+                color = color_interpolate(current_stop[1], next_stop[1], ratio)
                 break
 
         return color
@@ -186,13 +179,14 @@ class FloatValueSlider(QtWidgets.QFrame):
         xpos = self.current_value * self.slider_rect.width()
         return QtCore.QPointF(xpos, self.rect().top())
 
-    def set_display_color_range(self, color_range: list[tuple[int, list[int]]]):
+    def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
         Set the whole range of color the slider need to display starting from left and
         ending at the right.
         """
         self._color_range = color_range
         self.update_stylesheet()
+        self.cursor_widget.color = self.current_color
 
     def start_value_editing(self):
         """
@@ -231,8 +225,8 @@ class FloatValueSlider(QtWidgets.QFrame):
             event: a mouse event
         """
         normalised_x_pos = event.localPos().x() / self.rect().width()
-        if normalised_x_pos >= 1.0 or normalised_x_pos < 0.0:
-            return
+        # current value can never go outside 0-1 range
+        normalised_x_pos = max(min(normalised_x_pos, 1.0), 0.0)
         self.current_value = normalised_x_pos
         self.value_changed_signal.emit()
 
