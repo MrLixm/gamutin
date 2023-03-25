@@ -10,7 +10,7 @@ from Qt import QtCore
 
 from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayInteractive
-from gamutin.editor.widgets.colorpicker.valueline import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.colorlineedit import ColorValueLineEdit
 from gamutin.editor.widgets.colorpicker.colorformat import ColorFormatPickerWidget
 from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
 from gamutin.editor.widgets.colorpicker.model import PASSTHROUGH_COLORSPACE
