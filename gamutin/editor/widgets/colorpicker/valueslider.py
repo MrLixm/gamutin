@@ -1,4 +1,4 @@
-__all__ = ("FloatValueDisplaySlider", "FloatValueSlider")
+__all__ = ("FloatSliderWidget", "FloatValueSlider")
 
 import logging
 
@@ -174,10 +174,18 @@ class FloatValueSlider(QtWidgets.QFrame):
     @property
     def cursor_pos(self) -> QtCore.QPointF:
         """
-        Top left position of the cursor.
+        Center position of the cursor relative to the widget rect.
         """
         xpos = self.current_value * self.slider_rect.width()
-        return QtCore.QPointF(xpos, self.rect().top())
+        # convert from slider space, to widget space
+        xpos = remap(
+            xpos,
+            self.rect().left(),
+            self.slider_rect.right(),
+            self.slider_rect.left(),
+            self.rect().right(),
+        )
+        return QtCore.QPointF(xpos, self.rect().center().y())
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
@@ -207,7 +215,7 @@ class FloatValueSlider(QtWidgets.QFrame):
         current_rect = self.rect()
         new_rect = QtCore.QRectF(current_rect)
         new_rect.setWidth(self.height())
-        new_rect.moveTo(self.cursor_pos)
+        new_rect.moveCenter(self.cursor_pos)
         self.cursor_widget.setGeometry(new_rect.toRect())
 
     def update_stylesheet(self):
@@ -224,7 +232,15 @@ class FloatValueSlider(QtWidgets.QFrame):
         Args:
             event: a mouse event
         """
-        normalised_x_pos = event.localPos().x() / self.rect().width()
+        # convert from widget space, to slider space
+        normalised_x_pos = remap(
+            event.localPos().x(),
+            self.slider_rect.left(),
+            self.rect().right(),
+            self.rect().left(),
+            self.slider_rect.right(),
+        )
+        normalised_x_pos = normalised_x_pos / self.slider_rect.width()
         # current value can never go outside 0-1 range
         normalised_x_pos = max(min(normalised_x_pos, 1.0), 0.0)
         self.current_value = normalised_x_pos
