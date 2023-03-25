@@ -7,8 +7,10 @@ from Qt import QtGui
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.widgets.colorpicker.valueslider import FloatGradientSlider
-from gamutin.editor.widgets.colorpicker.valueslider import FloatSliderWidget
+from gamutin.editor.widgets.colorpicker.sliders.gradientslider import (
+    FloatGradientSlider,
+)
+from gamutin.editor.widgets.colorpicker.sliders.compound import FloatSliderWidget
 
 logger = logging.getLogger(__name__)
 
