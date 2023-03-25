@@ -7,7 +7,7 @@ from Qt import QtGui
 from gamutin.__main__ import _configureLogging
 from gamutin.editor.main import getQApp
 from gamutin.editor.testing import get_testing_window
-from gamutin.editor.widgets.colorpicker.valueslider import FloatValueSlider
+from gamutin.editor.widgets.colorpicker.valueslider import FloatGradientSlider
 from gamutin.editor.widgets.colorpicker.valueslider import FloatSliderWidget
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def show():
 
     layout = QtWidgets.QVBoxLayout()
 
-    widget = FloatValueSlider()
+    widget = FloatGradientSlider()
     widget.set_display_color_range(
         color_range=[
             (0, QtGui.QColor(0, 0, 150)),

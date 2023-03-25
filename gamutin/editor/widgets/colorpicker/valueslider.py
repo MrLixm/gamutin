@@ -1,4 +1,4 @@
-__all__ = ("FloatSliderWidget", "FloatValueSlider")
+__all__ = ("FloatSliderWidget", "FloatGradientSlider")
 
 import logging
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ColorCursorWidget(QtWidgets.QFrame):
     """
-    Used with FloatValueSlider as cursor for the currently selected value.
+    Used with FloatGradientSlider as cursor for the currently selected value.
 
     This is a simple rounded QFrame supporting styleSheets. The only exception is that
     you can't use the ``background-color`` and ``border-radius`` as those are set
@@ -62,7 +62,7 @@ class ColorCursorWidget(QtWidgets.QFrame):
         self.update_stylesheet()
 
 
-class FloatValueSlider(QtWidgets.QFrame):
+class FloatGradientSlider(QtWidgets.QFrame):
     """
     A slider that allow you to select a float value on the given color range.
 
@@ -315,7 +315,7 @@ class FloatSliderWidget(QtWidgets.QWidget):
 
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout()
-        self.slider = FloatValueSlider()
+        self.slider = FloatGradientSlider()
         self.field_value = QtWidgets.QDoubleSpinBox()
 
         # 2. Add
