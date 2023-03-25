@@ -10,7 +10,7 @@ from Qt import QtCore
 
 from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
 from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayInteractive
-from gamutin.editor.widgets.colorpicker.fields import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.fields import FormattedColorField
 from gamutin.editor.widgets.colorpicker.colorformat import ColorFormatPickerWidget
 from gamutin.editor.widgets.colorpicker.model import DEFAULT_COLOR
 from gamutin.editor.widgets.colorpicker.model import PASSTHROUGH_COLORSPACE
@@ -60,7 +60,7 @@ class ColorDisplayWidget(QtWidgets.QWidget):
         self.selector_colorspace_display = ColorspaceSelector()
         self.selector_colorspace_workspace = ColorspaceSelector()
         self.frame_preview_color = ColorDisplayInteractive()
-        self.lineedit_color = ColorValueLineEdit()
+        self.lineedit_color = FormattedColorField()
         self.widget_format_pickers = ColorFormatPickerWidget()
         self.splitter_preview = QtWidgets.QSplitter()
 

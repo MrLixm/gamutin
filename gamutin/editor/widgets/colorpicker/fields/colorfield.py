@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("ColorValueLineEdit",)
+__all__ = ("FormattedColorField",)
 
 import logging
 from functools import partial
@@ -19,7 +19,7 @@ from gamutin.editor.widgets.colorpicker.colorformat import VALIDATOR_BY_FORMAT
 logger = logging.getLogger(__name__)
 
 
-class ColorValueLineEdit(QtWidgets.QLineEdit):
+class FormattedColorField(QtWidgets.QLineEdit):
     """
     A color tuple as a single row of values that can be displayed under different formats.
 

@@ -11,7 +11,7 @@ from Qt import QtCore
 
 from gamutin.editor.widgets.colorpicker.main import ColorPickerWidget
 from gamutin.editor.widgets.colorpicker.colordisplay import ColorDisplayPreview
-from gamutin.editor.widgets.colorpicker.fields import ColorValueLineEdit
+from gamutin.editor.widgets.colorpicker.fields import FormattedColorField
 
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class ColorPickerPreviewWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QHBoxLayout()
         self.color_picker = ColorPickerWidget()
         self.color_preview = ColorDisplayPreview()
-        self.color_values = ColorValueLineEdit()
+        self.color_values = FormattedColorField()
 
         self.setLayout(self.layout)
         self.layout.addWidget(self.color_preview)
