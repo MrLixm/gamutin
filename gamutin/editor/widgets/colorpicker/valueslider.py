@@ -309,26 +309,32 @@ class FloatValueSlider(QtWidgets.QFrame):
         self.clearFocus()
 
 
-class FloatValueDisplaySlider(QtWidgets.QWidget):
+class FloatSliderWidget(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
         # 1. Create
-        self.layout = QtWidgets.QVBoxLayout()
+        self.layout = QtWidgets.QHBoxLayout()
+        self.slider = FloatValueSlider()
+        self.field_value = QtWidgets.QDoubleSpinBox()
 
         # 2. Add
         self.setLayout(self.layout)
+        self.layout.addWidget(self.field_value)
+        self.layout.addWidget(self.slider)
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.field_value.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Fixed,
+        )
 
         # 4. Connections
+        self.slider.value_changed_signal.connect(self.on_value_slider_changed)
 
-        self.ui_bake()
         return
 
-    def ui_bake(self):
-        """
-        Update the state of the interface.
-        """
-        pass
+    def on_value_slider_changed(self):
+        value = self.slider.current_value
+        self.field_value.setValue(value)
