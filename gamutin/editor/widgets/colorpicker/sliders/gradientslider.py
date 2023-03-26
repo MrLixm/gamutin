@@ -31,7 +31,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
 
     You can use :
 
-    - ``qtpropert-cursor_overflow`` int
+    - ``qtpropert-cursor_scale`` float
     - ``QFrame#FloatGradientSliderCursor``
 
     You can't use :
@@ -54,8 +54,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         ]
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
-        # left, top, right, bottom
-        self._slider_margins = (-5, -5, -5, -5)
+        self._cursor_scale = 1.1
         self.cursor_widget = ColorCursorWidget(self)
         self.cursor_widget.setObjectName("FloatGradientSliderCursor")
 
@@ -134,12 +133,17 @@ class FloatGradientSlider(QtWidgets.QFrame):
         """
         Actual area to paint the horizontal slider on (smaller than the whole widget rect)
         """
-        margins = QtCore.QMargins(
-            int(self._slider_margins[0] - (self.cursor_widget.width() / 2)),
-            self._slider_margins[1],
-            int(self._slider_margins[2] - (self.cursor_widget.width() / 2)),
-            self._slider_margins[3],
+        margin = self.cursor_widget.height() - self.cursor_widget.height() * max(
+            self._cursor_scale, 1.0
         )
+        # left, top, right, bottom
+        margins = QtCore.QMargins(
+            int(margin - (self.cursor_widget.width() / 2)),
+            int(margin),
+            int(margin - (self.cursor_widget.width() / 2)),
+            int(margin),
+        )
+        # print(f"slider_rect:: {self.rect()=} >> {self.rect().marginsAdded(margins)}")
         return self.rect().marginsAdded(margins)
 
     @property
@@ -158,22 +162,24 @@ class FloatGradientSlider(QtWidgets.QFrame):
         )
         return QtCore.QPointF(xpos, self.rect().center().y())
 
-    def get_cursor_overflow(self) -> int:
+    def get_cursor_scale(self) -> float:
         """
-        Get the amount of pixel the cursor overflow from the slider.
+        Get the scale of the cursor relative to the available height.
         """
-        return self._slider_margins[0] * -1
+        return self._cursor_scale
 
-    def set_cursor_overflow(self, size: int):
+    def set_cursor_scale(self, scale: float):
         """
-        Set teh amount of pixel the cursor overflow from the slider.
+        Set the scale of the cursor relative to the available height.
+
+        Values above one make the cursor bigger than the slider.
 
         Args:
-            size: amount of pixel to overflow
+            scale: where 1 == full height, > 1 = smaller cursor than slider, ...
         """
-        self._slider_margins = (-size,) * 4
+        self._cursor_scale = scale
 
-    cursor_overflow = QtCore.Property(int, get_cursor_overflow, set_cursor_overflow)
+    cursor_scale = QtCore.Property(float, get_cursor_scale, set_cursor_scale)
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
@@ -204,10 +210,12 @@ class FloatGradientSlider(QtWidgets.QFrame):
         Update the position and the size of the cursor widget for the current state.
         """
         current_rect = self.rect()
-        new_rect = QtCore.QRectF(current_rect)
+        new_rect = QtCore.QRect(current_rect)
         new_rect.setWidth(self.height())
-        new_rect.moveCenter(self.cursor_pos)
-        self.cursor_widget.setGeometry(new_rect.toRect())
+        if self._cursor_scale < 1.0:
+            new_rect.setSize(new_rect.size() * self._cursor_scale)
+        new_rect.moveCenter(self.cursor_pos.toPoint())
+        self.cursor_widget.setGeometry(new_rect)
 
     def update_stylesheet(self):
         """
