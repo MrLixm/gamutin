@@ -19,7 +19,9 @@ class FloatGradientSlider(QtWidgets.QFrame):
     A slider that allow you to select a float value on the given color range.
 
     The slider is assumed to work in the 0.0-1.0 range, and it's up to the developer
-    to convert this range to the actual range he needs for its use.
+    to convert this range to the actual range he needs for its use. Though it's possible
+    that the value internally stored is outside of this range but would then not be
+    properly displayed by the slider.
     """
 
     value_changed_signal = QtCore.Signal()
@@ -37,7 +39,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
         # left, top, right, bottom
-        self._slider_margins = (-20, -15, -20, -15)
+        self._slider_margins = (-5, -5, -5, -5)
         self.cursor_widget = ColorCursorWidget(self)
         self.cursor_widget.setObjectName("FloatValueSliderPosition")
 
@@ -71,7 +73,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         """
         Current value the slider is set to.
 
-        Strict [0.0-1.0] range.
+        [0.0-1.0] range but might be outside.
         """
         return self._current_value
 
@@ -79,7 +81,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
     def current_value(self, value: float):
         """
         Args:
-            value: value to set the slider to. Strict [0.0-1.0] range.
+            value: value to set the slider to. [0.0-1.0] range but might be outside.
         """
         self._current_value = value
         self.cursor_widget.color = self.current_color
@@ -93,16 +95,16 @@ class FloatGradientSlider(QtWidgets.QFrame):
         gradient = self._gradient
         stops = gradient.stops()
         color = QtGui.QColor(0, 0, 0)
+        current_value = min(max(self.current_value, 0.0), 1.0)
 
         for stop_index in range(len(stops) - 1):
             current_stop = stops[stop_index]
             next_stop = stops[stop_index + 1]
 
-            if self.current_value <= next_stop[0]:
-                ratio = remap(
-                    self.current_value, current_stop[0], next_stop[0], 0.0, 1.0
-                )
-                color = color_interpolate(current_stop[1], next_stop[1], ratio)
+            ratio = remap(current_value, current_stop[0], next_stop[0], 0.0, 1.0)
+            color = color_interpolate(current_stop[1], next_stop[1], ratio)
+
+            if current_value <= next_stop[0]:
                 break
 
         return color
@@ -129,7 +131,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         """
         Center position of the cursor relative to the widget rect.
         """
-        xpos = self.current_value * self.slider_rect.width()
+        xpos = min(max(self.current_value, 0.0), 1.0) * self.slider_rect.width()
         # convert from slider space, to widget space
         xpos = remap(
             xpos,
@@ -153,6 +155,9 @@ class FloatGradientSlider(QtWidgets.QFrame):
         """
         Set the whole range of color the slider need to display starting from left and
         ending at the right.
+
+        Args:
+            color_range: list[tuple(position, color)], where position goes from 0.0 to 1.0
         """
         self._color_range = color_range
         self.update_stylesheet()
