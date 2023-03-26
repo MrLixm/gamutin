@@ -22,6 +22,22 @@ class FloatGradientSlider(QtWidgets.QFrame):
     to convert this range to the actual range he needs for its use. Though it's possible
     that the value internally stored is outside of this range but would then not be
     properly displayed by the slider.
+
+    Styling
+    =======
+
+    The widget can be fully styled with stylesheet except for the style of the cursor
+    that will stay a circle.
+
+    You can use :
+
+    - ``qtpropert-cursor_overflow`` int
+    - ``QFrame#FloatGradientSliderCursor``
+
+    You can't use :
+
+    - ``background-color``
+    - ``QFrame#FloatGradientSliderCursor{border-radius}``
     """
 
     value_changed_signal = QtCore.Signal()
@@ -41,7 +57,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         # left, top, right, bottom
         self._slider_margins = (-5, -5, -5, -5)
         self.cursor_widget = ColorCursorWidget(self)
-        self.cursor_widget.setObjectName("FloatValueSliderPosition")
+        self.cursor_widget.setObjectName("FloatGradientSliderCursor")
 
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
 
@@ -142,6 +158,12 @@ class FloatGradientSlider(QtWidgets.QFrame):
         )
         return QtCore.QPointF(xpos, self.rect().center().y())
 
+    def get_cursor_overflow(self) -> int:
+        """
+        Get the amount of pixel the cursor overflow from the slider.
+        """
+        return self._slider_margins[0] * -1
+
     def set_cursor_overflow(self, size: int):
         """
         Set teh amount of pixel the cursor overflow from the slider.
@@ -150,6 +172,8 @@ class FloatGradientSlider(QtWidgets.QFrame):
             size: amount of pixel to overflow
         """
         self._slider_margins = (-size,) * 4
+
+    cursor_overflow = QtCore.Property(int, get_cursor_overflow, set_cursor_overflow)
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
