@@ -99,3 +99,7 @@ QFrame[dropState="true"]{
 }
 /*endregion*/
 
+
+QFrame#FloatGradientSliderCursor{
+    border: 2px solid rgb(125,125,125);
+}
