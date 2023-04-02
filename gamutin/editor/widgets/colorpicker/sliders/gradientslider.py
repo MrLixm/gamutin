@@ -31,7 +31,8 @@ class FloatGradientSlider(QtWidgets.QFrame):
 
     You can use :
 
-    - ``qtpropert-cursor_scale`` float
+    - ``qproperty-cursor_scale`` float
+    - ``qproperty-cursor_circle`` int : 1 for cicle, 0 for rectangular
     - ``QFrame#FloatGradientSliderCursor``
 
     You can't use :
@@ -55,7 +56,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
         self._cursor_scale = 1.1
-        self.cursor_widget = ColorCursorWidget(self)
+        self.cursor_widget = ColorCursorWidget(parent=self)
         self.cursor_widget.setObjectName("FloatGradientSliderCursor")
 
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
@@ -180,6 +181,21 @@ class FloatGradientSlider(QtWidgets.QFrame):
         self._cursor_scale = scale
 
     cursor_scale = QtCore.Property(float, get_cursor_scale, set_cursor_scale)
+
+    def set_cursor_circle(self, is_circle: bool):
+        """
+        Set the shape of the cursor to a circle or to rectangle (still editable via stylesheets).
+
+        Args:
+            is_circle: True to have the cursor as a circle.
+        """
+        if is_circle:
+            self.cursor_widget.shape = self.cursor_widget.shapes.round
+        else:
+            self.cursor_widget.shape = self.cursor_widget.shapes.rectangular
+        self.cursor_widget.update_stylesheet()
+
+    cursor_circle = QtCore.Property(int, fset=set_cursor_circle)
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
