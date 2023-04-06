@@ -230,7 +230,16 @@ class FloatGradientSlider(QtWidgets.QFrame):
         new_rect.setWidth(self.height())
         if self._cursor_scale < 1.0:
             new_rect.setSize(new_rect.size() * self._cursor_scale)
-        new_rect.moveCenter(self.cursor_pos.toPoint())
+
+        # offset initial cursor position based on the current width
+        # this is to support resizing of the cursor via stylesheets
+        cursor_pos = self.cursor_pos
+        current_width = self.cursor_widget.width()
+        diff_width = (new_rect.width() / 2) - (current_width / 2)
+        new_x_pos = cursor_pos.x() + diff_width
+        cursor_pos.setX(new_x_pos)
+
+        new_rect.moveCenter(cursor_pos.toPoint())
         self.cursor_widget.setGeometry(new_rect)
 
     def update_stylesheet(self):
