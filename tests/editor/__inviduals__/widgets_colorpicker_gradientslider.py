@@ -11,10 +11,6 @@ from gamutin.editor.testing import get_testing_window
 from gamutin.editor.widgets.colorpicker.sliders.gradientslider import (
     FloatGradientSlider,
 )
-from gamutin.editor.widgets.colorpicker.sliders.compound import FloatSliderWidget
-
-logger = logging.getLogger(__name__)
-
 
 STYLESHEET = (
     # no selector intentional
@@ -50,63 +46,6 @@ COLOR_RANGE_B = [
     (0.5, QtGui.QColor(230, 100, 150)),
     (1, QtGui.QColor(50, 80, 220)),
 ]
-
-
-def interactive_test():
-    app = getQApp()
-    window = get_testing_window()
-    # remove stretch
-    item = window.layout.itemAt(len(window.layout.children()))
-    window.layout.removeItem(item)
-
-    layout = QtWidgets.QVBoxLayout()
-
-    layout.addWidget(QtWidgets.QLabel("<h1><code>set_cursor_scale()</code></h1>"))
-    slider_src = FloatSliderWidget()
-    slider_src.set_display_color_range(color_range=COLOR_RANGE_B)
-    slider_src.setMinimumHeight(25)
-    FloatSliderWidget()
-
-    cursor_scale_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-    cursor_scale_slider.setMinimum(-100)
-    cursor_scale_slider.setMaximum(100)
-
-    text_editor = QtWidgets.QTextEdit()
-    text_editor.setMaximumHeight(120)
-    text_editor.setTabStopDistance(
-        QtGui.QFontMetricsF(text_editor.font()).horizontalAdvance(" ") * 4
-    )
-    text_editor.setText(
-        "QFrame{\n"
-        "    border-radius: 0px;"
-        "    qproperty-cursor_circle: 0;"
-        "\n}\n\n"
-        "QFrame#FloatGradientSliderCursor{\n"
-        "    max-width: 10px"
-        "\n}"
-    )
-
-    def set_cursor_scale(new_value: int):
-        scale = (new_value + 100) / 100
-        slider_src.slider.set_cursor_scale(scale)
-        cursor_scale_slider.setToolTip(str(scale))
-
-    def set_stylesheet():
-        text = text_editor.toPlainText()
-        slider_src.setStyleSheet(text)
-
-    cursor_scale_slider.valueChanged.connect(set_cursor_scale)
-    text_editor.textChanged.connect(set_stylesheet)
-    set_stylesheet()
-
-    layout.addWidget(cursor_scale_slider)
-    layout.addWidget(text_editor)
-    layout.addWidget(slider_src)
-
-    window.add_layout(layout)
-    window.show()
-
-    sys.exit(app.exec_())
 
 
 def show():
@@ -162,35 +101,6 @@ def show():
         widget.set_cursor_scale(cursor_scale)
         layout.addWidget(widget)
 
-    layout.addWidget(QtWidgets.QLabel("<h1>FloatSliderWidget</h1>"))
-
-    layout.addWidget(QtWidgets.QLabel("[-10,10] range"))
-    widget = FloatSliderWidget()
-    widget.set_display_color_range(color_range=COLOR_RANGE_B)
-    widget.minimum = -10
-    widget.maximum = 10
-    layout.addWidget(widget)
-
-    layout.addWidget(QtWidgets.QLabel("default"))
-    widget = FloatSliderWidget()
-    layout.addWidget(widget)
-
-    layout.addWidget(QtWidgets.QLabel("regular, no stylesheet"))
-    widget = FloatSliderWidget()
-    widget.setStyleSheet("QFrame{border: unset;}")
-    layout.addWidget(widget)
-
-    layout.addWidget(QtWidgets.QLabel("max 25, css min-height"))
-    widget = FloatSliderWidget()
-    widget.setStyleSheet("QFrame{border: unset; min-height: 35px;}")
-    widget.maximum = 25
-    layout.addWidget(widget)
-
-    layout.addWidget(QtWidgets.QLabel("allow_out_of_range"))
-    widget = FloatSliderWidget()
-    widget.allow_out_of_range(True)
-    layout.addWidget(widget)
-
     window.add_layout(layout)
     window.show()
 
@@ -198,4 +108,4 @@ def show():
 
 
 if __name__ == "__main__":
-    interactive_test()
+    show()
