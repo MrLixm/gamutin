@@ -144,6 +144,17 @@ class FloatSliderWidget(QtWidgets.QWidget):
         """
         self.slider.set_display_color_range(color_range=color_range)
 
+    def set_step(self, step: float):
+        """
+        Change how much value is incremented when asked.
+
+        Args:
+            step: usually much smaller than the minumun-maximum range
+        """
+        if not self._out_of_range_allowed:
+            step = min(max(step, self.minimum), self.maximum)
+        self.field_value.setSingleStep(step)
+
     def update_slider(self):
         """
         Update data displayed in the slider.
