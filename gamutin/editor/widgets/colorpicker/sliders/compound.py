@@ -20,6 +20,12 @@ class FloatSliderWidget(QtWidgets.QWidget):
     Widget to select a single float value.
 
     Made of a combo box displaying the current value and a horizontal slider.
+
+    Styling
+    =======
+
+    - The value field is a QDoubleSpinBox than can be retrieved via the name ``FloatValueField``
+    - The slider is a QFrame that can be retrieved via the name ``FloatGradientSlider``
     """
 
     value_changed_signal = QtCore.Signal()
@@ -44,11 +50,15 @@ class FloatSliderWidget(QtWidgets.QWidget):
 
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.field_value.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed,
+        self.field_value.setMinimumWidth(65)
+        self.field_value.setDecimals(4)
+        self.slider.setSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            self.slider.sizePolicy().verticalPolicy(),
         )
         self.field_value.setSingleStep(0.01)
+        self.slider.setObjectName("FloatGradientSlider")
+        self.field_value.setObjectName("FloatValueField")
 
         # 4. Connections
         self.slider.value_changed_signal.connect(self.on_value_slider_changed)
@@ -133,6 +143,26 @@ class FloatSliderWidget(QtWidgets.QWidget):
         self._value = self.field_value.value()
         self.update_slider()
         self.value_changed_signal.emit()
+
+    def set_cursor_circle(self, is_circle: bool):
+        """
+        Set the shape of the cursor to a circle or to rectangle (still editable via stylesheets).
+
+        Args:
+            is_circle: True to have the cursor as a circle.
+        """
+        self.slider.set_cursor_circle(is_circle)
+
+    def set_cursor_scale(self, scale: float):
+        """
+        Set the scale of the cursor relative to the available height.
+
+        Values above one make the cursor bigger than the slider.
+
+        Args:
+            scale: where 1 == full height, > 1 = smaller cursor than slider, ...
+        """
+        self.slider.set_cursor_scale(scale)
 
     def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
         """
