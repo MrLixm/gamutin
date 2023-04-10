@@ -35,9 +35,10 @@ class ColorEditWidget(QtWidgets.QWidget):
         # 3. Modify
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.tabwidget.setTabPosition(self.tabwidget.South)
+        self.tab_rgb.setObjectName("ColorEditRgbModelWidget")
 
         # 4. Connections
-
+        self.tab_rgb.color_changed_signal.connect(self.on_tab_rgb_changed)
         return
 
     def set_color(self, color: RGBAData):
@@ -45,9 +46,15 @@ class ColorEditWidget(QtWidgets.QWidget):
         Set the color being edited, encoded in the given colorspace (might be None).
         """
         self._color = color
+        self.tab_rgb.set_color(color)
+        self.color_changed_signal.emit()
 
     def get_color(self) -> RGBAData:
         """
         Get the color currently edited, encoded in the workspace colorspace.
         """
         return self._color
+
+    def on_tab_rgb_changed(self):
+        self._color = self.tab_rgb.get_color()
+        self.color_changed_signal.emit()
