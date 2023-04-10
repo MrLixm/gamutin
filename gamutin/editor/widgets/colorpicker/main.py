@@ -22,6 +22,7 @@ class ColorPickerWidget(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
+        self._updating: bool = False
         # 1. Create
         self.layout = QtWidgets.QVBoxLayout()
         self.compound_display = ColorDisplayWidget()
@@ -60,14 +61,27 @@ class ColorPickerWidget(QtWidgets.QWidget):
         return self.compound_display.get_display_color()
 
     def on_display_color_changed(self):
+        if self._updating:
+            return
+
+        self._updating = True
         new_color = self.compound_display.get_color()
         self.compound_edit.set_color(new_color)
         self.color_changed_signal.emit()
+        self._updating = False
 
     def on_display_colorspace_changed(self):
         self.display_colorspace_changed_signal.emit()
 
     def on_edited_color_changed(self):
+        if self._updating:
+            return
+
+        self._updating = True
         new_color = self.compound_edit.get_color()
+        new_color = new_color.as_colorspace(
+            self.compound_display.get_workspace_colorspace()
+        )
         self.compound_display.set_color(new_color)
         self.color_changed_signal.emit()
+        self._updating = False
