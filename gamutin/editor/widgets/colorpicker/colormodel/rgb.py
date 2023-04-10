@@ -8,6 +8,7 @@ from Qt import QtGui
 from gamutin.core.color import RGBAData
 from gamutin.editor.widgets.colorpicker.colormodel import BaseColorEditModelWidget
 from gamutin.editor.widgets.colorpicker.sliders import FloatSliderWidget
+from gamutin.editor.widgets.colorspaceselector import ColorspaceSelector
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,8 @@ class ColorEditRgbModelWidget(BaseColorEditModelWidget):
         self.slider_r = FloatSliderWidget()
         self.slider_g = FloatSliderWidget()
         self.slider_b = FloatSliderWidget()
+        self.colorspace_selector = ColorspaceSelector()
+        self.checkbox_colorspace = QtWidgets.QCheckBox()
 
         # 2. Add
         self.setLayout(self.layout)
@@ -37,6 +40,8 @@ class ColorEditRgbModelWidget(BaseColorEditModelWidget):
         self.layout.addWidget(self.slider_g, 1, 1)
         self.layout.addWidget(self.label_b, 2, 0)
         self.layout.addWidget(self.slider_b, 2, 1)
+        self.layout.addWidget(self.checkbox_colorspace, 3, 0)
+        self.layout.addWidget(self.colorspace_selector, 3, 1, 1, -1)
 
         # 3. Modify
         self.layout.setContentsMargins(*(15,) * 4)
@@ -65,7 +70,19 @@ class ColorEditRgbModelWidget(BaseColorEditModelWidget):
             slider.allow_out_of_range(True)
             slider.value_changed_signal.connect(self.color_changed_signal.emit)
 
+        self.colorspace_selector.setObjectName("ColorspaceSelector")
+        self.label_r.setObjectName("LabelR")
+        self.label_g.setObjectName("LabelG")
+        self.label_b.setObjectName("LabelB")
+        self.checkbox_colorspace.setToolTip("Disable to not specify any colorspace.")
+
         # 4. Connections
+        self.checkbox_colorspace.stateChanged.connect(self.on_checkbox_changed)
+        self.colorspace_selector.colorspace_changed_signal.connect(
+            self.on_colorspace_changed
+        )
+
+        self.on_checkbox_changed()
         return
 
     def set_color(self, color: RGBAData):
@@ -85,4 +102,27 @@ class ColorEditRgbModelWidget(BaseColorEditModelWidget):
             self.slider_r.value,
             self.slider_g.value,
             self.slider_b.value,
+            colorspace=self.get_colorspace(),
         )
+
+    def get_colorspace(self):
+        """
+        Get the current colorspace in which the RGB value are supposed to be expressed.
+        """
+        if self.checkbox_colorspace.isChecked():
+            return self.colorspace_selector.get_current_colorspace()
+        return None
+
+    def on_colorspace_changed(self, new_colorspace):
+        logger.debug(
+            f"[{self.__class__.__name__}][on_colorspace_changed] {new_colorspace=}"
+        )
+        self.color_changed_signal.emit()
+
+    def on_checkbox_changed(self):
+        is_checked = self.checkbox_colorspace.isChecked()
+        logger.debug(
+            f"[{self.__class__.__name__}][on_colorspace_changed] {is_checked=}"
+        )
+        self.colorspace_selector.setEnabled(is_checked)
+        self.color_changed_signal.emit()
