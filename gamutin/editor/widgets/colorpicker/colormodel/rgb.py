@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class ColorEditRgbModelWidget(BaseColorEditModelWidget):
+    """
+    Widget that allow to pick a color using 3 horizontal slider.
+    """
+
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
@@ -59,12 +63,26 @@ class ColorEditRgbModelWidget(BaseColorEditModelWidget):
             slider.setMaximumHeight(35)
             slider.set_cursor_scale(0.85)
             slider.allow_out_of_range(True)
+            slider.value_changed_signal.connect(self.color_changed_signal.emit)
 
         # 4. Connections
         return
 
     def set_color(self, color: RGBAData):
-        pass
+        """
+        Set teh color visible in the interface,
+        """
+        self.slider_r.value = color.r
+        self.slider_g.value = color.g
+        self.slider_b.value = color.b
+        self.color_changed_signal.emit()
 
     def get_color(self) -> RGBAData:
-        pass
+        """
+        Get the color currently set.
+        """
+        return RGBAData(
+            self.slider_r.value,
+            self.slider_g.value,
+            self.slider_b.value,
+        )
