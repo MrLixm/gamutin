@@ -39,7 +39,7 @@ class ColorspaceSelector(PushButtonAligned):
             gamutin.core.colorspaces.get_colorspace("sRGB")
         )
         # 1. Create
-        self.menu = QtWidgets.QMenu()
+        self.menu = QtWidgets.QMenu(self)
         self.action_force_linear = QtWidgets.QAction("Force Linear Transfer-Function")
         # 2. Modify
         self.setMenu(self.menu)
@@ -74,7 +74,7 @@ class ColorspaceSelector(PushButtonAligned):
             for category in colorspace_categories:
                 menu = menu_categories.get(category)
                 if not menu:
-                    menu = QtWidgets.QMenu(category)
+                    menu = QtWidgets.QMenu(category, self)
                     menu_categories[category] = menu
 
                 action = QtWidgets.QAction(colorspace.name, self)
