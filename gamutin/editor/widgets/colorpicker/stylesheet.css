@@ -2,6 +2,16 @@ QWidget{
     background-color: transparent;
     color: #fefefe;
     border: unset;
+    font-family: Roboto, sans-serif;
+}
+QWidget:disabled{
+    color: grey;
+}
+QMenu{
+    background-color: rgb(25,25,25);
+}
+QMenu::item::selected{
+    background-color: rgb(40,40,40);
 }
 QWidget#testWindow{
     background-color: rgb(25,25,25);
@@ -22,7 +32,7 @@ QLineEdit#colorValues{
     padding-right: 10px;
 }
 QWidget#colorspaceDisplay{
-    min-height: 30px;
+    min-height: 35px;
     margin-right: 10px;
 }
 QWidget#colorspaceDisplay::menu-indicator{
@@ -56,6 +66,23 @@ colormodel
 QTabWidget::pane{
     border: unset;
     background: rgb(40,40,40);
+}
+QWidget#CompoundEdit QTabBar::tab{
+    min-width: 60px;
+    min-height: 30px;
+}
+
+QTabWidget QPushButton#ColorspaceSelector{
+    min-height: 40px;
+    padding-right: 4px;
+    border-radius: 4px;
+}
+QTabWidget QPushButton#ColorspaceSelector::menu-indicator{
+    subcontrol-origin: padding;
+    subcontrol-position: right center;
+}
+QTabWidget QPushButton#ColorspaceSelector:hover{
+    background-color: rgba(255,255,255, 0.1);
 }
 
 /*

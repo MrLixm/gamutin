@@ -36,6 +36,8 @@ class ColorPickerWidget(QtWidgets.QWidget):
         # 3. Modify
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.compound_display.setObjectName("CompoundDisplay")
+        self.compound_edit.setObjectName("CompoundEdit")
 
         # 4. Connections
         signal = self.compound_display.color_changed_signal
