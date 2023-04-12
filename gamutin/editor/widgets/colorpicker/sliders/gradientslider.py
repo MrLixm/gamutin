@@ -49,9 +49,9 @@ class FloatGradientSlider(QtWidgets.QFrame):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
         self._current_value = 0.0
-        self._color_range: list[tuple[int, QtGui.QColor]] = [
-            (0, QtGui.QColor.fromRgbF(0.0, 0.0, 0.0)),
-            (1, QtGui.QColor.fromRgbF(1.0, 1.0, 1.0)),
+        self._color_range: list[tuple[float, QtGui.QColor]] = [
+            (0.0, QtGui.QColor.fromRgbF(0.0, 0.0, 0.0)),
+            (1.0, QtGui.QColor.fromRgbF(1.0, 1.0, 1.0)),
         ]
         self._user_stylesheet: str = ""
         self._value_editing_active: bool = False
@@ -197,7 +197,7 @@ class FloatGradientSlider(QtWidgets.QFrame):
 
     cursor_circle = QtCore.Property(int, fset=set_cursor_circle)
 
-    def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
+    def set_display_color_range(self, color_range: list[tuple[float, QtGui.QColor]]):
         """
         Set the whole range of color the slider need to display starting from left and
         ending at the right.

@@ -164,7 +164,7 @@ class FloatSliderWidget(QtWidgets.QWidget):
         """
         self.slider.set_cursor_scale(scale)
 
-    def set_display_color_range(self, color_range: list[tuple[int, QtGui.QColor]]):
+    def set_display_color_range(self, color_range: list[tuple[float, QtGui.QColor]]):
         """
         Set the whole range of color the slider need to display starting from left and
         ending at the right.
