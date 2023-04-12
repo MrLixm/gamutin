@@ -118,6 +118,8 @@ class FloatGradientSlider(QtWidgets.QFrame):
             next_stop = stops[stop_index + 1]
 
             ratio = remap(current_value, current_stop[0], next_stop[0], 0.0, 1.0)
+            if 0.0 < ratio > 1.0:
+                continue
             color = color_interpolate(current_stop[1], next_stop[1], ratio)
 
             if current_value <= next_stop[0]:
@@ -203,7 +205,9 @@ class FloatGradientSlider(QtWidgets.QFrame):
         ending at the right.
 
         Args:
-            color_range: list[tuple(position, color)], where position goes from 0.0 to 1.0
+            color_range:
+                list[tuple(position, color)], where position goes from 0.0 to 1.0.
+                The position 0.0 and 1.0 MUST exist.
         """
         self._color_range = color_range
         self.update_stylesheet()
