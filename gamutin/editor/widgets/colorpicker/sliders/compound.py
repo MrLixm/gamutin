@@ -11,6 +11,7 @@ from gamutin.editor.widgets.colorpicker.sliders.gradientslider import (
     FloatGradientSlider,
 )
 from gamutin.core.mathing import remap
+from gamutin.editor.utils import block_signals
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class FloatSliderWidget(QtWidgets.QWidget):
         self._maximum: float = 1.0
         self._value: float = 0.0
         self._out_of_range_allowed: bool = False
+        self._is_updating: bool = False
 
         # 1. Create
         self.layout = QtWidgets.QHBoxLayout()
@@ -135,12 +137,12 @@ class FloatSliderWidget(QtWidgets.QWidget):
         self.field_value.setMaximum(float("inf"))
 
     def on_value_slider_changed(self):
-        self._value = self.slider.current_value
+        self.scaled_value = self.slider.current_value
         self.updated_field()
         self.value_changed_signal.emit()
 
     def on_value_field_changed(self):
-        self._value = self.field_value.value()
+        self.value = self.field_value.value()
         self.update_slider()
         self.value_changed_signal.emit()
 
@@ -189,17 +191,27 @@ class FloatSliderWidget(QtWidgets.QWidget):
         """
         Update data displayed in the slider.
         """
+        if self._is_updating:
+            return
+
+        self._is_updating = True
+
         slider_value = self._value
-        if not self._out_of_range_allowed:
-            slider_value = remap(slider_value, self.minimum, self.maximum, 0.0, 1.0)
+        slider_value = remap(slider_value, self.minimum, self.maximum, 0.0, 1.0)
         self.slider.current_value = slider_value
+
+        self._is_updating = False
 
     def updated_field(self):
         """
         Update data displayed in the value field.
         """
-        field_value = self._value
-        if not self._out_of_range_allowed:
-            field_value = remap(field_value, 0.0, 1.0, self.minimum, self.maximum)
+        if self._is_updating:
+            return
 
+        self._is_updating = True
+
+        field_value = self._value
         self.field_value.setValue(field_value)
+
+        self._is_updating = False
