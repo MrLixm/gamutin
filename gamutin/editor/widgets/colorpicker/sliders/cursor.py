@@ -1,6 +1,6 @@
 __all__ = (
     "ColorCursorWidget",
-    "ColorCursorWidgetStyle",
+    "ColorCursorWidgetShape",
 )
 
 import enum
