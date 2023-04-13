@@ -92,7 +92,7 @@ class XYZColor:
             array,
             illuminant_RGB=rgba.colorspace.whitepoint.coordinates,
             illuminant_XYZ=rgba.colorspace.whitepoint.coordinates,
-            matrix_RGB_to_XYZ=rgba.colorspace.matrix_to_XYZ,
+            chromatic_adaptation_transform=ChromaticAdaptationTransform.get_default().value,
             chromatic_adaptation_transform=ChromaticAdaptationTransform.default.value,
             cctf_decoding=rgba.colorspace.transfer_functions.decoding,
         )
@@ -129,7 +129,7 @@ class XYZColor:
             illuminant_XYZ=self.whitepoint.coordinates,
             illuminant_RGB=colorspace.whitepoint.coordinates,
             matrix_XYZ_to_RGB=colorspace.matrix_from_XYZ,
-            chromatic_adaptation_transform=ChromaticAdaptationTransform.default.value,
+            chromatic_adaptation_transform=ChromaticAdaptationTransform.get_default().value,
             cctf_encoding=colorspace.transfer_functions.encoding,
         )
         return RGBAData.from_array(converted, colorspace=colorspace, alpha=self.alpha)

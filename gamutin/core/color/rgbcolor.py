@@ -286,7 +286,7 @@ class RGBAData:
             return self.copy()
 
         if cat is True:
-            cat = ChromaticAdaptationTransform.default
+            cat = ChromaticAdaptationTransform.get_default()
         elif cat is False:
             cat = None
 

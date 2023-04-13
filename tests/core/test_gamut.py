@@ -6,7 +6,6 @@ from gamutin.core import colorspaces
 
 
 def test_pointer_gamut():
-
     array_source = numpy.array(
         [
             [[0.0, 1.0, 0.0], [0.5, 0.1, 0.3]],
@@ -29,7 +28,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=None,
     )
     array_expected = numpy.array(
@@ -48,7 +47,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=None,
     )
     array_expected = numpy.array(
@@ -67,7 +66,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.66, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=None,
     )
     array_expected = numpy.array(
@@ -86,7 +85,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.over,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=array_mask,
     )
     array_expected = numpy.array(
@@ -105,7 +104,7 @@ def test_pointer_gamut():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.add,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=array_mask,
     )
     array_expected = numpy.array(
@@ -118,7 +117,6 @@ def test_pointer_gamut():
 
 
 def test_transform_out_of_gamut_values():
-
     test_data_list = [
         # defined as: array, input_colorspace, ref_colorspace, is_invalid
         (numpy.array([1.0, 1.0, 0.0]), "itu-r-bt.2020:linear", "sRGB", True),
@@ -130,7 +128,6 @@ def test_transform_out_of_gamut_values():
     ]
 
     for test_data in test_data_list:
-
         colorspace = colorspaces.get_colorspace(test_data[1])
         reference_colorspace = colorspaces.get_colorspace(test_data[2])
 
@@ -142,7 +139,7 @@ def test_transform_out_of_gamut_values():
             valid_color=(0.033, 0.033, 0.033),
             tolerance_amount=0.0,
             blend_mode=gamut.CompositeBlendModes.over,
-            chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+            chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
             mask=None,
         )
         if test_data[3]:
@@ -154,7 +151,6 @@ def test_transform_out_of_gamut_values():
 
 
 def test_null_colorspace():
-
     array_source = numpy.array(
         [
             [[0.0, 1.0, 0.0], [0.5, 0.1, 0.3]],
@@ -172,7 +168,7 @@ def test_null_colorspace():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=None,
     )
     array_expected = numpy.array(
@@ -191,7 +187,7 @@ def test_null_colorspace():
         valid_color=(0.0, 0.0, 0.0),
         tolerance_amount=0.0,
         blend_mode=gamut.CompositeBlendModes.invalid_replace,
-        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.default,
+        chromatic_adaptation_transform=colorspaces.ChromaticAdaptationTransform.get_default(),
         mask=None,
     )
     array_expected = numpy.array(

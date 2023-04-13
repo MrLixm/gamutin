@@ -359,7 +359,13 @@ class ChromaticAdaptationTransform(enum.Enum):
     sharp = "Sharp"
     von_kries = "Von Kries"
     XYZ_scaling = "XYZ Scaling"
-    default = "Bradford"
+
+    @classmethod
+    def get_default(cls):
+        return DEFAULT_CAT
+
+
+DEFAULT_CAT: ChromaticAdaptationTransform = ChromaticAdaptationTransform.bradford
 
 
 def get_available_colorspaces() -> list[RgbColorspace]:

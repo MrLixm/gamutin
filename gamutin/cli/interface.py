@@ -109,7 +109,7 @@ def gui(source_file: str):
     "--cat",
     "--chromatic_adaptation_transform",
     type=str,
-    default=gamutin.core.colorspaces.ChromaticAdaptationTransform.default.name,
+    default=gamutin.core.colorspaces.ChromaticAdaptationTransform.get_default().name,
     help="Transform name to use for whitepoint conversions. Use `cat` command for a list of availables options.",
 )
 @click.option(
