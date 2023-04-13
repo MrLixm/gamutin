@@ -95,12 +95,13 @@ def matrix_colorspace_to_colorspace(
 def colorspace_to_XYZ(
     array: numpy.ndarray,
     source_colorspace: RgbColorspace,
-    whitepoint_XYZ: Whitepoint,
-    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform],
+    whitepoint_XYZ: Optional[Whitepoint] = None,
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform] = None,
 ) -> numpy.ndarray:
     """
     Convert given *RGB* colourspace array to *CIE XYZ* tristimulus values.
     """
+    # TODO remove source_colorspace.gamut and test
     if source_colorspace.is_no_op or source_colorspace.gamut is None:
         return array.copy()
 
@@ -108,14 +109,18 @@ def colorspace_to_XYZ(
 
     if (
         source_colorspace.transfer_functions is not None
-        and source_colorspace.transfer_functions.decoding
+        and source_colorspace.transfer_functions.decoding is not None
     ):
         with colour.utilities.domain_range_scale("ignore"):
             RGB = source_colorspace.transfer_functions.decoding(RGB)
 
     XYZ = colour.algebra.vector_dot(source_colorspace.matrix_to_XYZ, RGB)
 
-    if chromatic_adaptation_transform is not None and source_colorspace.whitepoint:
+    if (
+        chromatic_adaptation_transform is not None
+        and source_colorspace.whitepoint is not None
+        and whitepoint_XYZ is not None
+    ):
         M_CAT = matrix_chromatic_adapation_transform(
             source_colorspace.whitepoint,
             whitepoint_XYZ,
