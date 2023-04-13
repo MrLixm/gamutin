@@ -131,6 +131,45 @@ def colorspace_to_XYZ(
     return colour.utilities.from_range_1(XYZ)
 
 
+def XYZ_to_colorspace(
+    array: numpy.ndarray,
+    target_colorspace: RgbColorspace,
+    whitepoint_XYZ: Optional[Whitepoint] = None,
+    chromatic_adaptation_transform: Optional[ChromaticAdaptationTransform] = None,
+) -> numpy.ndarray:
+    """
+    Convert given *CIE XYZ* tristimulus values to given *RGB* colourspace.
+    """
+    # TODO remove target_colorspace.gamut and test
+    if target_colorspace.is_no_op or target_colorspace.gamut is None:
+        return array.copy()
+
+    XYZ = array
+
+    if (
+        chromatic_adaptation_transform is not None
+        and target_colorspace.whitepoint is not None
+        and whitepoint_XYZ is not None
+    ):
+        M_CAT = matrix_chromatic_adapation_transform(
+            whitepoint_XYZ,
+            target_colorspace.whitepoint,
+            chromatic_adaptation_transform,
+        )
+        XYZ = colour.algebra.vector_dot(M_CAT, XYZ)
+
+    RGB = colour.algebra.vector_dot(target_colorspace.matrix_from_XYZ, XYZ)
+
+    if (
+        target_colorspace.transfer_functions is not None
+        and target_colorspace.transfer_functions.encoding is not None
+    ):
+        with colour.utilities.domain_range_scale("ignore"):
+            RGB = target_colorspace.transfer_functions.encoding(RGB)
+
+    return RGB
+
+
 def colorspace_to_colorspace(
     array: numpy.ndarray,
     source_colorspace: RgbColorspace,
