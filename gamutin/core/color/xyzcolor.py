@@ -9,14 +9,14 @@ from typing import overload
 from typing import Optional
 from typing import Union
 
-import colour
 import numpy
 
 from gamutin.core.color import RGBAData
 from gamutin.core.colorspaces import RgbColorspace
 from gamutin.core.colorspaces import Whitepoint
 from gamutin.core.colorspaces import ChromaticAdaptationTransform
-
+from gamutin.core.colorspaces import colorspace_to_XYZ
+from gamutin.core.colorspaces import XYZ_to_colorspace
 
 logger = logging.getLogger(__name__)
 
@@ -45,13 +45,13 @@ class XYZColor:
     X: float
     Y: float
     Z: float
-    whitepoint: Whitepoint
+    whitepoint: Optional[Whitepoint]
     alpha: Optional[float] = None
 
     def __str__(self) -> str:
         return (
             f"{self.__class__.__name__}<(X={self.X}, Y={self.Y}, Z={self.Z}, {self.a})"
-            f"at {hex(id(self))}>"
+            f":{self.whitepoint} at {hex(id(self))}>"
         )
 
     @property
@@ -62,7 +62,7 @@ class XYZColor:
     def from_array(
         cls,
         array: numpy.ndarray,
-        whitepoint: Whitepoint,
+        whitepoint: Optional[Whitepoint] = None,
         alpha: Optional[float] = None,
     ) -> XYZColor:
         """
@@ -85,20 +85,45 @@ class XYZColor:
         return cls(array[0], array[1], array[2], whitepoint=whitepoint, alpha=alpha)
 
     @classmethod
-    def from_Rgba(cls, rgba: RGBAData):
-        array = rgba.to_array(alpha=False)
+    def from_Rgba(
+        cls,
+        rgba: RGBAData,
+        source_colorspace: RgbColorspace,
+        whitepoint_XYZ: Optional[Whitepoint] = None,
+        cat: Union[ChromaticAdaptationTransform, bool] = True,
+    ) -> XYZColor:
+        """
 
-        converted = colour.RGB_to_XYZ(
+        Args:
+            rgba:
+                RGB color value to convert.
+            source_colorspace:
+                colorspace of the input rgba color.
+                As a separate parameter to make sure it's mandatory.
+            whitepoint_XYZ:
+                target illuminant of the XYZ tuple. None means no
+                chromatic adaptation will be performed.
+            cat:
+                chromatic adaptation transform to use.
+                True to use default. False to not use any.
+        Returns:
+            XYZColor instance
+        """
+        if cat is True:
+            cat = ChromaticAdaptationTransform.get_default()
+        elif cat is False:
+            cat = None
+
+        array = rgba.to_array(alpha=False)
+        converted = colorspace_to_XYZ(
             array,
-            illuminant_RGB=rgba.colorspace.whitepoint.coordinates,
-            illuminant_XYZ=rgba.colorspace.whitepoint.coordinates,
-            chromatic_adaptation_transform=ChromaticAdaptationTransform.get_default().value,
-            chromatic_adaptation_transform=ChromaticAdaptationTransform.default.value,
-            cctf_decoding=rgba.colorspace.transfer_functions.decoding,
+            source_colorspace=source_colorspace,
+            whitepoint_XYZ=whitepoint_XYZ,
+            chromatic_adaptation_transform=cat,
         )
         return cls.from_array(
             array=converted,
-            whitepoint=rgba.colorspace.whitepoint,
+            whitepoint=whitepoint_XYZ,
             alpha=rgba.alpha,
         )
 
@@ -122,17 +147,35 @@ class XYZColor:
         """
         return numpy.array(self.to_float(alpha=alpha), dtype=numpy.core.float32)
 
-    def to_Rgba(self, colorspace: RgbColorspace) -> RGBAData:
+    def to_Rgba(
+        self,
+        colorspace: RgbColorspace,
+        cat: Union[ChromaticAdaptationTransform, bool] = True,
+    ) -> RGBAData:
+        """
+
+        Args:
+            colorspace: target colorspace of the RGB color.
+            cat:
+                 chromatic adaptation transform to use.
+                 True to use default. False to not use any.
+
+        Returns:
+            RGBA color in the given colorspace
+        """
+        if cat is True:
+            cat = ChromaticAdaptationTransform.get_default()
+        elif cat is False:
+            cat = None
+
         array = self.to_array(alpha=False)
-        converted = colour.XYZ_to_RGB(
+        rgba = XYZ_to_colorspace(
             array,
-            illuminant_XYZ=self.whitepoint.coordinates,
-            illuminant_RGB=colorspace.whitepoint.coordinates,
-            matrix_XYZ_to_RGB=colorspace.matrix_from_XYZ,
-            chromatic_adaptation_transform=ChromaticAdaptationTransform.get_default().value,
-            cctf_encoding=colorspace.transfer_functions.encoding,
+            target_colorspace=colorspace,
+            whitepoint_XYZ=self.whitepoint,
+            chromatic_adaptation_transform=cat,
         )
-        return RGBAData.from_array(converted, colorspace=colorspace, alpha=self.alpha)
+        return RGBAData.from_array(rgba, colorspace=colorspace, alpha=self.alpha)
 
     @overload
     def to_float(self, alpha: float = ...) -> tuple[float, float, float, float]:
