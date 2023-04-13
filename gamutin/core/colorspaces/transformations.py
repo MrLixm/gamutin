@@ -5,6 +5,7 @@ __all__ = (
     "colorspace_to_colorspace",
     "exr_chromaticities_to_colorspace",
     "colorspace_to_exr_chromaticities",
+    "XYZ_to_colorspace",
 )
 
 from typing import Optional
