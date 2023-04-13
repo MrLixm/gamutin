@@ -132,7 +132,7 @@ def test_RgbColorspace_fromColour():
         categories=(colorspaces.ColorspaceCategory.common,),
     )
 
-    assert colorspace.name == "sRGB"
+    assert colorspace.name == "sRGB Piecewise"
     assert colorspace.categories == (colorspaces.ColorspaceCategory.common,)
     assert colorspace.description == colour_colorspace.__doc__
     numpy.testing.assert_array_equal(
