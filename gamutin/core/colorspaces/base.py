@@ -71,11 +71,25 @@ class Whitepoint(BaseColorspaceComponent):
     CIE xy coordinates as a ndarray(2,)
     """
 
+    _coordinates_repr: str = dataclasses.field(init=False, repr=False, default="")
+    """
+    Variable used to cache the repr() of the array to avoid expensive computations
+    every time the instance need to be hashed (via _tuplerepr)
+    """
+
+    def __post_init__(self):
+        self._coordinates_repr = repr(self.coordinates)
+
+    def __setattr__(self, key, value):
+        if key == "coordinates":
+            self._coordinates_repr = repr(value)
+        super().__setattr__(key, value)
+
     def _tuplerepr(self):
         return (
             self.__class__.__name__,
             self.name,
-            repr(self.coordinates),
+            self._coordinates_repr,
         )
 
     def to_dict(self) -> dict:
@@ -100,11 +114,25 @@ class ColorspaceGamut(BaseColorspaceComponent):
 
     primaries: numpy.ndarray
 
+    _primaries_repr: str = dataclasses.field(init=False, repr=False, default="")
+    """
+    Variable used to cache the repr() of the array to avoid expensive computations
+    every time the instance need to be hashed (via _tuplerepr)
+    """
+
+    def __post_init__(self):
+        self._primaries_repr = repr(self.primaries)
+
+    def __setattr__(self, key, value):
+        if key == "primaries":
+            self._primaries_repr = repr(value)
+        super().__setattr__(key, value)
+
     def _tuplerepr(self):
         return (
             self.__class__.__name__,
             self.name,
-            repr(self.primaries),
+            self._primaries_repr,
         )
 
     def to_dict(self) -> dict:
