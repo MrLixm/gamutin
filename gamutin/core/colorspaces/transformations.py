@@ -8,6 +8,7 @@ __all__ = (
     "XYZ_to_colorspace",
 )
 
+import functools
 from typing import Optional
 
 import colour
@@ -19,6 +20,7 @@ from gamutin.core.colorspaces import ChromaticAdaptationTransform
 from gamutin.core.colorspaces import get_available_colorspaces
 
 
+@functools.lru_cache
 def matrix_chromatic_adaptation_transform(
     source_whitepoint: Whitepoint,
     target_whitepoint: Whitepoint,
