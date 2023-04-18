@@ -16,6 +16,8 @@ __all__ = (
 import logging
 
 from gamutin.core.color import RGBAData
+from gamutin.core.color import XYZColor
+from gamutin.core.color import LCHabColor
 from gamutin.core.colorspaces import PASSTHROUGH_COLORSPACE
 from gamutin.core.colorspaces import RgbColorspace
 from gamutin.core.colorspaces import sRGB_LINEAR_COLORSPACE
