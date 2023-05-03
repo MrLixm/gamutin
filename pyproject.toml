@@ -11,7 +11,7 @@ colour = { git = "https://github.com/colour-science/colour.git", tag = "v0.4.1" 
 openimageio = { path = "./vendor/OpenImageIO-2.2.18.0-cp39-cp39-win_amd64.whl" }
 PySide2 = "5.15.2.1"
 python = ">=3.9,<3.11"
-"Qt.py" = { path = "./vendor/Qt.py" }
+"Qt.pyStubed" = { path = "./vendor/Qt.py" }
 xmltodict = "^0.13"
 
 [tool.poetry.group.dev.dependencies]
