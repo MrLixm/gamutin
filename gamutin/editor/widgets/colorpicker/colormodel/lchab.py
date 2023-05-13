@@ -5,6 +5,7 @@ import logging
 from functools import lru_cache
 from typing import Any
 from typing import Generator
+from typing import Optional
 
 import numpy
 from Qt import QtWidgets
@@ -18,6 +19,7 @@ from gamutin.core.color.lchabcolor import generate_chroma_gradient
 from gamutin.core.color.lchabcolor import generate_lightness_gradient
 from gamutin.editor.widgets.colorpicker.colormodel import BaseColorEditModelWidget
 from gamutin.editor.widgets.colorpicker.sliders import FloatSliderWidget
+from gamutin.editor.widgets.colorpicker.model import GuiColorManagementControler
 
 logger = logging.getLogger(__name__)
 
@@ -114,12 +116,21 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
      of the LCHab color model.
     """
 
+    cache_samples = 80
+    """
+    Increase the accuracy of displayed gradients at the cost of performance and responsivness.
+    """
+
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
-        # TODO colorspace is hardcoded to sRGB for display
-        self.lchab_cache = LCHabCache(samples=80, colorspace=sRGB_COLORSPACE)
+        # colorspace is hardcoded to sRGB until a colormanagement is defined
+        self._lchab_cache = LCHabCache(
+            samples=self.cache_samples,
+            colorspace=sRGB_COLORSPACE,
+        )
         self._updating: bool = False
+        self._color_management: Optional[GuiColorManagementControler] = None
 
         # 1. Create
         self.layout = QtWidgets.QGridLayout()
@@ -150,7 +161,7 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
         for slider in [self.slider_h, self.slider_c, self.slider_l]:
             slider.setMaximumHeight(35)
             slider.set_cursor_scale(0.85)
-            slider.value_changed_signal.connect(self.on_slider_changed)
+            slider.value_changed_signal.connect(self._on_slider_changed)
 
         self.label_h.setObjectName("LabelH")
         self.label_c.setObjectName("LabelC")
@@ -158,36 +169,27 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
 
         # 4. Connections
 
-        self.on_slider_changed()
+        self._on_slider_changed()
         return
 
-    def set_color(self, color: LCHabColor):
-        """
-        Set the color visible in the interface,
-        """
-        self._updating = True
-        self.slider_h.value = color.hue
-        self.slider_c.value = color.chroma
-        self.slider_l.value = color.lightness
-        self._updating = False
+    def _on_slider_changed(self):
         self.color_changed_signal.emit()
-        self.update_display_gradients()
+        self._update_display_gradients()
 
-    def get_color(self) -> LCHabColor:
+    def _update_cache(self):
         """
-        Get the color currently set.
+        Update the LCHabCache instance.
         """
-        return LCHabColor(
-            hue=self.slider_h.value,
-            chroma=self.slider_c.value,
-            lightness=self.slider_l.value,
+        if not self._color_management:
+            return
+
+        self._lchab_cache = LCHabCache(
+            samples=self.cache_samples,
+            colorspace=self._color_management.display_colorspace,
         )
+        self._update_display_gradients()
 
-    def on_slider_changed(self):
-        self.color_changed_signal.emit()
-        self.update_display_gradients()
-
-    def update_display_gradients(self):
+    def _update_display_gradients(self):
         """
         Update the colored gradient displaye din each sliders depending on the
         current LCHab values set.
@@ -201,13 +203,48 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
         chroma = self.slider_c.value
         lightness = self.slider_l.value
 
-        color_range = self.lchab_cache.get_Hab(lightness, chroma)
+        color_range = self._lchab_cache.get_Hab(lightness, chroma)
         self.slider_h.set_display_color_range(color_range)
 
-        color_range = self.lchab_cache.get_C(lightness, hab)
+        color_range = self._lchab_cache.get_C(lightness, hab)
         self.slider_c.set_display_color_range(color_range)
 
-        color_range = self.lchab_cache.get_L(chroma, hab)
+        color_range = self._lchab_cache.get_L(chroma, hab)
         self.slider_l.set_display_color_range(color_range)
 
         self._updating = False
+
+    def get_color(self) -> LCHabColor:
+        """
+        Get the color currently set.
+        """
+        return LCHabColor(
+            hue=self.slider_h.value,
+            chroma=self.slider_c.value,
+            lightness=self.slider_l.value,
+        )
+
+    def get_color_management(self) -> GuiColorManagementControler:
+        """
+        Get the controller used to manage color-management.
+        """
+        return self._color_management
+
+    def set_color(self, color: LCHabColor):
+        """
+        Set the color visible in the interface,
+        """
+        self._updating = True
+        self.slider_h.value = color.hue
+        self.slider_c.value = color.chroma
+        self.slider_l.value = color.lightness
+        self._updating = False
+        self.color_changed_signal.emit()
+        self._update_display_gradients()
+
+    def set_color_management(self, color_management: GuiColorManagementControler):
+        """
+        Set the controller used to manage color-management.
+        """
+        self._color_management = color_management
+        self._update_cache()
