@@ -130,7 +130,7 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
             colorspace=sRGB_COLORSPACE,
         )
         self._updating: bool = False
-        self._color_management: Optional[GuiColorManagementControler] = None
+        self._color_management = GuiColorManagementControler()
 
         # 1. Create
         self.layout = QtWidgets.QGridLayout()
@@ -180,9 +180,6 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
         """
         Update the LCHabCache instance.
         """
-        if not self._color_management:
-            return
-
         self._lchab_cache = LCHabCache(
             samples=self.cache_samples,
             colorspace=self._color_management.display_colorspace,
@@ -247,4 +244,7 @@ class ColorEditLCHabModelWidget(BaseColorEditModelWidget):
         Set the controller used to manage color-management.
         """
         self._color_management = color_management
+        self._color_management.display_colorspace_changed_signal.connect(
+            self._update_cache
+        )
         self._update_cache()
